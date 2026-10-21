@@ -23,6 +23,19 @@ CREATE TABLE utilisateurs (
     date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe_hash, actif) VALUES
+('Direction', 'User', 'direction@gmail.com', 'direction123', TRUE),
+('Finance', 'User', 'finance@gmail.com', 'finance123', TRUE),
+('Manager', 'User', 'manager@gmail.com', 'manager123', TRUE),
+('RH', 'User', 'rh@gmail.com', 'rh123', TRUE);
+
+INSERT INTO utilisateur_roles (id_utilisateur, id_role)
+SELECT u.id_utilisateur, r.id_role
+FROM utilisateurs u JOIN roles r ON
+  (u.email='direction@gmail.com' AND r.nom='direction') OR
+  (u.email='finance@gmail.com' AND r.nom='finance') OR
+  (u.email='manager@gmail.com' AND r.nom='manager') OR
+  (u.email='rh@gmail.com' AND r.nom='RH');
 
 CREATE TABLE utilisateur_roles (
     id_utilisateur INTEGER NOT NULL
