@@ -1,0 +1,285 @@
+<div class="ct-wrap">
+    <div class="ct-container">
+        <section class="ct-intro">
+            <h2>Contrats de travail</h2>
+            <p>
+                Préparez, envoyez et négociez les contrats des candidats retenus.
+                Chaque article peut faire l'objet d'une réponse ou d'une proposition distincte.
+            </p>
+        </section>
+
+        <section class="ct-stats">
+            <div class="ct-stat-card">
+                <p>Contrats à préparer</p>
+                <h3 id="ct-statPreparation">0</h3>
+            </div>
+            <div class="ct-stat-card">
+                <p>En attente du candidat</p>
+                <h3 id="ct-statSent">0</h3>
+            </div>
+            <div class="ct-stat-card">
+                <p>Réponses à examiner</p>
+                <h3 id="ct-statReview">0</h3>
+            </div>
+            <div class="ct-stat-card">
+                <p>Négociation en cours</p>
+                <h3 id="ct-statNegotiation">0</h3>
+            </div>
+        </section>
+
+        <section class="ct-panel">
+            <div class="ct-panel-header">
+                <h3>Candidats retenus après entretien</h3>
+                <input id="ctSearchInput" type="search" placeholder="Rechercher un candidat..." />
+            </div>
+            <div class="ct-table-wrapper">
+                <table class="ct-table">
+                    <thead>
+                        <tr>
+                            <th>Candidat</th>
+                            <th>Poste</th>
+                            <th>Contrat</th>
+                            <th>État</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ctCandidateTable"></tbody>
+                </table>
+            </div>
+            <div id="ctEmptyMessage" class="ct-empty-message" style="display: none;">
+                Aucun candidat trouvé.
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Edit Contract Modal -->
+<div class="ct-modal-overlay" id="ctEditModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2>Préparer le contrat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctEditModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body">
+            <p class="ct-small-muted" style="margin-bottom: 20px;">
+                Complétez les informations puis prévisualisez le contrat avant de l'envoyer.
+            </p>
+            <div class="ct-form-grid">
+                <div class="ct-form-group">
+                    <label for="ctCompanyName">Entreprise</label>
+                    <input id="ctCompanyName" value="Entreprise Exemple" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctCompanyAddress">Adresse</label>
+                    <input id="ctCompanyAddress" value="Antananarivo, Madagascar" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctCandidateName">Candidat</label>
+                    <input id="ctCandidateName" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctJobTitle">Poste</label>
+                    <input id="ctJobTitle" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctContractType">Type de contrat</label>
+                    <select id="ctContractType">
+                        <option>CDI</option>
+                        <option>CDD</option>
+                        <option>Stage</option>
+                    </select>
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctContractDuration">Durée</label>
+                    <input id="ctContractDuration" value="Indéterminée" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctStartDate">Date de début</label>
+                    <input type="date" id="ctStartDate" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctWorkLocation">Lieu de travail</label>
+                    <input id="ctWorkLocation" value="Antananarivo" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctSalary">Rémunération mensuelle</label>
+                    <input id="ctSalary" placeholder="Ex. : 1 500 000 Ar" />
+                </div>
+                <div class="ct-form-group">
+                    <label for="ctWorkHours">Horaires</label>
+                    <input id="ctWorkHours" placeholder="Ex. : 40 heures par semaine" />
+                </div>
+                <div class="ct-form-group ct-full">
+                    <label for="ctBenefits">Avantages complémentaires</label>
+                    <textarea id="ctBenefits" placeholder="Transport, repas, primes..."></textarea>
+                </div>
+            </div>
+
+            <h3 style="color: var(--ct-navy); margin: 22px 0 15px;">Articles du contrat</h3>
+            <div class="ct-form-group">
+                <label for="ctArticle1">Article 1 — Poste et fonctions</label>
+                <textarea id="ctArticle1">Le salarié exercera les fonctions correspondant au poste proposé. Ses missions seront définies selon les besoins de l'entreprise.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle2">Article 2 — Durée du contrat</label>
+                <textarea id="ctArticle2">Le contrat est conclu selon le type et la durée indiqués ci-dessus, sous réserve des dispositions légales applicables.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle3">Article 3 — Rémunération</label>
+                <textarea id="ctArticle3">Le salarié percevra la rémunération mensuelle indiquée dans les informations contractuelles, selon les modalités applicables.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle4">Article 4 — Horaires et lieu de travail</label>
+                <textarea id="ctArticle4">Le salarié exercera ses fonctions au lieu indiqué et respectera les horaires convenus, dans le respect des règles applicables.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle5">Article 5 — Obligations des parties</label>
+                <textarea id="ctArticle5">Le salarié accomplira ses missions avec sérieux. L'employeur respectera ses obligations envers le salarié.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle6">Article 6 — Avantages complémentaires</label>
+                <textarea id="ctArticle6">Les avantages complémentaires éventuels seront précisés selon les conditions convenues entre les parties.</textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctArticle7">Article 7 — Dispositions complémentaires</label>
+                <textarea id="ctArticle7">Les parties respecteront les dispositions du présent contrat et les lois et règlements applicables.</textarea>
+            </div>
+
+            <div class="ct-notice">
+                Ce modèle doit être vérifié et adapté au droit du travail applicable à Madagascar avant toute utilisation officielle.
+            </div>
+        </div>
+        <div class="ct-modal-footer">
+            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctEditModal')">Annuler</button>
+            <button class="ct-btn ct-btn-orange" onclick="ctPreviewContract()">👁 Prévisualiser</button>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="ct-modal-overlay" id="ctPreviewModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2>Prévisualisation du contrat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctPreviewModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body">
+            <div id="ctContractDocument" class="ct-contract-document"></div>
+        </div>
+        <div class="ct-modal-footer">
+            <button class="ct-btn ct-btn-outline" onclick="window.print()">🖨 Imprimer / PDF</button>
+            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctPreviewModal')">Retour</button>
+            <button class="ct-btn ct-btn-green" onclick="ctSendContract()">📩 Envoyer au candidat</button>
+        </div>
+    </div>
+</div>
+
+<!-- Candidate Response Modal -->
+<div class="ct-modal-overlay" id="ctCandidateResponseModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2 id="ctCandidateModalTitle">Espace candidat — Contrat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctCandidateResponseModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body">
+            <div class="ct-candidate-banner">
+                <h3 id="ctCandidateViewName">Bonjour !</h3>
+                <p>
+                    Pour chaque article, choisissez Accepter, Refuser ou Compléter / proposer une modification.
+                    Si vous refusez ou demandez une modification, expliquez votre choix.
+                </p>
+            </div>
+            <div id="ctCandidateArticles"></div>
+            <div class="ct-candidate-final">
+                <h3>Transmission de vos réponses</h3>
+                <p>Vérifiez vos choix avant de les transmettre à la RH.</p>
+                <div class="ct-form-group">
+                    <label for="ctCandidateGeneralComment">Commentaire général (facultatif)</label>
+                    <textarea id="ctCandidateGeneralComment" placeholder="Votre commentaire..."></textarea>
+                </div>
+                <label class="ct-radio-option" style="margin-bottom: 15px;">
+                    <input type="checkbox" id="ctCandidateConfirm" />
+                    Je confirme avoir examiné les articles et souhaite transmettre mes réponses.
+                </label>
+                <button class="ct-btn ct-btn-green" style="width: 100%; padding: 14px;" onclick="ctSubmitCandidateResponses()">
+                    Envoyer mes réponses à la RH
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div class="ct-modal-overlay" id="ctReviewModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2>Examiner la réponse du candidat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctReviewModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body" id="ctReviewContent"></div>
+        <div class="ct-modal-footer">
+            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctReviewModal')">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Decision Modal -->
+<div class="ct-modal-overlay" id="ctDecisionModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2>Répondre à la proposition du candidat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctDecisionModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body">
+            <p class="ct-small-muted" id="ctDecisionIntro" style="margin-bottom: 18px;"></p>
+            <div class="ct-proposal-box" id="ctDecisionProposal"></div>
+            <div class="ct-form-group">
+                <label>Décision de la RH</label>
+                <div class="ct-radio-options">
+                    <label class="ct-radio-option">
+                        <input type="radio" name="ctHrDecision" value="accept" checked onchange="ctToggleDecisionFields()" />
+                        Accepter la condition proposée
+                    </label>
+                    <label class="ct-radio-option">
+                        <input type="radio" name="ctHrDecision" value="reject" onchange="ctToggleDecisionFields()" />
+                        Refuser la condition proposée
+                    </label>
+                </div>
+            </div>
+            <div class="ct-form-group" id="ctAcceptedTextGroup">
+                <label for="ctAcceptedText">Texte de l'article après accord</label>
+                <textarea id="ctAcceptedText"></textarea>
+                <span class="ct-small-muted">Vous pouvez reprendre la proposition du candidat ou reformuler l'article convenu.</span>
+            </div>
+            <div class="ct-form-group" id="ctRejectedTextGroup" style="display: none;">
+                <label for="ctAlternativeText">Condition alternative proposée par la RH</label>
+                <textarea id="ctAlternativeText" placeholder="Proposez une autre formulation ou condition..."></textarea>
+            </div>
+            <div class="ct-form-group">
+                <label for="ctHrComment">Message du RH au candidat</label>
+                <textarea id="ctHrComment" placeholder="Expliquez votre décision au candidat..."></textarea>
+            </div>
+            <div class="ct-notice">
+                Après l'envoi, le statut passera à <strong>« En attente de la réponse du candidat »</strong>.
+            </div>
+        </div>
+        <div class="ct-modal-footer">
+            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctDecisionModal')">Annuler</button>
+            <button class="ct-btn ct-btn-orange" onclick="ctSendHRDecision()">📩 Envoyer la réponse au candidat</button>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div class="ct-modal-overlay" id="ctInfoModal">
+    <div class="ct-modal">
+        <div class="ct-modal-header">
+            <h2 id="ctInfoTitle">Détails du contrat</h2>
+            <button class="ct-close-btn" onclick="ctCloseModal('ctInfoModal')">&times;</button>
+        </div>
+        <div class="ct-modal-body" id="ctInfoContent"></div>
+        <div class="ct-modal-footer">
+            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctInfoModal')">Fermer</button>
+        </div>
+    </div>
+</div>

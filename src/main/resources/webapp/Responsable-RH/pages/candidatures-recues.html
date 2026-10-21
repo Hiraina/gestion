@@ -1,0 +1,105 @@
+<div class="applications-page">
+    <div class="content">
+            <div class="ui-page-heading page-heading">
+                <div>
+                    <h1>Candidatures reçues</h1>
+                    <p>Consultez les dossiers des candidats et sélectionnez les profils à retenir pour la suite du recrutement.</p>
+                </div>
+                <div class="offer-tag">💼 Offre : <strong>Développeur web</strong></div>
+            </div>
+            <section class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <div>
+                        <p class="stat-label">Total des candidatures</p>
+                        <p class="stat-value" id="totalCandidates">4</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">✓</div>
+                    <div>
+                        <p class="stat-label">Candidats présélectionnés</p>
+                        <p class="stat-value" id="selectedCandidates">0</p>
+                    </div>
+                </div>
+            </section>
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Liste des candidats</h2>
+                    <p>Consultez les informations de chaque candidat ou présélectionnez son dossier.</p>
+                </div>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span>⌕</span>
+                        <input type="search" id="searchInput" placeholder="Rechercher un candidat..." aria-label="Rechercher un candidat">
+                    </div>
+                    <div class="results-count" id="resultsCount">4 candidats affichés</div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Candidat</th><th>Date de candidature</th><th>Actions</th></tr></thead>
+                        <tbody id="candidatesTable">
+                            <tr data-name="Rakoto Jean" data-email="jean.rakoto@example.com">
+                                <td><div class="candidate-info"><div class="candidate-avatar">RJ</div><div><p class="candidate-name">Rakoto Jean</p><p class="candidate-email">jean.rakoto@example.com</p></div></div></td>
+                                <td><span class="date">20/10/2026</span></td>
+                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="1">Présélectionner</button></div></td>
+                            </tr>
+                            <tr data-name="Rasoanaivo Sarah" data-email="sarah.rasoanaivo@example.com">
+                                <td><div class="candidate-info"><div class="candidate-avatar">RS</div><div><p class="candidate-name">Rasoanaivo Sarah</p><p class="candidate-email">sarah.rasoanaivo@example.com</p></div></div></td>
+                                <td><span class="date">19/10/2026</span></td>
+                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="2">Présélectionner</button></div></td>
+                            </tr>
+                            <tr data-name="Andria Paul" data-email="paul.andria@example.com">
+                                <td><div class="candidate-info"><div class="candidate-avatar">AP</div><div><p class="candidate-name">Andria Paul</p><p class="candidate-email">paul.andria@example.com</p></div></div></td>
+                                <td><span class="date">18/10/2026</span></td>
+                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="3">Présélectionner</button></div></td>
+                            </tr>
+                            <tr data-name="Randria Marie" data-email="marie.randria@example.com">
+                                <td><div class="candidate-info"><div class="candidate-avatar">RM</div><div><p class="candidate-name">Randria Marie</p><p class="candidate-email">marie.randria@example.com</p></div></div></td>
+                                <td><span class="date">17/10/2026</span></td>
+                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="4">Présélectionner</button></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">🔎</div>
+                        <h3>Aucun candidat trouvé</h3>
+                        <p>Essayez avec un autre nom ou une autre adresse e-mail.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="modal-overlay" id="candidateModal" role="dialog" aria-modal="true" aria-labelledby="modalName" aria-hidden="true">
+            <div class="modal">
+                <div class="modal-header">
+                    <div><h2 id="modalName"></h2><p id="modalEmail"></p></div>
+                    <button type="button" class="close-modal" data-close-modal aria-label="Fermer">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-candidate">
+                        <div class="modal-avatar" id="modalAvatar"></div>
+                        <div><h3 id="detailName"></h3><p id="detailEmail"></p></div>
+                    </div>
+                    <h3 class="section-title">Informations du candidat</h3>
+                    <div class="details-grid">
+                        <div><p class="detail-label">Téléphone</p><p class="detail-value" id="detailPhone"></p></div>
+                        <div><p class="detail-label">E-mail</p><p class="detail-value" id="detailEmailCopy"></p></div>
+                        <div><p class="detail-label">Date de candidature</p><p class="detail-value" id="detailDate"></p></div>
+                        <div><p class="detail-label">Offre</p><p class="detail-value" id="detailJob"></p></div>
+                        <div><p class="detail-label">Type de contrat</p><p class="detail-value" id="detailContract"></p></div>
+                    </div>
+                    <h3 class="section-title">Documents transmis</h3>
+                    <div class="document-list">
+                        <div class="document-item"><div class="document-left"><div class="document-icon">📄</div><div><p class="document-name">Curriculum vitæ</p><p class="document-format" id="cvFormat"></p></div></div><a class="document-link" id="cvLink">Indisponible</a></div>
+                        <div class="document-item"><div class="document-left"><div class="document-icon">✉️</div><div><p class="document-name">Lettre de motivation</p><p class="document-format" id="letterFormat"></p></div></div><a class="document-link" id="letterLink">Indisponible</a></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-close" data-close-modal>Fermer</button>
+                    <button type="button" class="btn btn-select" id="modalSelectButton">Présélectionner</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

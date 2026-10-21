@@ -1,3 +1,17 @@
+/* Chemin de contexte de l'application (meta context-path) et dossier de l'espace
+   de travail (body[data-dossier]) : les URLs restent valides quel que soit le
+   context path ou le dossier de la vue. */
+function appBaseUrl() {
+  var meta = document.querySelector('meta[name="context-path"]');
+  var path = meta ? meta.getAttribute("content") || "/" : "/";
+  if (path.charAt(path.length - 1) !== "/") path += "/";
+  return path;
+}
+
+function appDossier() {
+  return document.body ? document.body.getAttribute("data-dossier") || "" : "";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   var mainContent = document.getElementById("main-content");
   if (!mainContent) {
@@ -21,7 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.currentPage = page;
     window.currentPageId = id;
 
-    fetch("pages/" + page + ".html")
+    var url = appBaseUrl() + appDossier() + "/pages/" + page + ".html";
+
+    fetch(url)
       .then(function (res) {
         if (!res.ok) throw new Error("Failed: " + res.status);
         return res.text();

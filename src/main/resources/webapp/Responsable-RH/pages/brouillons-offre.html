@@ -1,0 +1,234 @@
+<div class="bo-wrap">
+
+    <main class="container">
+
+        <!-- TITRE -->
+        <div class="ui-page-heading page-heading">
+
+            <div>
+                <h1>Brouillons des offres</h1>
+
+                <p>
+                    Retrouvez les offres que vous avez enregistrées pour
+                    continuer leur préparation avant publication.
+                </p>
+            </div>
+
+            <a href="#" data-page="suivi-validations" class="btn btn-primary">
+                ← Retour au suivi
+            </a>
+
+        </div>
+
+        <!-- STATISTIQUES -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+
+                <div>
+                    <div class="stat-label">Total des brouillons</div>
+                    <div class="stat-value" id="totalDrafts">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🕒</div>
+
+                <div>
+                    <div class="stat-label">Modifiés récemment</div>
+                    <div class="stat-value" id="recentDrafts">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+
+                <div>
+                    <div class="stat-label">Demandes concernées</div>
+                    <div class="stat-value" id="linkedRequests">0</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- LISTE DES BROUILLONS -->
+        <section class="content-card">
+
+            <div class="content-header">
+
+                <div>
+                    <h2>Mes offres en préparation</h2>
+                    <p>
+                        Reprenez la rédaction là où vous l'avez laissée.
+                    </p>
+                </div>
+
+                <span class="count-badge" id="draftCountBadge">
+                    0 brouillon
+                </span>
+
+            </div>
+
+            <!-- RECHERCHE ET FILTRES -->
+            <div class="filters">
+
+                <div class="search-box">
+                    <span>⌕</span>
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Rechercher un poste ou une référence..."
+                        aria-label="Rechercher un brouillon"
+                    >
+                </div>
+
+                <select id="departmentFilter" aria-label="Filtrer par département">
+                    <option value="">Tous les départements</option>
+                    <option value="Informatique">Informatique</option>
+                    <option value="Ressources humaines">Ressources humaines</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Comptabilité">Comptabilité</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Administration">Administration</option>
+                    <option value="Logistique">Logistique</option>
+                </select>
+
+                <select id="sortFilter" aria-label="Trier les brouillons">
+                    <option value="recent">Dernière modification</option>
+                    <option value="oldest">Plus anciens</option>
+                    <option value="title">Ordre alphabétique</option>
+                </select>
+
+            </div>
+
+            <!-- TABLEAU -->
+            <div class="table-wrapper" id="tableWrapper">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Offre / Référence</th>
+                            <th>Département</th>
+                            <th>Contrat</th>
+                            <th>Dernière modification</th>
+                            <th>Responsable RH</th>
+                            <th>État</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="draftTableBody">
+
+                        <!-- Les lignes sont générées en JavaScript -->
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- AUCUN RESULTAT -->
+            <div class="empty-state" id="emptyState">
+
+                <div class="empty-icon">📂</div>
+
+                <h3>Aucun brouillon trouvé</h3>
+
+                <p id="emptyMessage">
+                    Aucun brouillon ne correspond à votre recherche.
+                </p>
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="resetFiltersButton"
+                >
+                    Réinitialiser les filtres
+                </button>
+
+            </div>
+
+            <!-- BAS DU TABLEAU -->
+            <div class="table-footer" id="tableFooter">
+
+                <span id="resultCount">
+                    Affichage de 0 brouillon
+                </span>
+
+                <span>
+                    Les brouillons ne sont pas encore publiés.
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODALE DE SUPPRESSION -->
+    <div class="modal" id="deleteModal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2>Supprimer le brouillon</h2>
+
+                <button
+                    type="button"
+                    class="close-modal"
+                    id="closeModalButton"
+                    aria-label="Fermer"
+                >
+                    &times;
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="modal-job">
+                    <strong id="deleteJobTitle">Développeur web</strong>
+                    <span id="deleteJobReference">Demande DEM-001</span>
+                </div>
+
+                <p>
+                    Voulez-vous vraiment supprimer ce brouillon ?
+                </p>
+
+                <p>
+                    Cette action supprimera le brouillon de la liste de
+                    démonstration. Elle ne supprimera pas la demande RH
+                    initiale.
+                </p>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="cancelDeleteButton"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="confirmDeleteButton"
+                >
+                    Supprimer le brouillon
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="toast" id="toast" role="status"></div>
+
+</div>

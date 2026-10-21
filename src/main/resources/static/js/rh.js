@@ -2,8 +2,8 @@
    RH - Espace de travail commun
    =========================================
    Ce fichier pilote les pages RH suivantes :
-   - views/Responsable-RH/pages/publication-offre.html
-   - views/Responsable-RH/pages/brouillons-offre.html
+   - Responsable-RH/pages/publication-offre.html
+   - Responsable-RH/pages/brouillons-offre.html
 
    MODE DEMONSTRATION
    Les données sont actuellement simulées.
@@ -158,7 +158,7 @@ var RHDrafts = (function () {
 
   /* Données de démonstration.
      Elles reprennent les demandes validées listées dans
-     views/Responsable-RH/pages/suivi-validations.html. */
+     Responsable-RH/pages/suivi-validations.html. */
   var DEMO_REQUESTS = {
     "DEM-001": {
       reference: "DEM-001",
@@ -993,7 +993,7 @@ var RHDrafts = (function () {
    RH - Brouillons des offres
    =========================================
    Pilote la page
-   views/Responsable-RH/pages/brouillons-offre.html
+   Responsable-RH/pages/brouillons-offre.html
 
    Les brouillons sont stockés dans le navigateur (localStorage).
    ========================================= */
@@ -1493,7 +1493,7 @@ var RHDrafts = (function () {
    RH - Suivi des offres publiées
    =========================================
    Pilote la page
-   views/Responsable-RH/pages/suivi-offres-publiees.html
+   Responsable-RH/pages/suivi-offres-publiees.html
 
    Les filtres s'appliquent sur les lignes du tableau
    (données de démonstration).
