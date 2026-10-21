@@ -1,0 +1,61 @@
+<div class="ui-page">
+  <header class="ui-head">
+    <div class="ui-head-text">
+      <p class="ui-eyebrow">Suivi financier</p>
+      <h1 class="ui-title">Rapport financier des recrutements</h1>
+      <p class="ui-lead">Synthèse destinée à éclairer les décisions de la Finance et de la Direction.</p>
+    </div>
+    <div class="ui-actions"><button type="button" class="ui-btn ui-btn-primary" data-toast="Export PDF en cours de génération…">Exporter en PDF</button><button type="button" class="ui-btn ui-btn-outline" data-toast="Export Excel en cours de génération…">Exporter en Excel</button></div>
+  </header>
+
+  <section class="ui-stats" aria-label="Indicateurs">
+    <article class="ui-stat">
+      <div class="ui-stat-top"><span class="ui-stat-label">Budget total demandé</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></span></div>
+      <p class="ui-stat-value">120 000 000 <small>Ar</small></p>
+    </article>
+    <article class="ui-stat">
+      <div class="ui-stat-top"><span class="ui-stat-label">Budget total approuvé</span><span class="ui-stat-icon is-green"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span></div>
+      <p class="ui-stat-value">85 000 000 <small>Ar</small></p>
+    </article>
+    <article class="ui-stat">
+      <div class="ui-stat-top"><span class="ui-stat-label">Coût des recrutements réalisés</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-money"/></svg></span></div>
+      <p class="ui-stat-value">87 500 000 <small>Ar</small></p>
+    </article>
+    <article class="ui-stat">
+      <div class="ui-stat-top"><span class="ui-stat-label">Écart global</span><span class="ui-stat-icon is-red"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></span></div>
+      <p class="ui-stat-value">+2 500 000 <small>Ar</small></p>
+      <p class="ui-stat-note">Dépassement du budget approuvé</p>
+    </article>
+  </section>
+
+<div class="ui-grid-2">
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Répartition des budgets par période</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
+    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Octobre 2026</span><span>45 M</span></div><div class="ui-bar" role="img" aria-label="Octobre 2026 : 45 M"><i style="width:100%"></i></div></div>
+      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Novembre 2026</span><span>32 M</span></div><div class="ui-bar" role="img" aria-label="Novembre 2026 : 32 M"><i style="width:71%"></i></div></div>
+      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Décembre 2026</span><span>18 M</span></div><div class="ui-bar" role="img" aria-label="Décembre 2026 : 18 M"><i style="width:40%"></i></div></div>
+      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Janvier 2027</span><span>10 M</span></div><div class="ui-bar" role="img" aria-label="Janvier 2027 : 10 M"><i style="width:22%"></i></div></div></div></div>
+  </section>
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Prévisions vs réels</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
+    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Prévu</span><span>85 M</span></div><div class="ui-bar is-accent" role="img" aria-label="Prévu : 85 M"><i style="width:97%"></i></div></div>
+      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Réel</span><span>87,5 M</span></div><div class="ui-bar is-accent" role="img" aria-label="Réel : 87,5 M"><i style="width:100%"></i></div></div></div></div>
+  </section>
+</div>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Écarts entre prévisions et dépenses réelles</h2><p class="ui-card-sub"></p></div></div>
+    
+    <div class="ui-table-wrap">
+      <table class="ui-table">
+        <thead><tr><th>Référence</th><th>Poste</th><th class="num">Budget prévu</th><th class="num">Coût réel</th><th>Écart</th><th>Écart %</th></tr></thead>
+        <tbody>
+          <tr><td class="ref">DEM-001</td><td>Développeur</td><td class="num">12 000 000 Ar</td><td class="num">11 000 000 Ar</td><td><span class="ui-badge is-success">−1 000 000 Ar</span></td><td><span class="ui-badge is-success">−8,3 %</span></td></tr>
+          <tr><td class="ref">DEM-002</td><td>Comptable</td><td class="num">6 000 000 Ar</td><td class="num">6 500 000 Ar</td><td><span class="ui-badge is-danger">+500 000 Ar</span></td><td><span class="ui-badge is-danger">+8,3 %</span></td></tr>
+          <tr><td class="ref">DEM-004</td><td>Chargée de contenu</td><td class="num">2 500 000 Ar</td><td class="num">2 500 000 Ar</td><td><span class="ui-badge is-neutral">0 Ar</span></td><td><span class="ui-badge is-neutral">0 %</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+  </section>
+</div>

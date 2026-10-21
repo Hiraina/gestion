@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="context-path" th:content="@{/}" />
     <title>Connexion · Carrière+</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
-    <link rel="stylesheet" href="../assets/css/design.css" />
-    <link rel="stylesheet" href="../assets/css/login.css" />
+    <link rel="stylesheet" th:href="@{/css/design.css}" />
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
   </head>
 
   <body class="login-page">
     <main class="login-layout">
       <aside class="login-aside" aria-hidden="true">
         <div class="login-brand">
-          <img class="login-brand-mark" src="../assets/img/logo.png" alt="" />
+          <img class="login-brand-mark" th:src="@{/img/logo.png}" alt="" />
           <span class="login-brand-name">Carrière+</span>
         </div>
         <div class="login-aside-body">
@@ -33,7 +34,7 @@
       <section class="login-panel">
         <div class="login-card">
           <div class="login-brand login-brand-mobile">
-            <img class="login-brand-mark" src="../assets/img/logo.png" alt="" />
+            <img class="login-brand-mark" th:src="@{/img/logo.png}" alt="" />
             <span class="login-brand-name">Carrière+</span>
           </div>
 
@@ -72,6 +73,6 @@
       </section>
     </main>
 
-    <script src="../assets/js/login.js"></script>
+    <script th:src="@{/js/login.js}"></script>
   </body>
 </html>

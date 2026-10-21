@@ -1,0 +1,31 @@
+<div class="ui-page">
+  <header class="ui-head">
+    <div class="ui-head-text">
+      <p class="ui-eyebrow">Nouvelle demande</p>
+      <h1 class="ui-title">Demande de besoin en personnel</h1>
+      <p class="ui-lead">Renseignez votre besoin en trois étapes.</p>
+    </div>
+    
+  </header>
+
+  <section class="ui-card"><div class="ui-card-body ui-form-body">
+  <form id="besoin-form" novalidate>
+    <ol class="ui-stepper" aria-label="Progression du formulaire">
+      <li class="is-active" data-step-dot="1"><span>1</span><em>Informations générales</em></li>
+      <li data-step-dot="2"><span>2</span><em>Nature du besoin</em></li>
+      <li data-step-dot="3"><span>3</span><em>Caractéristiques du poste</em></li>
+    </ol>
+    <div id="step-1" class="form-step active"><h3 class="ui-step-title">Informations générales</h3><div class="ui-form-grid"><div class="ui-field"><label for="date_demande">Date de la demande</label><input class="ui-input" type="date" id="date_demande" name="date_demande" value="2026-10-17" required></div><div class="ui-field"><label for="manager">Manager demandeur</label><input class="ui-input" type="text" id="manager" name="manager" value="Rakoto Jean"></div><div class="ui-field"><label for="departement">Département</label><select class="ui-select" id="departement" name="departement" required><option value="">Sélectionner</option><option value="informatique" selected>Informatique</option><option value="rh">Ressources humaines</option><option value="finance">Finance</option><option value="commercial">Commercial</option><option value="marketing">Marketing</option><option value="production">Production</option><option value="administration">Administration</option></select></div><div class="ui-field"><label for="service">Service / Section</label><select class="ui-select" id="service" name="service" required><option value="">Sélectionner</option><option value="developpement" selected>Développement</option><option value="infrastructure">Infrastructure</option><option value="support">Support informatique</option><option value="securite">Sécurité informatique</option></select></div></div></div>
+    <div id="step-2" class="form-step"><h3 class="ui-step-title">Nature du besoin</h3><div class="ui-form-grid"><div class="ui-field"><label for="type_besoin">Type de besoin</label><select class="ui-select" id="type_besoin" name="type_besoin" required><option value="">Sélectionner</option><option value="creation_poste">Création de poste</option><option value="remplacement_definitif">Remplacement définitif</option><option value="remplacement_temporaire">Remplacement temporaire</option><option value="renforcement_temporaire">Renforcement temporaire de l'équipe</option><option value="promotion">Promotion interne</option></select></div><div class="ui-field"><label for="effectif">Nombre de personnes demandées</label><input class="ui-input" type="number" id="effectif" name="effectif" value="2" min="1" required></div><div class="ui-field"><label for="poste">Intitulé du poste</label><select class="ui-select" id="poste" name="poste" required><option value="">Sélectionner</option><option value="developpeur">Développeur web</option><option value="analyste">Analyste informatique</option><option value="administrateur_bd">Administrateur de base de données</option><option value="technicien">Technicien informatique</option><option value="chef_projet">Chef de projet</option><option value="responsable_service">Responsable de service</option><option value="autre">Autre poste</option></select></div><div class="ui-field is-full"><label for="description">Motif détaillé du besoin</label><textarea class="ui-textarea" id="description" name="description" rows="5" placeholder="Expliquez pourquoi ce recrutement est nécessaire…" required></textarea></div></div></div>
+    <div id="step-3" class="form-step"><h3 class="ui-step-title">Caractéristiques du poste <span class="ui-optional">Facultatif</span></h3><div class="ui-form-grid"><div class="ui-field is-full"><label for="competences">Compétences requises</label><textarea class="ui-textarea" id="competences" name="competences" rows="4" placeholder="Exemple : Java, SQL, développement web…"></textarea></div><div class="ui-field"><label for="experience">Expérience souhaitée</label><select class="ui-select" id="experience" name="experience"><option value="">Sélectionner</option><option value="debutant">Débutant</option><option value="1-2">1 à 2 ans</option><option value="3-5">3 à 5 ans</option><option value="5+">Plus de 5 ans</option></select></div><div class="ui-field"><label for="contrat">Type de contrat envisagé</label><select class="ui-select" id="contrat" name="contrat"><option value="">Sélectionner</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="stage">Stage</option><option value="autre">Autre</option></select></div><div class="ui-field"><label for="date_prise_poste">Date souhaitée de prise de poste</label><input class="ui-input" type="date" id="date_prise_poste" name="date_prise_poste"></div><div class="ui-field"><label for="duree">Durée prévue (si temporaire)</label><select class="ui-select" id="duree" name="duree"><option value="">Sélectionner</option><option value="1_mois">1 mois</option><option value="3_mois">3 mois</option><option value="6_mois">6 mois</option><option value="12_mois">12 mois</option><option value="autre">Autre durée</option></select></div></div></div>
+    <div id="besoin-feedback" class="ui-note" role="status" hidden style="margin-top:24px"></div>
+    <div class="ui-actions ui-form-actions">
+      <button type="button" id="prev-btn" class="ui-btn ui-btn-outline">Précédent</button>
+      <button type="button" id="next-btn" class="ui-btn ui-btn-dark">Suivant</button>
+      <button type="submit" id="submit-btn" name="action" value="soumettre" class="ui-btn ui-btn-primary hidden">Soumettre la demande</button>
+      <button type="submit" id="draft-btn" name="action" value="brouillon" class="ui-btn ui-btn-outline hidden">Enregistrer comme brouillon</button>
+      <button type="reset" id="reset-btn" class="ui-btn ui-btn-ghost hidden">Réinitialiser</button>
+    </div>
+  </form>
+  </div></section>
+</div>

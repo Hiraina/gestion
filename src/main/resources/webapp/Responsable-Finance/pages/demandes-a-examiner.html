@@ -1,0 +1,28 @@
+<div class="ui-page">
+  <header class="ui-head">
+    <div class="ui-head-text">
+      <p class="ui-eyebrow">Budget et validation</p>
+      <h1 class="ui-title">Demandes à examiner</h1>
+      <p class="ui-lead">Demandes transmises à la Finance pour vérification budgétaire.</p>
+    </div>
+    
+  </header>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Demandes de recrutement</h2><p class="ui-card-sub">5 demandes en cours d'examen</p></div></div>
+    <div class="ui-filters" data-filter-table><div class="ui-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="finance-search" placeholder="Rechercher une référence ou un poste" aria-label="Rechercher une référence ou un poste"></div><select id="finance-filter-manager" aria-label="Manager demandeur"><option value="">Manager demandeur</option><option value="M. Dubois">M. Dubois</option><option value="Mme Leroy">Mme Leroy</option><option value="M. Martin">M. Martin</option></select><select id="finance-filter-statut" aria-label="Statut de l'examen"><option value="">Statut de l'examen</option><option value="En attente">En attente</option><option value="Examiné">Examiné</option></select></div>
+    <div class="ui-table-wrap">
+      <table class="ui-table">
+        <thead><tr><th>Référence</th><th>Poste</th><th class="num">Personnes</th><th class="num">Budget estimé</th><th>Manager</th><th>Soumission</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="demandes-tbody">
+          <tr><td class="ref">DEM-001</td><td>Développeur</td><td class="num">2</td><td class="num">12 000 000 Ar</td><td>M. Dubois</td><td>15/10/2026</td><td><span class="ui-badge is-pending">En attente</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
+          <tr><td class="ref">DEM-002</td><td>Comptable</td><td class="num">1</td><td class="num">6 000 000 Ar</td><td>Mme Leroy</td><td>16/10/2026</td><td><span class="ui-badge is-pending">En attente</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
+          <tr><td class="ref">DEM-003</td><td>Technicien</td><td class="num">3</td><td class="num">15 000 000 Ar</td><td>M. Dubois</td><td>17/10/2026</td><td><span class="ui-badge is-info">Examiné</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
+          <tr><td class="ref">DEM-004</td><td>Chargée de contenu</td><td class="num">1</td><td class="num">2 500 000 Ar</td><td>Mme Leroy</td><td>18/10/2026</td><td><span class="ui-badge is-pending">En attente</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
+          <tr><td class="ref">DEM-005</td><td>Assistant RH</td><td class="num">1</td><td class="num">1 800 000 Ar</td><td>M. Martin</td><td>18/10/2026</td><td><span class="ui-badge is-pending">En attente</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ui-table-foot"><span>5 demandes</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a><a href="#" class="">2</a></nav></div>
+  </section>
+</div>

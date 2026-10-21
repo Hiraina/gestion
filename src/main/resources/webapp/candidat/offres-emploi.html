@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="context-path" th:content="@{/}" />
+  <title>Offres d'emploi | Carrière+</title>
+  <meta name="description" content="Découvrez les offres d'emploi ouvertes chez Carrière+ et postulez au poste qui vous ressemble.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="cand-body" th:attr="data-dossier=${dossier}">
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="#top" class="logo">
+        <img class="logo-icon" th:src="@{/img/logo.png}" alt="" />
+        <span>Carrière<span class="logo-plus">+</span></span>
+      </a>
+
+      <nav aria-label="Navigation principale">
+        <ul class="nav-links">
+          <li><a href="#top">Accueil</a></li>
+          <li><a href="#offres">Offres d'emploi</a></li>
+          <li><a href="#entreprise">Notre entreprise</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <a href="#offres" class="nav-contact">Voir les offres</a>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <span class="hero-tag">Espace recrutement</span>
+        <h1>Le poste qui vous ressemble vous <span class="accent">attend</span></h1>
+        <p class="hero-lead">
+          Rejoignez une entreprise en plein développement. Parcourez nos offres ouvertes,
+          filtrez selon vos critères et candidatez en quelques minutes.
+        </p>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong id="hero-offer-count">6</strong>
+            <span>offres disponibles</span>
+          </div>
+          <div class="hero-stat">
+            <strong>4</strong>
+            <span>départements</span>
+          </div>
+          <div class="hero-stat">
+            <strong>3</strong>
+            <span>types de contrat</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-panel">
+        <h2>Pourquoi nous rejoindre ?</h2>
+        <p>Un environnement de travail stimulant, orienté résultats et développement.</p>
+        <ul>
+          <li><span>✓</span><span>Formation continue et plan de carrière personnalisé</span></li>
+          <li><span>✓</span><span>Package salarial et avantages sociaux</span></li>
+          <li><span>✓</span><span>Équipe proche, projets variées et autonomy</span></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="search-section" id="search-panel">
+    <div class="container">
+      <div class="search-panel">
+        <div class="search-field">
+          <label for="search">Recherche</label>
+          <div class="input-wrap">
+            <span class="field-icon" aria-hidden="true">🔍</span>
+            <input type="text" id="search" placeholder="Titre du poste, département..." autocomplete="off">
+          </div>
+        </div>
+
+        <div class="search-field">
+          <label for="department">Département</label>
+          <div class="input-wrap">
+            <span class="field-icon" aria-hidden="true">🏢</span>
+            <select id="department">
+              <option value="">Tous les départements</option>
+              <option value="Informatique">Informatique</option>
+              <option value="Ressources Humaines">Ressources Humaines</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Administration">Administration</option>
+              <option value="Commercial">Commercial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="search-field">
+          <label for="contract">Type de contrat</label>
+          <div class="input-wrap">
+            <span class="field-icon" aria-hidden="true">📄</span>
+            <select id="contract">
+              <option value="">Tous les contrats</option>
+              <option value="CDI">CDI</option>
+              <option value="CDD">CDD</option>
+              <option value="Alternance">Alternance</option>
+              <option value="Freelance">Freelance</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" id="search-button" class="search-button">Rechercher</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="offers-section" id="offres">
+    <div class="container">
+      <div class="list-header">
+        <div>
+          <span class="section-eyebrow">Nos opportunités</span>
+          <h2>Offres d'emploi disponibles</h2>
+        </div>
+        <span class="results-count" id="results-number">6 offres</span>
+      </div>
+
+      <div class="offers-list" id="offers-list">
+        <article class="offer-card" data-title="Développeur web" data-department="Informatique" data-contract="CDI">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">💻</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Développeur web</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge badge-new">Nouveau</span>
+          </div>
+
+          <p class="offer-description">
+            Rejoignez notre équipe de développement pour concevoir et maintenir des
+            applications web modernes utilisées au quotidien par nos clients.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Informatique</span>
+            <span class="meta-item">📄 CDI</span>
+            <span class="meta-item">📅 12 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">Temps plein · BAC+3 en informatique</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Développeur web')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+
+        <article class="offer-card" data-title="Assistant RH" data-department="Ressources Humaines" data-contract="CDD">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">🗂️</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Assistant RH</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge">CDD</span>
+          </div>
+
+          <p class="offer-description">
+            Soutenez l'équipe RH dans le suivi du recrutement, la gestion des dossiers
+            du personnel et la préparation des/entretiens d'embauche.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Ressources Humaines</span>
+            <span class="meta-item">📄 CDD</span>
+            <span class="meta-item">📅 15 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">12 mois · Bac+2 minimum</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Assistant RH')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+
+        <article class="offer-card" data-title="Analyste financier" data-department="Finance" data-contract="CDI">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">📈</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Analyste financier</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge badge-urgent">Urgent</span>
+          </div>
+
+          <p class="offer-description">
+            Analysez les performances financières, produisez les tableaux de bord
+            et préparez les prévisions budgétaires de nos différentes filiales.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Finance</span>
+            <span class="meta-item">📄 CDI</span>
+            <span class="meta-item">📅 16 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">Temps plein · Bac+5 en finance</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Analyste financier')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+
+        <article class="offer-card" data-title="Chargé de marketing" data-department="Marketing" data-contract="Alternance">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">📣</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Chargé de marketing</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge">Alternance</span>
+          </div>
+
+          <p class="offer-description">
+            Concevez nos campagnes digitales, animez nos réseaux sociaux et mesurez
+            la performance de nos actions de communication.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Marketing</span>
+            <span class="meta-item">📄 Alternance</span>
+            <span class="meta-item">📅 18 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">2 ans en alternance · Bac+3 en marketing</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Chargé de marketing')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+
+        <article class="offer-card" data-title="Assistant administratif" data-department="Administration" data-contract="CDD">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">🗄️</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Assistant administratif</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge">CDD</span>
+          </div>
+
+          <p class="offer-description">
+            Gérez le courrier, l'accueil des visiteurs et le suivi administratif
+            des dossiers courants de notre direction.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Administration</span>
+            <span class="meta-item">📄 CDD</span>
+            <span class="meta-item">📅 19 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">6 mois · Bac+2 minimum</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Assistant administratif')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+
+        <article class="offer-card" data-title="Commercial" data-department="Commercial" data-contract="Freelance">
+          <div class="offer-card-top">
+            <div class="company-icon" aria-hidden="true">🤝</div>
+            <div class="offer-headings">
+              <h3 class="offer-title">Commercial</h3>
+              <p class="offer-company">Groupe Carrière+ · Antananarivo</p>
+            </div>
+            <span class="badge badge-new">Nouveau</span>
+          </div>
+
+          <p class="offer-description">
+            Développez notre portefeuille client, prospectez de nouveaux marchés et
+            pilotez la relation commerciale avec nos partenaires.
+          </p>
+
+          <div class="offer-meta">
+            <span class="meta-item">🏢 Commercial</span>
+            <span class="meta-item">📄 Freelance</span>
+            <span class="meta-item">📅 20 oct. 2026</span>
+          </div>
+
+          <div class="offer-footer">
+            <span class="offer-contract">Temps partiel · Expérience 1 an</span>
+            <a th:href="@{/candidat/formulaire-candidature.html(poste='Commercial')}" class="apply-button">Postuler</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty-state" id="empty-state" hidden>
+        <div class="empty-icon" aria-hidden="true">🔍</div>
+        <h3>Aucune offre ne correspond à votre recherche</h3>
+        <p>Essayez d'élargir vos critères ou remettez les filtres à zéro pour afficher toutes les offres.</p>
+        <button type="button" class="reset-button" id="reset-button">Réinitialiser les filtres</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="company-section" id="entreprise">
+    <div class="container company-grid">
+      <div>
+        <span class="section-eyebrow">Notre entreprise</span>
+        <h2>Construire votre avenir chez Carrière+</h2>
+        <p class="company-text">
+          Depuis plus de dix ans, Carrière+ accompagne ses collaborateurs dans leur
+          évolution professionnelle. Nous investissons dans la formation, la mobilité
+          interne et un environnement de travail où chacun peut contribuer.
+        </p>
+      </div>
+      <div class="company-points">
+        <div class="company-point">
+          <span class="company-point-icon" aria-hidden="true">🎓</span>
+          <div>
+            <h3>Formation</h3>
+            <p>Un plan de formation personnalisé pour chaque collaborateur.</p>
+          </div>
+        </div>
+        <div class="company-point">
+          <span class="company-point-icon" aria-hidden="true">🚀</span>
+          <div>
+            <h3>Évolution</h3>
+            <p>Des parcours internes pour grandir techniquement et humainement.</p>
+          </div>
+        </div>
+        <div class="company-point">
+          <span class="company-point-icon" aria-hidden="true">🌍</span>
+          <div>
+            <h3>Impact</h3>
+            <p>Des projets utiles engagés avec nos clients et nos partenaires.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-brand">
+            <img class="logo-icon" th:src="@{/img/logo.png}" alt="" />
+            <span>Carrière<span class="logo-plus">+</span></span>
+          </div>
+          <p class="footer-text">
+            Nous sommes toujours à la recherche de talents passionnés qui veulent
+            faire grandir notre entreprise avec nous.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="footer-title">Navigation</h3>
+          <ul class="footer-links">
+            <li><a href="#top">Accueil</a></li>
+            <li><a href="#offres">Offres d'emploi</a></li>
+            <li><a href="#entreprise">Notre entreprise</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer-title">Contact</h3>
+          <ul class="footer-links">
+            <li>recrutement@carriere-plus.mg</li>
+            <li>+261 34 00 000 00</li>
+            <li>Antananarivo, Madagascar</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="footer-copy">© 2026 Groupe Carrière+ — Tous droits réservés. Maquette de démonstration.</p>
+    </div>
+  </footer>
+
+  <script th:src="@{/js/candidat.js}"></script>
+</body>
+
+</html>

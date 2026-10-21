@@ -1,7 +1,7 @@
 /* =========================================
    ESPACE CANDIDAT - RECHERCHE D'OFFRES
    =========================================
-   Pilote la page views/candidat/offres-emploi.html :
+   Pilote la page candidat/offres-emploi.html :
    - filtre les offres via le panneau de recherche
    - met à jour le compteur de résultats
    - affiche l'état vide quand aucune offre ne correspond
@@ -119,7 +119,7 @@
 /* =========================================
    ESPACE CANDIDAT - FORMULAIRE DE CANDIDATURE
    =========================================
-   Pilote la page views/candidat/formulaire-candidature.html :
+   Pilote la page candidat/formulaire-candidature.html :
    - navigation entre les 5 étapes avec barre de progression
    - validation des champs obligatoires de chaque étape
    - sélection et suppression des fichiers (CV, lettre)

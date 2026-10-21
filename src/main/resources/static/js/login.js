@@ -1,8 +1,17 @@
+/* Chemin de contexte de l'application, injecté par Thymeleaf (meta context-path).
+   Évite les URLs relatives qui cassent dès que le context path change. */
+function appBaseUrl() {
+  var meta = document.querySelector('meta[name="context-path"]');
+  var path = meta ? meta.getAttribute("content") || "/" : "/";
+  if (path.charAt(path.length - 1) !== "/") path += "/";
+  return path;
+}
+
 const users = [
-  { email: "direction@gmail.com", password: "direction123", role: "direction", redirect: "../views/Responsable-Direction/template.html" },
-  { email: "finance@gmail.com", password: "finance123", role: "finance", redirect: "../views/Responsable-Finance/template.html" },
-  { email: "manager@gmail.com", password: "manager123", role: "manager", redirect: "../views/Responsable-Manager/template.html" },
-  { email: "rh@gmail.com", password: "rh123", role: "rh", redirect: "../views/Responsable-RH/template.html" }
+  { email: "direction@gmail.com", password: "direction123", role: "direction", view: "Responsable-Direction/template.html" },
+  { email: "finance@gmail.com", password: "finance123", role: "finance", view: "Responsable-Finance/template.html" },
+  { email: "manager@gmail.com", password: "manager123", role: "manager", view: "Responsable-Manager/template.html" },
+  { email: "rh@gmail.com", password: "rh123", role: "rh", view: "Responsable-RH/template.html" }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -31,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = users.find((u) => u.email === email && u.password === password);
 
     if (user) {
-      window.location.href = user.redirect;
+      window.location.href = appBaseUrl() + user.view;
     } else {
       showError("Adresse e-mail ou mot de passe incorrect.");
     }
