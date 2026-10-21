@@ -60,9 +60,19 @@
             <button type="submit" class="ui-btn ui-btn-primary login-btn">Se connecter</button>
           </form>
 
+          <div class="demo-box">
+            <p>Comptes de démonstration</p>
+            <div class="demo-list">
+              <button type="button" class="demo-chip" data-email="rh@gmail.com" data-password="rh123">RH</button>
+              <button type="button" class="demo-chip" data-email="manager@gmail.com" data-password="manager123">Manager</button>
+              <button type="button" class="demo-chip" data-email="finance@gmail.com" data-password="finance123">Finance</button>
+              <button type="button" class="demo-chip" data-email="direction@gmail.com" data-password="direction123">Direction</button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
 
+    <script th:src="@{/js/login.js}"></script>
   </body>
 </html>
