@@ -1,5 +1,6 @@
 -- COMPTE, RÔLES et UTILISATEURS
 
+
 CREATE TABLE roles (
     id_role SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
@@ -57,6 +58,19 @@ CREATE TABLE postes (
         OR salaire_max >= salaire_min
     )
 );
+
+CREATE TABLE besoins(
+    id_besoin SERIAL PRIMARY KEY,
+    id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
+    date_souhaitee DATE NOT NULL,
+    motif TEXT,
+    effectif INTEGER NOT NULL DEFAULT 1
+        CHECK (effectif > 0),
+    statut INT NOT NULL
+        REFERENCES statut_recrutement(id_statut_recrutement),
+
+    UNIQUE (id_poste, annee)
+)
 
 CREATE TABLE statut_emp (
     id_statut SERIAL PRIMARY KEY,
@@ -159,6 +173,22 @@ CREATE TABLE candidatures (
     UNIQUE (id_candidat, id_offre)
 );
 
+CREATE TABLE type_document (
+    id_type_document SERIAL PRIMARY KEY,
+    libelle VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE documents_candidature (
+    id_document SERIAL PRIMARY KEY,
+    id_candidature INTEGER NOT NULL
+        REFERENCES candidatures(id_candidature),
+    type_document INTEGER NOT NULL
+        REFERENCES type_document(id_type_document),
+    url_document TEXT NOT NULL,
+    date_ajout TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (id_candidature, type_document)
+);
 
 CREATE TABLE entretiens (
     id_entretien SERIAL PRIMARY KEY,
@@ -266,3 +296,32 @@ CREATE TABLE validations_financieres (
     date_decision TIMESTAMP,
     date_demande TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE type_contrat(
+    id_type_contrat SERIAL PRIMARY KEY,
+    libelle VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE contrat_travail(
+    id_contrat SERIAL PRIMARY KEY,
+    id_type_contrat INTEGER NOT NULL REFERENCES type_contrat(id_type_contrat),
+    id_proposition INTEGER NOT NULL REFERENCES propositions_embauche(id_proposition),
+    date_signature TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    duree_travail INTEGER,
+    periode_essai INTEGER,
+    date_debut DATE NOT NULL,
+    date_fin DATE,
+    salaire_mensuel NUMERIC(12, 2) NOT NULL
+        CHECK (salaire_mensuel >= 0),
+    salaire_annuel NUMERIC(14, 2)
+        GENERATED ALWAYS AS (
+            salaire_mensuel * 12
+        ) STORED,
+
+    CHECK (
+        date_fin IS NULL
+        OR date_fin >= date_debut
+    )
+);
+
+
