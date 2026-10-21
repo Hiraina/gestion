@@ -37,13 +37,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const user = users.find((u) => u.email === email && u.password === password);
-
-    if (user) {
-      window.location.href = appBaseUrl() + user.view;
-    } else {
-      showError("Adresse e-mail ou mot de passe incorrect.");
-    }
+    fetch(appBaseUrl() + "api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password })
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("invalid");
+        return res.json();
+      })
+      .then((data) => {
+        if (data && data.view) {
+          window.location.href = appBaseUrl() + data.view;
+        } else {
+          showError("Adresse e-mail ou mot de passe incorrect.");
+        }
+      })
+      .catch(() => {
+        showError("Adresse e-mail ou mot de passe incorrect.");
+      });
   });
 
   if (toggle) {
