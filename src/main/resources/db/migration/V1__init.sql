@@ -1,3 +1,25 @@
+-- Migration Flyway V1 : schema initial de l'application Carriere+
+--
+-- Source de verite du schema. Appliquee automatiquement au demarrage.
+-- Toute evolution du schema doit passer par une nouvelle migration
+-- (V2__....sql, V3__....sql) et JAMAIS par une modification de ce fichier.
+--
+-- Contenu : les 23 tables de la base + les donnees de demonstration
+-- (roles, statuts, 4 comptes utilisateurs et leurs roles).
+--
+-- Ce fichier est genere a partir de database.sql (copie de confort pour
+-- un reset manuel via psql) ; les deux doivent rester identiques.
+--
+-- Corrections appliquees par rapport a la version initiale :
+--   * utilisateur_roles : CREATE TABLE deplace avant son INSERT
+--   * "INSERT INTO TABLE statut_emp" -> "INSERT INTO statut_emp"
+--   * ";" manquant apres "CREATE TABLE statut_offre (...)"
+--   * table besoins : ";" manquant, colonne "annee" absente alors que la
+--     contrainte UNIQUE (id_poste, annee) la reference, et deplacement apres
+--     la creation de statut_recrutement dont elle depend
+--   * les INSERT de semence (utilisateurs, utilisateur_roles) sont conserves :
+--     le login de l'application lit ces tables
+
 -- COMPTE, RÔLES et UTILISATEURS
 
 
@@ -24,6 +46,11 @@ CREATE TABLE utilisateurs (
     date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe_hash, actif) VALUES
+('Direction', 'User', 'direction@gmail.com', 'direction123', TRUE),
+('Finance', 'User', 'finance@gmail.com', 'finance123', TRUE),
+('Manager', 'User', 'manager@gmail.com', 'manager123', TRUE),
+('RH', 'User', 'rh@gmail.com', 'rh123', TRUE);
 
 CREATE TABLE utilisateur_roles (
     id_utilisateur INTEGER NOT NULL
@@ -33,6 +60,14 @@ CREATE TABLE utilisateur_roles (
 
     PRIMARY KEY (id_utilisateur, id_role)
 );
+
+INSERT INTO utilisateur_roles (id_utilisateur, id_role)
+SELECT u.id_utilisateur, r.id_role
+FROM utilisateurs u JOIN roles r ON
+  (u.email='direction@gmail.com' AND r.nom='direction') OR
+  (u.email='finance@gmail.com' AND r.nom='finance') OR
+  (u.email='manager@gmail.com' AND r.nom='manager') OR
+  (u.email='rh@gmail.com' AND r.nom='RH');
 
 CREATE TABLE departements (
     id_departement SERIAL PRIMARY KEY,
@@ -59,25 +94,12 @@ CREATE TABLE postes (
     )
 );
 
-CREATE TABLE besoins(
-    id_besoin SERIAL PRIMARY KEY,
-    id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
-    date_souhaitee DATE NOT NULL,
-    motif TEXT,
-    effectif INTEGER NOT NULL DEFAULT 1
-        CHECK (effectif > 0),
-    statut INT NOT NULL
-        REFERENCES statut_recrutement(id_statut_recrutement),
-
-    UNIQUE (id_poste, annee)
-)
-
 CREATE TABLE statut_emp (
     id_statut SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
 );
 
-INSERT INTO TABLE statut_emp (nom) VALUES
+INSERT INTO statut_emp (nom) VALUES
 ('actif'),
 ('suspendu'),
 ('parti');
@@ -121,7 +143,7 @@ CREATE TABLE candidats (
 CREATE TABLE statut_offre (
     id_statut_offre SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
-)
+);
 
 INSERT INTO statut_offre (nom) VALUES
 ('brouillon'),
@@ -223,6 +245,22 @@ INSERT INTO statut_recrutement (nom) VALUES
 ('refuse'),
 ('cloture');
 
+-- DEMANDES DE BESOIN (circuit de validation manager -> direction -> RH)
+
+CREATE TABLE besoins (
+    id_besoin SERIAL PRIMARY KEY,
+    id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
+    annee INTEGER NOT NULL,
+    date_souhaitee DATE NOT NULL,
+    motif TEXT,
+    effectif INTEGER NOT NULL DEFAULT 1
+        CHECK (effectif > 0),
+    statut INT NOT NULL
+        REFERENCES statut_recrutement(id_statut_recrutement),
+
+    UNIQUE (id_poste, annee)
+);
+
 CREATE TABLE budgets_recrutement (
     id_budget SERIAL PRIMARY KEY,
     id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
@@ -268,8 +306,7 @@ CREATE TABLE propositions_embauche (
             salaire_mensuel_demande IS NULL
             OR salaire_mensuel_demande >= 0
         ),
-    statut INT NOT NULL
-        REFERENCES statut_embauche(id),
+    statut INT NOT NULL REFERENCES statut_embauche(id),
     date_proposition TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_reponse TIMESTAMP,
 
