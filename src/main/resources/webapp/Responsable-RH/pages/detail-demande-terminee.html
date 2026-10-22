@@ -1,0 +1,47 @@
+<div class="direction-request-detail">
+  <div class="container">
+    <div class="ui-page-heading page-heading">
+      <div>
+        <span class="request-number">DEMANDE N° <span id="direction-detail-id">—</span></span>
+        <h1>Détail de la demande</h1>
+        <p>Consultez les informations de la demande.</p>
+      </div>
+      <span id="direction-detail-statut" class="status">Chargement…</span>
+    </div>
+
+    <main class="request-card" id="direction-detail-content">
+      <section class="section">
+        <div class="section-title"><div class="section-number">1</div><h2>Informations générales</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Manager demandeur</span><span class="info-value" id="direction-detail-manager">—</span></div>
+          <div class="info-item"><span class="info-label">Département</span><span class="info-value" id="direction-detail-departement">—</span></div>
+          <div class="info-item"><span class="info-label">Statut</span><span class="info-value" id="direction-detail-statut-info">—</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="section-number">2</div><h2>Nature du besoin</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Poste demandé</span><span class="info-value" id="direction-detail-poste">—</span></div>
+          <div class="info-item"><span class="info-label">Nombre de personnes demandées</span><span class="info-value" id="direction-detail-effectif">—</span></div>
+          <div class="info-item"><span class="info-label">Date souhaitée de prise de poste</span><span class="info-value" id="direction-detail-date">—</span></div>
+        </div>
+        <div class="description-box">
+          <span class="info-label">Motif</span>
+          <p id="direction-detail-motif">—</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="section-number">3</div><h2>Compétences requises</h2></div>
+        <div class="description-box"><p id="direction-detail-competence">—</p></div>
+      </section>
+    </main>
+
+    <div id="direction-detail-error" class="ui-note" role="status" hidden></div>
+
+    <div class="ui-actions">
+      <a href="#page=liste-demandes" data-page="liste-demandes" class="ui-btn ui-btn-outline">Retour à la liste</a>
+    </div>
+  </div>
+</div>

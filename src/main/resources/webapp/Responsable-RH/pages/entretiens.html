@@ -23,7 +23,7 @@
                 <div class="stat-icon icon-orange">📅</div>
             </div>
 
-            <div class="stat-number" id="pendingCount">3</div>
+            <div class="stat-number" id="pendingCount">0</div>
 
             <p class="stat-description">
                 Candidats encore en attente d'entretien
@@ -36,7 +36,7 @@
                 <div class="stat-icon icon-green">✓</div>
             </div>
 
-            <div class="stat-number" id="acceptedCount">0</div>
+                    <div class="stat-number" id="acceptedCount">0</div>
 
             <p class="stat-description">
                 À intégrer dans le processus suivant
@@ -49,7 +49,7 @@
                 <div class="stat-icon icon-blue">✕</div>
             </div>
 
-            <div class="stat-number" id="rejectedCount">0</div>
+                    <div class="stat-number" id="rejectedCount">0</div>
 
             <p class="stat-description">
                 Candidatures non retenues
@@ -95,114 +95,14 @@
                 </thead>
 
                 <tbody id="interviewCandidateTable">
-                    <tr
-                        data-id="1"
-                        data-name="Rakoto Jean"
-                        data-job="Développeur web"
-                    >
-                        <td>
-                            <div class="candidate-info">
-                                <div class="candidate-avatar">RJ</div>
-                                <div>
-                                    <p class="candidate-name">Rakoto Jean</p>
-                                    <p class="candidate-email">jean.rakoto@example.com</p>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="job-name">Développeur web</span>
-                        </td>
-
-                        <td>
-                            <span class="date">20/10/2026</span>
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn btn-start"
-                                data-action-id="1"
-                                onclick="startInterview(1)"
-                            >
-                                Débuter l'entretien
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr
-                        data-id="2"
-                        data-name="Rasoanaivo Sarah"
-                        data-job="Développeur web"
-                    >
-                        <td>
-                            <div class="candidate-info">
-                                <div class="candidate-avatar">RS</div>
-                                <div>
-                                    <p class="candidate-name">Rasoanaivo Sarah</p>
-                                    <p class="candidate-email">sarah.rasoanaivo@example.com</p>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="job-name">Développeur web</span>
-                        </td>
-
-                        <td>
-                            <span class="date">19/10/2026</span>
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn btn-start"
-                                data-action-id="2"
-                                onclick="startInterview(2)"
-                            >
-                                Débuter l'entretien
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr
-                        data-id="3"
-                        data-name="Andria Paul"
-                        data-job="Développeur web"
-                    >
-                        <td>
-                            <div class="candidate-info">
-                                <div class="candidate-avatar">AP</div>
-                                <div>
-                                    <p class="candidate-name">Andria Paul</p>
-                                    <p class="candidate-email">paul.andria@example.com</p>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="job-name">Développeur web</span>
-                        </td>
-
-                        <td>
-                            <span class="date">18/10/2026</span>
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn btn-start"
-                                data-action-id="3"
-                                onclick="startInterview(3)"
-                            >
-                                Débuter l'entretien
-                            </button>
-                        </td>
-                    </tr>
+                    <tr><td colspan="4">Chargement des entretiens…</td></tr>
                 </tbody>
             </table>
 
             <div class="empty-state" id="interviewsEmptyState" style="display:none;">
                 <div style="font-size: 35px;">🔎</div>
-                <h3>Aucun candidat trouvé</h3>
-                <p>Aucun candidat ne correspond à votre recherche.</p>
+                <h3>Aucun entretien à afficher</h3>
+                <p>Aucun candidat n’a été présélectionné pour un entretien.</p>
             </div>
         </div>
     </section>
@@ -213,7 +113,7 @@
 <div
     class="interview-modal-overlay"
     id="interviewModal"
-    onclick="closeInterviewModalOutside(event)"
+    data-js-action="closeInterviewModalOutside"
     aria-hidden="true"
 >
     <div
@@ -233,7 +133,7 @@
 
             <button
                 class="interview-close-modal"
-                onclick="closeInterviewModal()"
+                data-js-action="closeInterviewModal"
                 aria-label="Fermer la fenêtre"
             >
                 &times;
@@ -242,12 +142,12 @@
 
         <div class="interview-modal-body">
             <div class="interview-candidate-summary">
-                <div class="candidate-avatar" id="interviewModalAvatar">RJ</div>
+                <div class="candidate-avatar" id="interviewModalAvatar">CA</div>
                 <div>
-                    <h3 id="interviewModalName">Rakoto Jean</h3>
-                    <p id="interviewModalEmail">jean.rakoto@example.com</p>
+                    <h3 id="interviewModalName">Candidat</h3>
+                    <p id="interviewModalEmail"></p>
                     <p id="interviewModalJob" style="margin-top: 5px;">
-                        Poste : Développeur web
+                        Poste : —
                     </p>
                 </div>
             </div>
@@ -286,14 +186,14 @@
             <div class="interview-footer-left">
                 <button
                     class="btn interview-btn-cancel"
-                    onclick="closeInterviewModal()"
+                    data-js-action="closeInterviewModal"
                 >
                     Fermer
                 </button>
 
                 <button
                     class="btn interview-btn-save"
-                    onclick="saveInterviewNotes()"
+                    data-js-action="saveInterviewNotes"
                 >
                     Enregistrer les notes
                 </button>
@@ -302,14 +202,14 @@
             <div class="interview-footer-right">
                 <button
                     class="btn interview-btn-reject"
-                    onclick="makeInterviewDecision('refuse')"
+                    data-js-action="makeInterviewDecision:refuse"
                 >
                     Refuser
                 </button>
 
                 <button
                     class="btn interview-btn-accept"
-                    onclick="makeInterviewDecision('accept')"
+                    data-js-action="makeInterviewDecision:accept"
                 >
                     Accepter
                 </button>

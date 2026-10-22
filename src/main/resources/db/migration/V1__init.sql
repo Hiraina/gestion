@@ -110,7 +110,7 @@ INSERT INTO postes (titre, description, id_departement, salaire_min, salaire_max
 ('Charge de recrutement RH', 'Gere les offres, candidatures et entretiens', 1, 400000000, 600000000, TRUE),
 ('Responsable Finance', 'Valide les budgets et les propositions salariales', 3, 700000000, 1000000000, TRUE),
 ('Analyste budgets', 'Suivi des couts du personnel et des budgets de recrutement', 3, 450000000, 650000000, TRUE),
-('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 500000000, 800000000, TRUE),
+('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 3000000, 8000000, TRUE),
 ('Responsable Marketing', 'Communication et marque employeur', 5, 550000000, 850000000, TRUE),
 ('Chef de production', 'Supervise les equipes de production', 6, 600000000, 900000000, TRUE),
 ('Commercial', 'Developpement commercial et relation client', 7, 350000000, 700000000, TRUE),
@@ -287,8 +287,59 @@ CREATE TABLE besoins (
     date_transmission_finance TIMESTAMP
 );
 
+CREATE TABLE historique_statut_besoin (
+    id_historique BIGSERIAL PRIMARY KEY,
+    id_besoin INTEGER NOT NULL REFERENCES besoins(id_besoin) ON DELETE CASCADE,
+    ancien_statut INTEGER REFERENCES statut_recrutement(id_statut_recrutement),
+    nouveau_statut INTEGER NOT NULL REFERENCES statut_recrutement(id_statut_recrutement),
+    date_changement TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION enregistrer_historique_statut_besoin()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+        VALUES (NEW.id_besoin, NULL, NEW.statut);
+    ELSIF OLD.statut IS DISTINCT FROM NEW.statut THEN
+        INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+        VALUES (NEW.id_besoin, OLD.statut, NEW.statut);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_historique_statut_besoin
+AFTER INSERT OR UPDATE OF statut ON besoins
+FOR EACH ROW EXECUTE FUNCTION enregistrer_historique_statut_besoin();
+
+CREATE INDEX idx_historique_statut_besoin_date
+    ON historique_statut_besoin (id_besoin, date_changement, id_historique);
+
 INSERT INTO besoins (id_poste, nom_manager_demandeur, date_souhaitee, motif, competance, effectif, statut, date_transmission_finance) VALUES
 (1, 'Manager Demo', CURRENT_DATE, 'Besoin valide finance', 'Competence demo', 1, (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom='validee_finance'), CURRENT_TIMESTAMP);
+
+INSERT INTO besoins (
+    id_poste,
+    nom_manager_demandeur,
+    date_souhaitee,
+    motif,
+    competance,
+    effectif,
+    statut
+)
+SELECT
+    p.id_poste,
+    'TEST RH - Brouillon',
+    CURRENT_DATE + 30,
+    'Demande temporaire pour tester la préparation d’une offre côté RH.',
+    'Compétences de test à compléter dans le brouillon.',
+    2,
+    s.id_statut_recrutement
+FROM postes p
+CROSS JOIN statut_recrutement s
+WHERE p.titre = 'Developpeur backend'
+  AND s.nom = 'valide';
 
 CREATE TABLE brouillon_demande (
     id BIGSERIAL PRIMARY KEY,
@@ -394,5 +445,74 @@ CREATE TABLE contrat_travail(
         date_fin IS NULL
         OR date_fin >= date_debut
     )
+);
+
+-- ============================================================================
+-- DONNEES DE TEST POUR LA FINANCE (budget annuel, somme utilisee, besoins)
+-- A conserver pour tester le calcul automatique de faisabilite financiere.
+-- ============================================================================
+
+-- Budget de recrutement pour le poste "Developpeur backend" (annee 2026)
+-- budget annuel dedie = nombre_postes * budget_annuel_par_personne = 1 * 50 000 000 Ar
+INSERT INTO budgets_recrutement (id_poste, annee, nombre_postes, budget_annuel_par_personne, statut, id_validateur)
+SELECT p.id_poste, 2026, 1, 50000000,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'valide'),
+       (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
+-- Besoin transmis a la Finance (statut transmis_finance) pour Developpeur backend
+INSERT INTO besoins (id_poste, date_souhaitee, motif, effectif, statut, nom_manager_demandeur)
+SELECT p.id_poste, '2026-11-01', 'Renfort equipe developpement backend', 1,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'transmis_finance'),
+       'M. Dubois'
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM besoins WHERE id_poste = p.id_poste AND date_souhaitee = '2026-11-01');
+
+-- Somme utilisee : validation financiere APPROUVEE sur ce budget (10 000 000 Ar)
+-- Cela donne un ecart disponible de 40 000 000 Ar (50M - 10M)
+-- Cout annuel total pour 1 personne a 3 000 000 Ar/mois = 36 000 000 Ar < 40M => VALIDE
+INSERT INTO offres_emploi (id_poste, titre, description, statut, id_rh)
+SELECT p.id_poste, 'Offre test Developpeur backend', 'Test calcul finance', 2, 4
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM offres_emploi WHERE titre = 'Offre test Developpeur backend');
+
+INSERT INTO candidats (nom, prenom, email)
+SELECT 'Candidat', 'Test Finance', 'test.finance@mg.mg'
+WHERE NOT EXISTS (SELECT 1 FROM candidats WHERE email = 'test.finance@mg.mg');
+
+INSERT INTO candidatures (id_candidat, id_offre, statut)
+SELECT c.id_candidat, o.id_offre, 1
+FROM candidats c, offres_emploi o
+WHERE c.email = 'test.finance@mg.mg' AND o.titre = 'Offre test Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM candidatures WHERE id_candidat = c.id_candidat AND id_offre = o.id_offre);
+
+INSERT INTO propositions_embauche (id_candidature, salaire_mensuel_propose, statut)
+SELECT ca.id_candidature, 3000000, 2
+FROM candidatures ca, offres_emploi o
+WHERE ca.id_offre = o.id_offre AND o.titre = 'Offre test Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM propositions_embauche WHERE id_candidature = ca.id_candidature AND numero_version = 1);
+
+INSERT INTO validations_financieres (id_proposition, id_budget, salaire_annuel_demande, decision, commentaire, id_financier)
+SELECT pr.id_proposition, b.id_budget, 10000000, 'APPROUVEE', 'Test somme utilisee developpeur backend', 4
+FROM propositions_embauche pr, budgets_recrutement b, postes po
+WHERE pr.id_proposition = (SELECT MAX(id_proposition) FROM propositions_embauche)
+  AND po.titre = 'Developpeur backend' AND b.id_poste = po.id_poste AND b.annee = 2026
+AND NOT EXISTS (SELECT 1 FROM validations_financieres WHERE id_proposition = pr.id_proposition);
+
+-- Budget de recrutement pour le poste "Responsable Finance" (annee 2026)
+-- Permet d'avoir un ecart disponible non nul lors de l'examen d'un besoin sur ce poste en 2026.
+INSERT INTO budgets_recrutement (id_poste, annee, nombre_postes, budget_annuel_par_personne, statut, id_validateur)
+SELECT p.id_poste, 2026, 1, 800000000,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'valide'),
+       (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
+FROM postes p WHERE p.titre = 'Responsable Finance'
+AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
+INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+SELECT b.id_besoin, NULL, b.statut
+FROM besoins b
+WHERE NOT EXISTS (
+    SELECT 1 FROM historique_statut_besoin h WHERE h.id_besoin = b.id_besoin
 );
 

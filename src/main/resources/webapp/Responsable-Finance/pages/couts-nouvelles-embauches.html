@@ -5,43 +5,37 @@
       <h1 class="ui-title">Coûts des nouvelles embauches</h1>
       <p class="ui-lead">Vérifiez que les embauches respectent les budgets approuvés. Seules les données utiles à la fonction sont affichées.</p>
     </div>
-    
   </header>
 
   <section class="ui-stats" aria-label="Indicateurs">
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Embauches en cours</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-userplus"/></svg></span></div>
-      <p class="ui-stat-value">4</p>
+      <p class="ui-stat-value" id="ce-embauches">—</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Coût total engagé</span><span class="ui-stat-icon is-orange"><svg class="icon" aria-hidden="true"><use href="#i-money"/></svg></span></div>
-      <p class="ui-stat-value">9 300 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="ce-cout-total">— <small>Ar</small></p>
       <p class="ui-stat-note">Salaires mensuels prévus</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">En attente de prise en compte</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></span></div>
-      <p class="ui-stat-value">1</p>
+      <p class="ui-stat-value" id="ce-attente">—</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Pris en compte</span><span class="ui-stat-icon is-green"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span></div>
-      <p class="ui-stat-value">3</p>
+      <p class="ui-stat-value" id="ce-pris-en-compte">—</p>
     </article>
   </section>
 
   <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Embauches suivies</h2><p class="ui-card-sub">4 embauches en suivi</p></div></div>
-    <div class="ui-filters" data-filter-table><div class="ui-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="embauche-search" placeholder="Rechercher un poste" aria-label="Rechercher un poste"></div><select id="embauche-filter-statut" aria-label="Statut financier"><option value="">Statut financier</option><option value="Pris en compte">Pris en compte</option><option value="En attente">En attente</option></select><select id="embauche-filter-departement" aria-label="Département"><option value="">Département</option><option value="Marketing">Marketing</option><option value="Développement">Développement</option><option value="Comptabilité">Comptabilité</option><option value="Ressources Humaines">Ressources Humaines</option></select></div>
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Embauches suivies</h2><p class="ui-card-sub" id="ce-sub">Embauches en suivi</p></div></div>
+    <div class="ui-filters" data-filter-table><div class="ui-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="embauche-search" placeholder="Rechercher un poste" aria-label="Rechercher un poste"></div><select id="embauche-filter-statut" aria-label="Statut financier"><option value="">Statut financier</option><option value="Pris en compte">Pris en compte</option><option value="En attente">En attente</option></select><select id="embauche-filter-departement" aria-label="Département"><option value="">Département</option></select></div>
     <div class="ui-table-wrap">
       <table class="ui-table">
         <thead><tr><th>Référence</th><th>Poste</th><th>Département</th><th>Entrée</th><th class="num">Salaire prévu</th><th class="num">Coût estimé</th><th>Statut</th><th></th></tr></thead>
-        <tbody id="embauche-tbody">
-          <tr><td class="ref">E-001</td><td>Chargée de contenu</td><td>Marketing</td><td>20/10/2026</td><td class="num">2 500 000 Ar</td><td class="num">2 500 000 Ar</td><td><span class="ui-badge is-success">Pris en compte</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">E-002</td><td>Analyste Données</td><td>Développement</td><td>22/10/2026</td><td class="num">3 000 000 Ar</td><td class="num">3 000 000 Ar</td><td><span class="ui-badge is-success">Pris en compte</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">E-003</td><td>Comptable Junior</td><td>Comptabilité</td><td>21/10/2026</td><td class="num">2 000 000 Ar</td><td class="num">2 000 000 Ar</td><td><span class="ui-badge is-pending">En attente</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">E-004</td><td>Assistant RH</td><td>Ressources Humaines</td><td>14/10/2026</td><td class="num">1 800 000 Ar</td><td class="num">1 800 000 Ar</td><td><span class="ui-badge is-success">Pris en compte</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-        </tbody>
+        <tbody id="embauche-tbody"></tbody>
       </table>
     </div>
-    <div class="ui-table-foot"><span>4 embauches</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
+    <div class="ui-table-foot"><span id="ce-total">0 embauches</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
   </section>
 </div>

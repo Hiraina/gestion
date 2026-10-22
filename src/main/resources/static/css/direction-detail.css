@@ -1,0 +1,24 @@
+.direction-request-detail .container { max-width: 1100px; margin: 0 auto; }
+.direction-request-detail .page-heading { align-items: flex-start; margin-bottom: 25px; }
+.direction-request-detail .page-heading h1 { margin: 0 0 6px; color: var(--navy); font-size: 28px; }
+.direction-request-detail .page-heading p { color: var(--text-soft); }
+.direction-request-detail .request-number { display: inline-block; margin-bottom: 5px; color: var(--text-soft); font-size: 13px; }
+.direction-request-detail .status { display: inline-block; padding: 8px 13px; border-radius: 6px; background: var(--orange-50); color: #8a5700; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.direction-request-detail .request-card { overflow: hidden; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); background: var(--white); box-shadow: 0 3px 12px rgb(20 33 61 / 4%); }
+.direction-request-detail .section { padding: 28px 30px; border-bottom: 1px solid var(--gray-100); }
+.direction-request-detail .section:last-child { border-bottom: 0; }
+.direction-request-detail .section-title { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+.direction-request-detail .section-number { display: flex; width: 35px; height: 35px; flex: 0 0 35px; align-items: center; justify-content: center; border-radius: 8px; background: var(--navy); color: var(--white); font-size: 14px; font-weight: 700; }
+.direction-request-detail .section-title h2 { color: var(--navy); font-size: 17px; }
+.direction-request-detail .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 35px; }
+.direction-request-detail .info-label { display: block; margin-bottom: 5px; color: var(--text-soft); font-size: 13px; }
+.direction-request-detail .info-value { display: block; color: var(--text); font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.direction-request-detail .description-box { margin-top: 25px; padding: 17px; border: 1px solid var(--gray-100); border-radius: 7px; background: var(--gray-50); }
+.direction-request-detail .description-box .info-label { margin-bottom: 10px; color: var(--navy); font-weight: 700; }
+.direction-request-detail .description-box p { font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.direction-request-detail .ui-actions { justify-content: flex-end; margin-top: 25px; }
+@media (max-width: 700px) {
+  .direction-request-detail .section { padding: 22px 18px; }
+  .direction-request-detail .info-grid { grid-template-columns: 1fr; gap: 18px; }
+  .direction-request-detail .page-heading { flex-wrap: wrap; }
+}

@@ -5,29 +5,28 @@
       <h1 class="ui-title">Suivi des budgets de recrutement</h1>
       <p class="ui-lead">Budgets associés aux recrutements autorisés. Le coût réel n'apparaît que s'il est enregistré.</p>
     </div>
-    
   </header>
 
   <section class="ui-stats" aria-label="Indicateurs">
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Budget prévisionnel total</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></span></div>
-      <p class="ui-stat-value">37 300 000 <small>Ar</small></p>
-      <p class="ui-stat-note">5 recrutements</p>
+      <p class="ui-stat-value" id="sb-budget-total">— <small>Ar</small></p>
+      <p class="ui-stat-note" id="sb-budget-note">recrutements</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Coût réel connu</span><span class="ui-stat-icon is-orange"><svg class="icon" aria-hidden="true"><use href="#i-money"/></svg></span></div>
-      <p class="ui-stat-value">20 000 000 <small>Ar</small></p>
-      <p class="ui-stat-note">3 recrutements chiffrés</p>
+      <p class="ui-stat-value" id="sb-cout-reel">— <small>Ar</small></p>
+      <p class="ui-stat-note" id="sb-cout-note">recrutements chiffrés</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Écart constaté</span><span class="ui-stat-icon is-green"><svg class="icon" aria-hidden="true"><use href="#i-trend"/></svg></span></div>
-      <p class="ui-stat-value">−500 000 <small>Ar</small></p>
-      <p class="ui-stat-note">Sous le budget</p>
+      <p class="ui-stat-value" id="sb-ecart">— <small>Ar</small></p>
+      <p class="ui-stat-note" id="sb-ecart-note">Sous le budget</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Recrutements suivis</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg></span></div>
-      <p class="ui-stat-value">5</p>
-      <p class="ui-stat-note">Dont 1 terminé</p>
+      <p class="ui-stat-value" id="sb-nb">—</p>
+      <p class="ui-stat-note" id="sb-nb-note">Dont 1 terminé</p>
     </article>
   </section>
 
@@ -37,15 +36,9 @@
     <div class="ui-table-wrap">
       <table class="ui-table">
         <thead><tr><th>Référence</th><th>Poste</th><th class="num">Effectif</th><th class="num">Budget prévu</th><th class="num">Coût réel</th><th>Écart</th><th>Statut</th><th></th></tr></thead>
-        <tbody id="budget-tbody">
-          <tr><td class="ref">DEM-001</td><td>Développeur</td><td class="num">2</td><td class="num">12 000 000 Ar</td><td class="num">11 000 000 Ar</td><td><span class="ui-badge is-success">−1 000 000 Ar</span></td><td><span class="ui-badge is-pending">En cours</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">DEM-002</td><td>Comptable</td><td class="num">1</td><td class="num">6 000 000 Ar</td><td class="num">6 500 000 Ar</td><td><span class="ui-badge is-danger">+500 000 Ar</span></td><td><span class="ui-badge is-pending">En cours</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">DEM-003</td><td>Technicien</td><td class="num">3</td><td class="num">15 000 000 Ar</td><td class="num">—</td><td>—</td><td><span class="ui-badge is-pending">En cours</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">DEM-004</td><td>Chargée de contenu</td><td class="num">1</td><td class="num">2 500 000 Ar</td><td class="num">2 500 000 Ar</td><td><span class="ui-badge is-neutral">0 Ar</span></td><td><span class="ui-badge is-success">Terminé</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-          <tr><td class="ref">DEM-005</td><td>Assistant RH</td><td class="num">1</td><td class="num">1 800 000 Ar</td><td class="num">—</td><td>—</td><td><span class="ui-badge is-pending">En cours</span></td><td><a href="#page=examen-financier" data-page="examen-financier" class="ui-btn ui-btn-outline ui-btn-sm" >Consulter</a></td></tr>
-        </tbody>
+        <tbody id="budget-tbody"></tbody>
       </table>
     </div>
-    <div class="ui-table-foot"><span>5 recrutements suivis</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
+    <div class="ui-table-foot"><span id="budget-total-text">0 recrutements suivis</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
   </section>
 </div>

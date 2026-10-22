@@ -4945,9 +4945,19 @@ tbody tr:last-child td {
   color: #966000;
 }
 
+.so-wrap .status-expired {
+  background: #fff2d9;
+  color: #966000;
+}
+
 .so-wrap .status-closed {
   background: #edf0f4;
   color: #697180;
+}
+
+.so-wrap .status-suspended {
+  background: #fff1e8;
+  color: #a64b16;
 }
 
 .so-wrap .application-count {
@@ -5023,6 +5033,12 @@ tbody tr:last-child td {
 
 .so-wrap .action-button:disabled .arrow {
   color: #8c929d;
+}
+
+.so-wrap .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* --- État vide --- */

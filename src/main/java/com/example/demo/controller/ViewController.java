@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.besoin.BesoinDTO;
 import com.example.demo.dto.besoin.BrouillonDemandeRequest;
+import com.example.demo.dto.besoin.ResumeManagerDTO;
 import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
@@ -11,6 +12,7 @@ import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
+import com.example.demo.service.besoin.ManagerAccueilService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.service.poste.PosteService;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -52,13 +55,15 @@ public class ViewController {
 	private final PosteService posteService;
 	private final BesoinService besoinService;
 	private final BrouillonDemandeService brouillonDemandeService;
+	private final ManagerAccueilService managerAccueilService;
 
 	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService,
-			BrouillonDemandeService brouillonDemandeService) {
+			BrouillonDemandeService brouillonDemandeService, ManagerAccueilService managerAccueilService) {
 		this.departementService = departementService;
 		this.posteService = posteService;
 		this.besoinService = besoinService;
 		this.brouillonDemandeService = brouillonDemandeService;
+		this.managerAccueilService = managerAccueilService;
 	}
 
 	/** Page principale d'un espace de travail. */
@@ -142,6 +147,24 @@ public class ViewController {
 		return besoinService.listerValides();
 	}
 
+	@GetMapping("/api/manager/suivi-besoins")
+	@ResponseBody
+	public List<Map<String, Object>> suiviBesoinsManager() {
+		return besoinService.listerSuiviManager();
+	}
+
+	@GetMapping("/api/manager/accueil")
+	@ResponseBody
+	public ResumeManagerDTO resumeAccueilManager() {
+		return managerAccueilService.obtenirResume();
+	}
+
+	@GetMapping("/api/manager/historique-besoins")
+	@ResponseBody
+	public List<Map<String, Object>> historiqueBesoinsManager() {
+		return besoinService.listerHistoriqueFinaliseManager();
+	}
+
 	@GetMapping("/{dossier}/api/besoins/{id}")
 	@ResponseBody
 	public ResponseEntity<DemandeBesoinDetailProjection> detailsBesoin(@PathVariable String dossier,
@@ -176,6 +199,21 @@ public class ViewController {
 	@ResponseBody
 	public List<DemandeBesoinDirectionProjection> besoinsAapprouverDirection() {
 		return besoinService.listerPourDirection();
+	}
+
+	@PostMapping("/api/direction/besoins/{id}/decision")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> deciderBesoinDirection(@PathVariable Integer id,
+			@RequestBody Map<String, String> request) {
+		String decision = request.get("decision");
+		if (!besoinService.deciderParDirection(id, decision)) {
+			return ResponseEntity.badRequest().body(Map.of("success", false,
+					"message", "Cette demande n’existe pas ou n’est plus en attente de décision."));
+		}
+		String message = "approuver".equals(decision)
+				? "La demande a été approuvée et ajoutée au suivi des validations."
+				: "La demande a été refusée.";
+		return ResponseEntity.ok(Map.of("success", true, "message", message));
 	}
 
 	@GetMapping("/api/finance/besoins-a-examiner")

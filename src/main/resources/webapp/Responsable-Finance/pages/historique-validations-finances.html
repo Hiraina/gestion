@@ -5,24 +5,17 @@
       <h1 class="ui-title">Historique des validations</h1>
       <p class="ui-lead">Toutes les demandes examinées par la Finance, avec traçabilité des décisions.</p>
     </div>
-    
   </header>
 
   <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Décisions financières</h2><p class="ui-card-sub">5 examens au total</p></div></div>
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Décisions financières</h2><p class="ui-card-sub" id="hist-count">Examens au total</p></div></div>
     <div class="ui-filters" data-filter-table><div class="ui-search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="hist-finance-search" placeholder="Rechercher une référence ou un poste" aria-label="Rechercher une référence ou un poste"></div><select id="hist-finance-filter-decision" aria-label="Décision"><option value="">Décision</option><option value="Validé">Validé</option><option value="Refusé">Refusé</option><option value="En attente">En attente</option></select></div>
     <div class="ui-table-wrap">
       <table class="ui-table">
         <thead><tr><th>Référence</th><th>Poste</th><th class="num">Budget examiné</th><th>Décision</th><th>Commentaire</th><th>Date</th><th>Responsable</th></tr></thead>
-        <tbody id="history-finance-tbody">
-          <tr><td class="ref">DEM-001</td><td>Développeur</td><td class="num">12 000 000 Ar</td><td><span class="ui-badge is-success">Validé</span></td><td>Budget conforme à l'enveloppe disponible.</td><td>15/10/2026</td><td>R. Finance</td></tr>
-          <tr><td class="ref">DEM-002</td><td>Comptable</td><td class="num">6 000 000 Ar</td><td><span class="ui-badge is-success">Validé</span></td><td>Coût raisonnable pour le poste.</td><td>16/10/2026</td><td>R. Finance</td></tr>
-          <tr><td class="ref">DEM-003</td><td>Technicien</td><td class="num">15 000 000 Ar</td><td><span class="ui-badge is-pending">En attente</span></td><td><span class="muted">—</span></td><td>—</td><td>—</td></tr>
-          <tr><td class="ref">DEM-004</td><td>Chargée de contenu</td><td class="num">2 500 000 Ar</td><td><span class="ui-badge is-danger">Refusé</span></td><td>Budget insuffisant pour ce poste.</td><td>17/10/2026</td><td>R. Finance</td></tr>
-          <tr><td class="ref">DEM-005</td><td>Assistant RH</td><td class="num">1 800 000 Ar</td><td><span class="ui-badge is-pending">En attente</span></td><td><span class="muted">—</span></td><td>—</td><td>—</td></tr>
-        </tbody>
+        <tbody id="history-finance-tbody"></tbody>
       </table>
     </div>
-    <div class="ui-table-foot"><span>5 examens</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
+    <div class="ui-table-foot"><span id="hist-total">0 examens</span><nav class="ui-pager" aria-label="Pagination"><a href="#" class="is-active">1</a></nav></div>
   </section>
 </div>
