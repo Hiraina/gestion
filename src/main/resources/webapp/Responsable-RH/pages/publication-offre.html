@@ -4,7 +4,7 @@
             <div>
                 <h1>Préparer une offre d'emploi</h1>
                 <p>Vérifiez les informations de la demande, complétez l'offre et prévisualisez-la avant sa publication.</p>
-                <span class="reference" id="requestReference">Demande DEM-001</span>
+                <span class="reference" id="requestReference">Nouvelle offre</span>
             </div>
         </div>
         <div class="steps">
@@ -16,21 +16,21 @@
         <div class="layout">
             <div class="main-column">
                 <section class="card">
-                    <div class="card-header"><div class="card-icon">📋</div><div><h2>Informations de la demande validée</h2><p>Informations provenant de la demande initiale</p></div></div>
+                    <div class="card-header"><div class="card-icon">📋</div><div><h2>Informations de la demande</h2><p>Les champs sont préremplis lorsqu’une demande RH est associée au brouillon.</p></div></div>
                     <div class="card-body">
                         <div class="approval-banner"><div class="approval-icon">✓</div><div><strong>Demande approuvée par la Direction</strong><p>Cette demande peut maintenant être transformée en offre d'emploi.</p></div></div>
                         <div class="info-grid">
-                            <div class="info-item"><label>Référence de la demande</label><p id="infoReference">DEM-001</p></div>
-                            <div class="info-item"><label>Date de validation</label><p id="infoApprovalDate">08/09/2026</p></div>
-                            <div class="info-item"><label>Manager demandeur</label><p id="infoManager">Rakoto Jean</p></div>
-                            <div class="info-item"><label>Département</label><p id="infoDepartment">Informatique</p></div>
-                            <div class="info-item"><label>Nombre de postes demandés</label><p id="infoPositions">2 postes</p></div>
-                            <div class="info-item"><label>Type de besoin</label><p id="infoNeedType">Renforcement d'équipe</p></div>
-                            <div class="info-item"><label>Type de contrat demandé</label><p id="infoContract">CDI</p></div>
+                            <div class="info-item"><label>Référence de la demande</label><p id="infoReference">Non associée</p></div>
+                            <div class="info-item"><label>Date de validation</label><p id="infoApprovalDate">Non enregistrée</p></div>
+                            <div class="info-item"><label>Manager demandeur</label><p id="infoManager">Non renseigné</p></div>
+                            <div class="info-item"><label>Département</label><p id="infoDepartment">À définir</p></div>
+                            <div class="info-item"><label>Nombre de postes demandés</label><p id="infoPositions">À définir</p></div>
+                            <div class="info-item"><label>Type de besoin</label><p id="infoNeedType">À préciser</p></div>
+                            <div class="info-item"><label>Type de contrat demandé</label><p id="infoContract">À préciser</p></div>
                             <div class="info-item"><label>Date souhaitée de prise de poste</label><p id="infoStartDate">À définir</p></div>
-                            <div class="info-item"><label>Expérience demandée</label><p id="infoExperience">2 ans minimum</p></div>
-                            <div class="info-item"><label>Formation demandée</label><p id="infoEducation">Bac+3 en informatique</p></div>
-                            <div class="info-item" style="grid-column:1/-1;"><label>Motif de la demande</label><p id="infoReason">Renforcement de l'équipe de développement.</p></div>
+                            <div class="info-item"><label>Expérience demandée</label><p id="infoExperience">À préciser</p></div>
+                            <div class="info-item"><label>Formation demandée</label><p id="infoEducation">À préciser</p></div>
+                            <div class="info-item" style="grid-column:1/-1;"><label>Motif de la demande</label><p id="infoReason">Aucun motif renseigné.</p></div>
                         </div>
                     </div>
                 </section>
@@ -39,16 +39,16 @@
                         <div class="card-header"><div class="card-icon">💼</div><div><h2>1. Informations générales de l'offre</h2><p>Les informations qui apparaîtront en premier sur l'annonce</p></div></div>
                         <div class="card-body">
                             <div class="form-grid">
-                                <div class="form-group full"><label for="jobTitle">Intitulé du poste <span class="required">*</span></label><input type="text" id="jobTitle" name="jobTitle" value="Développeur web" required></div>
-                                <div class="form-group"><label for="company">Nom de l'entreprise <span class="required">*</span></label><input type="text" id="company" name="company" value="Nom de votre entreprise" required></div>
-                                <div class="form-group"><label for="department">Département <span class="required">*</span></label><select id="department" name="department" required><option value="Informatique" selected>Informatique</option><option value="Ressources humaines">Ressources humaines</option><option value="Finance">Finance</option><option value="Comptabilité">Comptabilité</option><option value="Marketing">Marketing</option><option value="Commercial">Commercial</option><option value="Production">Production</option><option value="Logistique">Logistique</option><option value="Administration">Administration</option><option value="Autre">Autre</option></select></div>
-                                <div class="form-group"><label for="location">Lieu de travail <span class="required">*</span></label><input type="text" id="location" name="location" value="Antananarivo, Madagascar" required></div>
-                                <div class="form-group"><label for="workMode">Mode de travail <span class="required">*</span></label><select id="workMode" name="workMode" required><option value="Présentiel" selected>Présentiel</option><option value="Hybride">Hybride</option><option value="Télétravail">Télétravail</option></select></div>
-                                <div class="form-group"><label for="positions">Nombre de postes <span class="required">*</span></label><input type="number" id="positions" name="positions" value="2" min="1" readonly required><small class="field-help">Ce nombre provient de la demande validée.</small></div>
-                                <div class="form-group"><label for="contract">Type de contrat <span class="required">*</span></label><select id="contract" name="contract" required><option value="CDI" selected>CDI</option><option value="CDD">CDD</option><option value="Stage">Stage</option><option value="Alternance">Alternance</option><option value="Freelance">Freelance</option><option value="Intérim">Intérim</option></select></div>
-                                <div class="form-group"><label for="duration">Durée du contrat</label><input type="text" id="duration" name="duration" value="Non applicable pour un CDI"><small class="field-help">À préciser uniquement si le contrat est temporaire.</small></div>
-                                <div class="form-group"><label for="experience">Expérience requise <span class="required">*</span></label><select id="experience" name="experience" required><option value="Débutant accepté">Débutant accepté</option><option value="Moins d'un an">Moins d'un an</option><option value="1 an minimum">1 an minimum</option><option value="2 ans minimum" selected>2 ans minimum</option><option value="3 ans minimum">3 ans minimum</option><option value="5 ans minimum">5 ans minimum</option><option value="Plus de 5 ans">Plus de 5 ans</option></select></div>
-                                <div class="form-group"><label for="education">Niveau d'études <span class="required">*</span></label><select id="education" name="education" required><option value="Sans diplôme précisé">Sans diplôme précisé</option><option value="BEPC">BEPC</option><option value="Baccalauréat">Baccalauréat</option><option value="Bac+2">Bac+2</option><option value="Bac+3 en informatique" selected>Bac+3 en informatique</option><option value="Bac+4">Bac+4</option><option value="Bac+5">Bac+5</option><option value="Autre formation pertinente">Autre formation pertinente</option></select></div>
+                                <div class="form-group full"><label for="jobTitle">Intitulé du poste <span class="required">*</span></label><input type="text" id="jobTitle" name="jobTitle" required></div>
+                                <div class="form-group"><label for="company">Nom de l'entreprise <span class="required">*</span></label><input type="text" id="company" name="company" required></div>
+                                <div class="form-group"><label for="department">Département <span class="required">*</span></label><select id="department" name="department" required><option value="" selected>À choisir</option><option value="Informatique">Informatique</option><option value="Ressources humaines">Ressources humaines</option><option value="Finance">Finance</option><option value="Comptabilité">Comptabilité</option><option value="Marketing">Marketing</option><option value="Commercial">Commercial</option><option value="Production">Production</option><option value="Logistique">Logistique</option><option value="Administration">Administration</option><option value="Autre">Autre</option></select></div>
+                                <div class="form-group"><label for="location">Lieu de travail <span class="required">*</span></label><input type="text" id="location" name="location" required></div>
+                                <div class="form-group"><label for="workMode">Mode de travail <span class="required">*</span></label><select id="workMode" name="workMode" required><option value="" selected>À choisir</option><option value="Présentiel">Présentiel</option><option value="Hybride">Hybride</option><option value="Télétravail">Télétravail</option></select></div>
+                                <div class="form-group"><label for="positions">Nombre de postes <span class="required">*</span></label><input type="number" id="positions" name="positions" min="1" readonly required><small class="field-help">Ce nombre provient de la demande validée.</small></div>
+                                <div class="form-group"><label for="contract">Type de contrat <span class="required">*</span></label><select id="contract" name="contract" required><option value="" selected>À choisir</option><option value="CDI">CDI</option><option value="CDD">CDD</option><option value="Stage">Stage</option><option value="Alternance">Alternance</option><option value="Freelance">Freelance</option><option value="Intérim">Intérim</option></select></div>
+                                <div class="form-group"><label for="duration">Durée du contrat</label><input type="text" id="duration" name="duration"><small class="field-help">À préciser uniquement si le contrat est temporaire.</small></div>
+                                <div class="form-group"><label for="experience">Expérience requise <span class="required">*</span></label><select id="experience" name="experience" required><option value="" selected>À choisir</option><option value="Débutant accepté">Débutant accepté</option><option value="Moins d'un an">Moins d'un an</option><option value="1 an minimum">1 an minimum</option><option value="2 ans minimum">2 ans minimum</option><option value="3 ans minimum">3 ans minimum</option><option value="5 ans minimum">5 ans minimum</option><option value="Plus de 5 ans">Plus de 5 ans</option></select></div>
+                                <div class="form-group"><label for="education">Niveau d'études <span class="required">*</span></label><select id="education" name="education" required><option value="" selected>À choisir</option><option value="Sans diplôme précisé">Sans diplôme précisé</option><option value="BEPC">BEPC</option><option value="Baccalauréat">Baccalauréat</option><option value="Bac+2">Bac+2</option><option value="Bac+3 en informatique">Bac+3 en informatique</option><option value="Bac+4">Bac+4</option><option value="Bac+5">Bac+5</option><option value="Autre formation pertinente">Autre formation pertinente</option></select></div>
                                 <div class="form-group"><label for="startDate">Date souhaitée de prise de poste</label><input type="date" id="startDate" name="startDate" value=""></div>
                             </div>
                         </div>
@@ -57,13 +57,9 @@
                         <div class="card-header"><div class="card-icon">📝</div><div><h2>2. Présentation du poste</h2><p>Décrivez le poste et ce que le candidat devra accomplir</p></div></div>
                         <div class="card-body">
                             <div class="form-grid">
-                                <div class="form-group full"><label for="companyDescription">Présentation de l'entreprise <span class="required">*</span></label><textarea id="companyDescription" name="companyDescription" required>Rejoignez notre équipe et participez au développement de nos projets dans un environnement collaboratif et stimulant.</textarea></div>
-                                <div class="form-group full"><label for="jobDescription">Description du poste <span class="required">*</span></label><textarea id="jobDescription" name="jobDescription" required>Nous recherchons un développeur web pour participer à la conception, au développement et à l'amélioration de nos applications web.</textarea></div>
-                                <div class="form-group full"><label for="missions">Missions principales <span class="required">*</span></label><textarea id="missions" name="missions" required>Développer et maintenir des applications web.
-Collaborer avec les membres de l'équipe technique.
-Participer à l'analyse des besoins et à la conception des solutions.
-Tester les fonctionnalités et corriger les anomalies.
-Documenter les développements réalisés.</textarea><small class="field-help">Une mission par ligne.</small></div>
+                                <div class="form-group full"><label for="companyDescription">Présentation de l'entreprise <span class="required">*</span></label><textarea id="companyDescription" name="companyDescription" required></textarea></div>
+                                <div class="form-group full"><label for="jobDescription">Description du poste <span class="required">*</span></label><textarea id="jobDescription" name="jobDescription" required></textarea></div>
+                                <div class="form-group full"><label for="missions">Missions principales <span class="required">*</span></label><textarea id="missions" name="missions" required></textarea><small class="field-help">Une mission par ligne.</small></div>
                             </div>
                         </div>
                     </section>
@@ -71,15 +67,9 @@ Documenter les développements réalisés.</textarea><small class="field-help">U
                         <div class="card-header"><div class="card-icon">🎯</div><div><h2>3. Profil recherché</h2><p>Compétences et qualités attendues chez le candidat</p></div></div>
                         <div class="card-body">
                             <div class="form-grid">
-                                <div class="form-group full"><label for="skills">Compétences techniques <span class="required">*</span></label><textarea id="skills" name="skills" required>Maîtrise du HTML, CSS et JavaScript.
-Connaissances en développement web.
-Notions de bases de données et de SQL.
-Utilisation de Git et des outils de gestion de versions.</textarea><small class="field-help">Une compétence par ligne.</small></div>
-                                <div class="form-group full"><label for="qualities">Qualités personnelles</label><textarea id="qualities" name="qualities">Esprit d'équipe.
-Capacité d'analyse et de résolution de problèmes.
-Autonomie et sens de l'organisation.
-Curiosité et volonté d'apprendre.</textarea><small class="field-help">Une qualité par ligne.</small></div>
-                                <div class="form-group full"><label for="advantages">Atouts supplémentaires</label><textarea id="advantages" name="advantages">La connaissance d'un framework JavaScript et une expérience sur un projet concret seront appréciées.</textarea></div>
+                                <div class="form-group full"><label for="skills">Compétences techniques <span class="required">*</span></label><textarea id="skills" name="skills" required></textarea><small class="field-help">Une compétence par ligne.</small></div>
+                                <div class="form-group full"><label for="qualities">Qualités personnelles</label><textarea id="qualities" name="qualities"></textarea><small class="field-help">Une qualité par ligne.</small></div>
+                                <div class="form-group full"><label for="advantages">Atouts supplémentaires</label><textarea id="advantages" name="advantages"></textarea></div>
                             </div>
                         </div>
                     </section>
@@ -92,9 +82,7 @@ Curiosité et volonté d'apprendre.</textarea><small class="field-help">Une qual
                                 <div class="form-group"><label for="salaryMin">Salaire minimum</label><input type="number" id="salaryMin" name="salaryMin" min="0" placeholder="Ex. : 800000"></div>
                                 <div class="form-group"><label for="salaryMax">Salaire maximum</label><input type="number" id="salaryMax" name="salaryMax" min="0" placeholder="Ex. : 1500000"></div>
                                 <div class="form-group"><label for="salaryPeriod">Période de rémunération</label><select id="salaryPeriod" name="salaryPeriod"><option value="par mois" selected>Par mois</option><option value="par an">Par an</option><option value="par jour">Par jour</option><option value="par heure">Par heure</option></select></div>
-                                <div class="form-group full"><label for="benefits">Avantages proposés</label><textarea id="benefits" name="benefits">Environnement de travail collaboratif.
-Possibilités de formation et de développement professionnel.
-Accompagnement à la prise de poste.</textarea><small class="field-help">Indiquez uniquement les avantages réellement proposés par l'entreprise.</small></div>
+                                <div class="form-group full"><label for="benefits">Avantages proposés</label><textarea id="benefits" name="benefits"></textarea><small class="field-help">Indiquez uniquement les avantages réellement proposés par l'entreprise.</small></div>
                             </div>
                         </div>
                     </section>
@@ -110,7 +98,7 @@ Accompagnement à la prise de poste.</textarea><small class="field-help">Indique
                     <section class="card">
                         <div class="card-header"><div class="card-icon">📨</div><div><h2>6. Modalités de candidature</h2><p>Le candidat postule directement via le formulaire de l'entreprise</p></div></div>
                         <div class="card-body">
-                            <div class="form-group"><label for="applicationInstructions">Instructions pour les candidats <span class="required">*</span></label><textarea id="applicationInstructions" name="applicationInstructions" required>Remplissez le formulaire de candidature en ligne et renseignez toutes les informations demandées. Veuillez joindre votre CV et votre lettre de motivation avant de soumettre votre candidature.</textarea></div>
+                            <div class="form-group"><label for="applicationInstructions">Instructions pour les candidats <span class="required">*</span></label><textarea id="applicationInstructions" name="applicationInstructions" required></textarea></div>
                             <div class="section-divider"></div>
                             <h3 class="subheading">Aperçu du formulaire de candidature</h3>
                             <div class="candidate-preview">
