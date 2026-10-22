@@ -3,23 +3,10 @@
     <div class="ui-head-text">
       <p class="ui-eyebrow">Mes demandes</p>
       <h1 class="ui-title">Mes brouillons</h1>
-      <p class="ui-lead">Demandes enregistrées mais non soumises. Modifiez-les avant de les envoyer.</p>
+      <p class="ui-lead">Demandes enregistrées mais non soumises. Ouvrez un brouillon pour le modifier et le soumettre.</p>
     </div>
-    
   </header>
-
-  <div class="ui-request-list">
-    <article class="ui-card ui-request">
-      <div class="ui-request-head"><div><h3>Création de poste</h3><span class="ui-ref">Référence : DB-006</span></div><span class="ui-badge is-pending">Brouillon</span></div>
-      <div class="ui-info"><div><span>Département</span><strong>Informatique</strong></div><div><span>Service</span><strong>Développement</strong></div><div><span>Poste demandé</span><strong>Développeur web</strong></div><div><span>Effectif</span><strong>2 personnes</strong></div><div><span>Date de la demande</span><strong>15/10/2026</strong></div><div><span>Contrat</span><strong>CDI</strong></div></div>
-      <p class="ui-request-note"><span>Motif de la demande</span>Renforcer l'équipe de développement pour répondre aux nouveaux besoins des projets.</p>
-      <div class="ui-actions ui-request-actions"><button type="button" class="ui-btn ui-btn-outline ui-btn-sm" data-toast="Ouverture du brouillon…">Voir / modifier</button><button type="button" class="ui-btn ui-btn-ghost ui-btn-sm" data-toast="Brouillon supprimé">Supprimer</button><button type="button" class="ui-btn ui-btn-primary ui-btn-sm" data-toast="Demande soumise à la Direction des ressources humaines">Soumettre</button></div>
-    </article>
-    <article class="ui-card ui-request">
-      <div class="ui-request-head"><div><h3>Remplacement temporaire</h3><span class="ui-ref">Référence : DB-009</span></div><span class="ui-badge is-pending">Brouillon</span></div>
-      <div class="ui-info"><div><span>Département</span><strong>Finance</strong></div><div><span>Service</span><strong>Comptabilité</strong></div><div><span>Poste demandé</span><strong>Comptable</strong></div><div><span>Effectif</span><strong>1 personne</strong></div><div><span>Date de la demande</span><strong>16/10/2026</strong></div><div><span>Contrat</span><strong>CDD</strong></div></div>
-      <p class="ui-request-note"><span>Motif de la demande</span>Assurer la continuité des activités du service comptabilité pendant une absence.</p>
-      <div class="ui-actions ui-request-actions"><button type="button" class="ui-btn ui-btn-outline ui-btn-sm" data-toast="Ouverture du brouillon…">Voir / modifier</button><button type="button" class="ui-btn ui-btn-ghost ui-btn-sm" data-toast="Brouillon supprimé">Supprimer</button><button type="button" class="ui-btn ui-btn-primary ui-btn-sm" data-toast="Demande soumise à la Direction des ressources humaines">Soumettre</button></div>
-    </article>
+  <div id="manager-brouillons-list" class="ui-request-list" aria-live="polite">
+    <p class="ui-note">Chargement des brouillons…</p>
   </div>
 </div>

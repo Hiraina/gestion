@@ -6,6 +6,8 @@ public class BesoinDTO {
 
 	private Integer idPoste;
 	private Integer effectif = 1;
+	private String departement;
+	private LocalDate dateDemande;
 	private String nomManagerDemandeur;
 	private LocalDate dateSouhaitee;
 	private String motif;
@@ -28,6 +30,22 @@ public class BesoinDTO {
 
 	public void setEffectif(Integer effectif) {
 		this.effectif = effectif;
+	}
+
+	public String getDepartement() {
+		return departement;
+	}
+
+	public void setDepartement(String departement) {
+		this.departement = departement;
+	}
+
+	public LocalDate getDateDemande() {
+		return dateDemande;
+	}
+
+	public void setDateDemande(LocalDate dateDemande) {
+		this.dateDemande = dateDemande;
 	}
 
 	public String getNomManagerDemandeur() {

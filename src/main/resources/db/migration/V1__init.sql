@@ -283,6 +283,12 @@ CREATE TABLE besoins (
         REFERENCES statut_recrutement(id_statut_recrutement)
 );
 
+CREATE TABLE brouillon_demande (
+    id BIGSERIAL PRIMARY KEY,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    donnees JSONB NOT NULL
+);
+
 CREATE TABLE budgets_recrutement (
     id_budget SERIAL PRIMARY KEY,
     id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
