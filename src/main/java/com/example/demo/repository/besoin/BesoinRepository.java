@@ -39,6 +39,9 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 			+ "JOIN postes p ON p.id_poste = b.id_poste "
 			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
 			+ "WHERE LOWER(s.nom) = 'valide' "
+			+ "AND NOT EXISTS (SELECT 1 FROM offres_emploi o "
+			+ "WHERE o.description LIKE 'RH-OFFRE-JSON-V1:%' "
+			+ "AND substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{request,requestId}' = CAST(b.id_besoin AS TEXT)) "
 			+ "ORDER BY b.id_besoin DESC", nativeQuery = true)
 	List<DemandeBesoinValideProjection> listerValides();
 
@@ -97,4 +100,14 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 			+ "WHERE s.nom = 'transmis_direction' "
 			+ "ORDER BY b.id_besoin DESC", nativeQuery = true)
 	List<DemandeBesoinDirectionProjection> listerPourDirection();
+
+	@Query(value = "SELECT "
+			+ "COUNT(*) FILTER (WHERE s.nom = 'transmis_direction') AS \"enAttente\", "
+			+ "COUNT(*) FILTER (WHERE s.nom = 'valide') AS \"approuvees\", "
+			+ "COUNT(*) FILTER (WHERE s.nom = 'refuse') AS \"refusees\", "
+			+ "COUNT(*) FILTER (WHERE s.nom NOT IN ('valide', 'refuse', 'cloture')) AS \"enCours\", "
+			+ "COALESCE(SUM(p.salaire_min * 12 * b.effectif) FILTER (WHERE s.nom = 'transmis_direction'), 0) AS \"budgetAapprouver\" "
+			+ "FROM besoins b JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut "
+			+ "JOIN postes p ON p.id_poste = b.id_poste", nativeQuery = true)
+	ResumeDirectionProjection obtenirResumeDirection();
 }

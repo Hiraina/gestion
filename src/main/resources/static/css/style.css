@@ -2496,6 +2496,7 @@ tbody tr:last-child td {
 .po-wrap .notification.show { display:block; }
 .po-wrap .notification.success { background:#edf8f1; color:#176b3a; border:1px solid #c8e7d2; }
 .po-wrap .notification.error { background:#fff0f0; color:#a61b1b; border:1px solid #f1c4c4; }
+.so-wrap .offer-status-notification { margin: 0 0 18px; padding: 13px 16px; border-radius: 8px; background: #edf8f1; color: #176b3a; border: 1px solid #c8e7d2; }
 
 /* Aperçu (modale) */
 .po-wrap .modal { display:none; position:fixed; inset:0; z-index:1000; background:rgba(10,20,40,0.7); padding:20px; overflow-y:auto; }

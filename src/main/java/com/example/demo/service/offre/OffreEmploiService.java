@@ -31,6 +31,11 @@ public class OffreEmploiService {
 		return repository.lister().stream().map(this::enrichir).toList();
 	}
 
+	@Transactional(readOnly = true)
+	public List<Map<String, Object>> listerPublieesPourCandidats() {
+		return repository.listerPublieesPourCandidats().stream().map(this::enrichir).toList();
+	}
+
 	public int publier(Map<String, Object> payload) {
 		Map<String, Object> data = nestedMap(payload.get("data"));
 		Map<String, Object> request = nestedMap(payload.get("request"));
