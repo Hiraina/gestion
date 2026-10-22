@@ -5,6 +5,7 @@ import com.example.demo.dto.besoin.BrouillonDemandeRequest;
 import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
+import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
 import com.example.demo.service.departement.DepartementService;
@@ -81,6 +82,9 @@ public class ViewController {
 		addDepartements(model);
 		addPostes(model);
 		model.addAttribute("besoinDTO", new BesoinDTO());
+		if ("Responsable-RH".equals(dossier) && "liste-demandes".equals(page)) {
+			model.addAttribute("demandes", besoinService.listerPourRH());
+		}
 		return dossier + "/pages/" + page;
 	}
 
@@ -127,6 +131,16 @@ public class ViewController {
 	public List<com.example.demo.entity.besoin.BrouillonDemande> brouillons(@PathVariable String dossier) {
 		checkDossier(dossier);
 		return brouillonDemandeService.lister();
+	}
+
+	@GetMapping("/{dossier}/api/besoins/{id}")
+	@ResponseBody
+	public ResponseEntity<DemandeBesoinDetailProjection> detailsBesoin(@PathVariable String dossier,
+			@PathVariable Integer id) {
+		checkDossier(dossier);
+		return besoinService.trouverDetailsPourRH(id)
+				.map(ResponseEntity::ok)
+				.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
 	@PostMapping("/{dossier}/pages/brouillons")
