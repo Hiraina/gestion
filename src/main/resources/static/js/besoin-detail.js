@@ -44,15 +44,19 @@ function initBesoinDetail(event) {
       setValue("besoin-detail-competence", demande.competence);
 
       const transmitButton = document.getElementById("besoin-transmettre-finance");
-      const directionLink = document.getElementById("besoin-transmettre-direction");
+      const directionButton = document.getElementById("besoin-transmettre-direction");
       const feedback = document.getElementById("besoin-transmission-feedback");
       if (transmitButton) {
-        if (statut === "validee finance") {
+        if (statut === "validee finance" || statut === "transmis direction") {
           transmitButton.hidden = true;
-          if (directionLink) directionLink.hidden = false;
+          if (directionButton) {
+            directionButton.hidden = false;
+            directionButton.disabled = statut === "transmis direction";
+            if (statut === "transmis direction") directionButton.textContent = "Déjà transmis à la Direction";
+          }
         } else {
           transmitButton.hidden = false;
-          if (directionLink) directionLink.hidden = true;
+          if (directionButton) directionButton.hidden = true;
           transmitButton.disabled = statut !== "en attente";
           if (statut === "transmis finance") transmitButton.textContent = "Déjà transmise à la Finance";
           transmitButton.addEventListener("click", function () {
@@ -79,11 +83,9 @@ function initBesoinDetail(event) {
           });
         }
       }
-      if (directionLink) {
-        directionLink.addEventListener("click", function (event) {
-          event.preventDefault();
-          directionLink.setAttribute("aria-disabled", "true");
-          directionLink.classList.add("is-disabled");
+      if (directionButton && statut === "validee finance") {
+        directionButton.addEventListener("click", function () {
+          directionButton.disabled = true;
           fetch(contextPath + dossier + "/api/besoins/" + encodeURIComponent(requestId) + "/transmettre-direction", {
             method: "POST",
             headers: { "Accept": "application/json" }
@@ -97,15 +99,14 @@ function initBesoinDetail(event) {
             .then(function (payload) {
               feedback.hidden = false;
               feedback.textContent = payload.message;
-              directionLink.textContent = "Transmise à la Direction";
+              directionButton.textContent = "Déjà transmis à la Direction";
               setValue("besoin-detail-statut", "transmis direction");
               setValue("besoin-detail-statut-info", "transmis direction");
             })
             .catch(function (error) {
               feedback.hidden = false;
               feedback.textContent = error.message;
-              directionLink.removeAttribute("aria-disabled");
-              directionLink.classList.remove("is-disabled");
+              directionButton.disabled = false;
             });
         });
       }
