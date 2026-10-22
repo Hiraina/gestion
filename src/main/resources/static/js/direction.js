@@ -59,4 +59,33 @@ function initDirectionDecision() {
 
 }
 
+function initDirectionDashboard(event) {
+  if (event && event.detail && event.detail.page !== "welcome") return;
+  var pending = document.getElementById("direction-stat-pending");
+  if (!pending) return;
+  var meta = document.querySelector('meta[name="context-path"]');
+  var base = (meta ? meta.getAttribute("content") || "" : "").replace(/\/$/, "");
+  fetch(base + "/api/direction/resume", { headers: { Accept: "application/json" } })
+    .then(function (response) {
+      if (!response.ok) throw new Error("Chargement du tableau de bord impossible.");
+      return response.json();
+    })
+    .then(function (resume) {
+      document.getElementById("direction-stat-pending").textContent = resume.enAttente;
+      document.getElementById("direction-stat-approved").textContent = resume.approuvees;
+      document.getElementById("direction-stat-refused").textContent = resume.refusees;
+      document.getElementById("direction-stat-progress").textContent = resume.enCours;
+      document.getElementById("direction-stat-budget").textContent =
+        new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(resume.budgetAapprouver) + " Ar";
+    })
+    .catch(function (error) {
+      ["pending", "approved", "refused", "progress", "budget"].forEach(function (key) {
+        var element = document.getElementById("direction-stat-" + key);
+        if (element) element.textContent = "—";
+      });
+      pending.title = error.message;
+    });
+}
+
 document.addEventListener("pageLoaded", function (event) { if (event.detail && event.detail.page === "decision") initDirectionDecision(); });
+document.addEventListener("pageLoaded", initDirectionDashboard);

@@ -72,6 +72,140 @@
     filterOffers();
   }
 
+  function loadPublishedOffers() {
+    if (!document.getElementById("offers-list")) return;
+    var context = document.querySelector('meta[name="context-path"]')?.content || "/";
+    context = context.replace(/\/$/, "");
+    fetch(context + "/api/offres-emploi", {
+      cache: "no-store",
+      headers: { Accept: "application/json", "Cache-Control": "no-cache" }
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Les offres n’ont pas pu être chargées.");
+        return response.json();
+      })
+      .then(function (offers) {
+        var list = document.getElementById("offers-list");
+        var departments = new Set();
+        var contracts = new Set();
+        list.replaceChildren();
+        offers.forEach(function (offer) {
+          var data = offer.data || {};
+          var title = data.jobTitle || offer.titre || "Poste à pourvoir";
+          var department = data.department || offer.departement || "";
+          var contract = data.contract || "";
+          var location = data.location || "";
+          var company = data.company || "Carrière+";
+          var description = data.jobDescription || offer.description || "";
+          var card = document.createElement("article");
+          card.className = "offer-card";
+          card.dataset.title = title;
+          card.dataset.department = department;
+          card.dataset.contract = contract;
+          var top = document.createElement("div");
+          top.className = "offer-card-top";
+          var icon = document.createElement("div");
+          icon.className = "company-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = "💼";
+          var headings = document.createElement("div");
+          headings.className = "offer-headings";
+          var heading = document.createElement("h3");
+          heading.className = "offer-title";
+          heading.textContent = title;
+          var companyLine = document.createElement("p");
+          companyLine.className = "offer-company";
+          companyLine.textContent = [company, location].filter(Boolean).join(" · ");
+          headings.append(heading, companyLine);
+          var badge = document.createElement("span");
+          badge.className = "badge badge-new";
+          badge.textContent = contract || "Offre publiée";
+          top.append(icon, headings, badge);
+          var desc = document.createElement("p");
+          desc.className = "offer-description";
+          desc.textContent = description;
+          var extraDetails = document.createElement("details");
+          extraDetails.className = "offer-details";
+          var summary = document.createElement("summary");
+          summary.textContent = "Voir tous les détails de l’offre";
+          extraDetails.appendChild(summary);
+          var detailValues = [
+            ["Présentation de l’entreprise", data.companyDescription],
+            ["Missions", data.missions],
+            ["Compétences recherchées", data.skills],
+            ["Expérience requise", data.experience],
+            ["Formation", data.education],
+            ["Mode de travail", data.workMode],
+            ["Durée du contrat", data.duration],
+            ["Atouts supplémentaires", data.advantages],
+            ["Consignes de candidature", data.applicationInstructions]
+          ];
+          if (data.salaryDisplay === "Fourchette salariale") {
+            var salaryFormat = new Intl.NumberFormat("fr-FR");
+            var salary = [data.salaryMin ? salaryFormat.format(data.salaryMin) : "", data.salaryMax ? salaryFormat.format(data.salaryMax) : ""].filter(Boolean).join(" – ");
+            if (salary) detailValues.push(["Rémunération", salary + " " + (data.salaryCurrency || "MGA") + " " + (data.salaryPeriod || "par mois")]);
+          } else if (data.salaryDisplay === "À négocier") {
+            detailValues.push(["Rémunération", "À négocier"]);
+          }
+          detailValues.forEach(function (entry) {
+            if (!entry[1]) return;
+            var paragraph = document.createElement("p");
+            var label = document.createElement("strong");
+            label.textContent = entry[0] + " : ";
+            paragraph.append(label, document.createTextNode(entry[1]));
+            extraDetails.appendChild(paragraph);
+          });
+          var meta = document.createElement("div");
+          meta.className = "offer-meta";
+          [["🏢", department], ["📄", contract], ["📅", offer.datePublication ? new Date(offer.datePublication).toLocaleDateString("fr-FR") : ""]].forEach(function (item) {
+            if (!item[1]) return;
+            var span = document.createElement("span");
+            span.className = "meta-item";
+            span.textContent = item[0] + " " + item[1];
+            meta.appendChild(span);
+          });
+          var footer = document.createElement("div");
+          footer.className = "offer-footer";
+          var extra = document.createElement("span");
+          extra.className = "offer-contract";
+          extra.textContent = [data.positions ? data.positions + " poste(s)" : "", data.education || ""].filter(Boolean).join(" · ");
+          var apply = document.createElement("a");
+          apply.className = "apply-button";
+          apply.textContent = "Postuler";
+          apply.href = context + "/candidat/formulaire-candidature.html?offreId=" + encodeURIComponent(offer.id) + "&poste=" + encodeURIComponent(title);
+          footer.append(extra, apply);
+          card.append(top, desc, extraDetails, meta, footer);
+          list.appendChild(card);
+          if (department) departments.add(department);
+          if (contract) contracts.add(contract);
+        });
+        offerCards = Array.prototype.slice.call(list.querySelectorAll(".offer-card"));
+        [["department", departments], ["contract", contracts]].forEach(function (entry) {
+          var select = document.getElementById(entry[0]);
+          while (select.options.length > 1) select.remove(1);
+          Array.from(entry[1]).sort().forEach(function (value) {
+            var option = document.createElement("option");
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+          });
+        });
+        var count = document.getElementById("hero-offer-count");
+        var deptCount = document.getElementById("hero-department-count");
+        var contractCount = document.getElementById("hero-contract-count");
+        if (count) count.textContent = offers.length;
+        if (deptCount) deptCount.textContent = departments.size;
+        if (contractCount) contractCount.textContent = contracts.size;
+        filterOffers();
+      })
+      .catch(function () {
+        var list = document.getElementById("offers-list");
+        if (list) list.textContent = "Impossible de charger les offres pour le moment.";
+        var count = document.getElementById("results-number");
+        if (count) count.textContent = "Offres indisponibles";
+      });
+  }
+
   function init() {
     if (searchButton) {
       searchButton.addEventListener("click", function (event) {
@@ -107,6 +241,11 @@
     }
 
     filterOffers();
+    loadPublishedOffers();
+    window.addEventListener("focus", loadPublishedOffers);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") loadPublishedOffers();
+    });
   }
 
   if (document.readyState === "loading") {
@@ -691,25 +830,28 @@
 
     consentError.classList.remove("visible");
 
-    /*
-     * IMPORTANT :
-     * Cette version est une démonstration front-end.
-     *
-     * Pour recevoir réellement les candidatures et les fichiers,
-     * il faudra envoyer les données au serveur avec FormData
-     * et un endpoint backend sécurisé.
-     */
-
-    form.hidden = true;
-    formFooter.hidden = true;
-    progressSection.hidden = true;
-
-    successScreen.classList.add("visible");
-
-    successScreen.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
+    var submitButton = document.getElementById("submit-button");
+    var context = document.querySelector('meta[name="context-path"]')?.content || "/";
+    context = context.replace(/\/$/, "");
+    submitButton.disabled = true;
+    fetch(context + "/api/candidatures", { method: "POST", body: new FormData(form) })
+      .then(function (response) {
+        return response.json().catch(function () { return {}; }).then(function (body) {
+          if (!response.ok) throw new Error(body.message || "L’envoi de la candidature a échoué.");
+          return body;
+        });
+      })
+      .then(function () {
+        form.hidden = true;
+        formFooter.hidden = true;
+        progressSection.hidden = true;
+        successScreen.classList.add("visible");
+        successScreen.scrollIntoView({ behavior: "smooth", block: "center" });
+      })
+      .catch(function (error) {
+        window.alert(error.message || "Impossible d’envoyer la candidature.");
+      })
+      .finally(function () { submitButton.disabled = false; });
   });
 
   /* ============================================
@@ -724,10 +866,13 @@
 
     var params = new URLSearchParams(window.location.search);
     var poste = params.get("poste");
+    var offreId = params.get("offreId");
 
     if (poste) {
       positionField.value = poste;
     }
+    var offerIdField = document.getElementById("offerId");
+    if (offerIdField && offreId) offerIdField.value = offreId;
   }
 
   function init() {

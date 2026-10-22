@@ -10,6 +10,7 @@ import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
 import com.example.demo.repository.besoin.DemandeBesoinDirectionProjection;
 import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
+import com.example.demo.repository.besoin.ResumeDirectionProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
 import com.example.demo.service.besoin.ManagerAccueilService;
@@ -199,6 +200,12 @@ public class ViewController {
 	@ResponseBody
 	public List<DemandeBesoinDirectionProjection> besoinsAapprouverDirection() {
 		return besoinService.listerPourDirection();
+	}
+
+	@GetMapping("/api/direction/resume")
+	@ResponseBody
+	public ResumeDirectionProjection resumeDirection() {
+		return besoinService.obtenirResumeDirection();
 	}
 
 	@PostMapping("/api/direction/besoins/{id}/decision")

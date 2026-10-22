@@ -98,6 +98,7 @@
       </div>
 
       <form id="application-form" novalidate>
+        <input type="hidden" id="offerId" name="offreId" value="">
 
         <div class="form-content">
 
@@ -643,23 +644,19 @@
 
       </form>
 
-      <!-- ÉCRAN DE CONFIRMATION DE DÉMONSTRATION -->
+      <!-- ÉCRAN DE CONFIRMATION -->
       <section class="success-screen" id="success-screen">
 
         <div class="success-icon">✓</div>
 
-        <h2>Votre formulaire est prêt !</h2>
+        <h2>Candidature envoyée !</h2>
 
         <p>
-          Toutes les étapes ont été complétées et vos documents
-          ont été sélectionnés. L'envoi réel de votre candidature
-          nécessite encore la connexion au serveur RH.
+          Votre candidature et vos documents ont été transmis à notre équipe de recrutement.
         </p>
 
         <div class="demo-notice">
-          <strong>Mode démonstration :</strong>
-          aucune candidature ni aucun document n'a été transmis
-          ou enregistré sur un serveur.
+          Un membre de l’équipe RH examinera votre dossier.
         </div>
 
         <a th:href="@{/candidat/offres-emploi.html}" class="button button-primary">

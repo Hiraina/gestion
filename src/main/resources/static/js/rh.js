@@ -790,6 +790,7 @@ var RHDrafts = (function () {
         RHDrafts.remove(request.reference);
         showNotification(result.message || "L'offre a été publiée et enregistrée.", "success");
         closePreview();
+        window.location.hash = "page=suivi-offres-publiees";
       })
       .catch(function (error) {
         showNotification(error.message || "Impossible d'enregistrer l'offre.", "error");
@@ -1559,6 +1560,7 @@ var RHDrafts = (function () {
     var resetButton = byId("reset-filters");
     var emptyResetButton = byId("empty-reset");
     var emptyState = byId("empty-state");
+    var statusNotification = byId("offer-status-notification");
     var visibleCount = byId("visible-count");
     var panelCount = byId("panel-count");
     var offers = [];
@@ -1794,9 +1796,21 @@ var RHDrafts = (function () {
         .then(function (response) {
           return response.json().catch(function () { return {}; }).then(function (body) {
             if (!response.ok) throw new Error(body.message || "La mise à jour du statut a échoué.");
+            return body;
           });
         })
-        .then(loadOffers)
+        .then(function () {
+          var messageByStatus = {
+            cloturee: "L’offre est clôturée et n’apparaît plus sur la page candidat.",
+            suspendue: "L’offre est suspendue et n’apparaît plus sur la page candidat.",
+            publiee: "L’offre est active et visible sur la page candidat."
+          };
+          if (statusNotification) {
+            statusNotification.textContent = messageByStatus[button.dataset.offerStatus] || "Le statut de l’offre a été mis à jour.";
+            statusNotification.hidden = false;
+          }
+          loadOffers();
+        })
         .catch(function (error) { window.alert(error.message); button.disabled = false; });
     });
 
@@ -1878,7 +1892,8 @@ var RHDrafts = (function () {
       var link = page.querySelector("#" + id);
       if (!link) return;
       if (url) {
-        link.href = url;
+        var context = document.querySelector('meta[name="context-path"]')?.content || "";
+        link.href = url.indexOf("/api/") === 0 ? context.replace(/\/$/, "") + url : url;
         link.textContent = "Consulter ↗";
         link.removeAttribute("aria-disabled");
       } else {

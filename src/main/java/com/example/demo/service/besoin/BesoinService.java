@@ -8,6 +8,7 @@ import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
 import com.example.demo.repository.besoin.DemandeBesoinDirectionProjection;
+import com.example.demo.repository.besoin.ResumeDirectionProjection;
 import com.example.demo.repository.besoin.HistoriqueStatutBesoinProjection;
 import com.example.demo.repository.besoin.HistoriqueStatutBesoinRepository;
 import org.springframework.stereotype.Service;
@@ -117,6 +118,10 @@ public class BesoinService {
 
 	public List<DemandeBesoinDirectionProjection> listerPourDirection() {
 		return repository.listerPourDirection();
+	}
+
+	public ResumeDirectionProjection obtenirResumeDirection() {
+		return repository.obtenirResumeDirection();
 	}
 
 	public boolean deciderParDirection(Integer id, String decision) {

@@ -34,12 +34,30 @@ public class OffreEmploiRepository {
 				""");
 	}
 
+	public List<Map<String, Object>> listerPublieesPourCandidats() {
+		return jdbc.queryForList("""
+				SELECT o.id_offre AS id, o.titre, o.description,
+				       o.date_publication AS "datePublication", o.date_cloture AS "dateCloture",
+				       d.nom AS departement
+				FROM offres_emploi o
+				JOIN statut_offre s ON s.id_statut_offre = o.statut
+				JOIN postes p ON p.id_poste = o.id_poste
+				LEFT JOIN departements d ON d.id_departement = p.id_departement
+				WHERE s.nom = 'publiee'
+				  AND (o.date_cloture IS NULL OR o.date_cloture >= CURRENT_DATE)
+				ORDER BY o.date_publication DESC, o.id_offre DESC
+				""");
+	}
+
 	public int trouverPostePourBesoinValide(int idBesoin) {
 		List<Integer> ids = jdbc.query("""
 				SELECT b.id_poste
 				FROM besoins b
 				JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut
 				WHERE b.id_besoin = ? AND LOWER(s.nom) = 'valide'
+				  AND NOT EXISTS (SELECT 1 FROM offres_emploi o
+				    WHERE o.description LIKE 'RH-OFFRE-JSON-V1:%'
+				      AND substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{request,requestId}' = CAST(b.id_besoin AS TEXT))
 				""", (rs, rowNum) -> rs.getInt(1), idBesoin);
 		return ids.stream().findFirst().orElseThrow(() -> new IllegalArgumentException(
 				"La demande associée n'existe pas ou n'est plus validée."));
