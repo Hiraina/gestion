@@ -5,57 +5,128 @@
       <h1 class="ui-title">Rapport financier des recrutements</h1>
       <p class="ui-lead">Synthèse destinée à éclairer les décisions de la Finance et de la Direction.</p>
     </div>
-    <div class="ui-actions"><button type="button" class="ui-btn ui-btn-primary" data-toast="Export PDF en cours de génération…">Exporter en PDF</button><button type="button" class="ui-btn ui-btn-outline" data-toast="Export Excel en cours de génération…">Exporter en Excel</button></div>
+    <div class="ui-actions"><button type="button" class="ui-btn ui-btn-primary" data-toast="Export du rapport en cours de génération…">Exporter en PDF</button><button type="button" class="ui-btn ui-btn-outline" data-toast="Export du rapport en cours de génération…">Exporter en Excel</button></div>
   </header>
 
   <section class="ui-stats" aria-label="Indicateurs">
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Budget total demandé</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></span></div>
-      <p class="ui-stat-value">120 000 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="rf-budget-demande">— <small>Ar</small></p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Budget total approuvé</span><span class="ui-stat-icon is-green"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span></div>
-      <p class="ui-stat-value">85 000 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="rf-budget-approuve">— <small>Ar</small></p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Coût des recrutements réalisés</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-money"/></svg></span></div>
-      <p class="ui-stat-value">87 500 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="rf-cout-realise">— <small>Ar</small></p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Écart global</span><span class="ui-stat-icon is-red"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></span></div>
-      <p class="ui-stat-value">+2 500 000 <small>Ar</small></p>
-      <p class="ui-stat-note">Dépassement du budget approuvé</p>
+      <p class="ui-stat-value" id="rf-ecart">— <small>Ar</small></p>
+      <p class="ui-stat-note" id="rf-ecart-note"></p>
     </article>
   </section>
 
-<div class="ui-grid-2">
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Répartition des budgets par période</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
-    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Octobre 2026</span><span>45 M</span></div><div class="ui-bar" role="img" aria-label="Octobre 2026 : 45 M"><i style="width:100%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Novembre 2026</span><span>32 M</span></div><div class="ui-bar" role="img" aria-label="Novembre 2026 : 32 M"><i style="width:71%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Décembre 2026</span><span>18 M</span></div><div class="ui-bar" role="img" aria-label="Décembre 2026 : 18 M"><i style="width:40%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Janvier 2027</span><span>10 M</span></div><div class="ui-bar" role="img" aria-label="Janvier 2027 : 10 M"><i style="width:22%"></i></div></div></div></div>
-  </section>
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Prévisions vs réels</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
-    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Prévu</span><span>85 M</span></div><div class="ui-bar is-accent" role="img" aria-label="Prévu : 85 M"><i style="width:97%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Réel</span><span>87,5 M</span></div><div class="ui-bar is-accent" role="img" aria-label="Réel : 87,5 M"><i style="width:100%"></i></div></div></div></div>
-  </section>
-</div>
+  <div class="ui-grid-2">
+    <section class="ui-card">
+      <div class="ui-card-head"><div><h2 class="ui-card-title">Répartition des budgets par période</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
+      <div class="ui-card-body"><div class="ui-bars" id="rf-bars-periode"></div></div>
+    </section>
+    <section class="ui-card">
+      <div class="ui-card-head"><div><h2 class="ui-card-title">Prévisions vs réels</h2><p class="ui-card-sub">En millions d'Ariary</p></div></div>
+      <div class="ui-card-body"><div class="ui-bars" id="rf-bars-prev-reel"></div></div>
+    </section>
+  </div>
 
   <section class="ui-card">
     <div class="ui-card-head"><div><h2 class="ui-card-title">Écarts entre prévisions et dépenses réelles</h2><p class="ui-card-sub"></p></div></div>
-    
     <div class="ui-table-wrap">
       <table class="ui-table">
         <thead><tr><th>Référence</th><th>Poste</th><th class="num">Budget prévu</th><th class="num">Coût réel</th><th>Écart</th><th>Écart %</th></tr></thead>
-        <tbody>
-          <tr><td class="ref">DEM-001</td><td>Développeur</td><td class="num">12 000 000 Ar</td><td class="num">11 000 000 Ar</td><td><span class="ui-badge is-success">−1 000 000 Ar</span></td><td><span class="ui-badge is-success">−8,3 %</span></td></tr>
-          <tr><td class="ref">DEM-002</td><td>Comptable</td><td class="num">6 000 000 Ar</td><td class="num">6 500 000 Ar</td><td><span class="ui-badge is-danger">+500 000 Ar</span></td><td><span class="ui-badge is-danger">+8,3 %</span></td></tr>
-          <tr><td class="ref">DEM-004</td><td>Chargée de contenu</td><td class="num">2 500 000 Ar</td><td class="num">2 500 000 Ar</td><td><span class="ui-badge is-neutral">0 Ar</span></td><td><span class="ui-badge is-neutral">0 %</span></td></tr>
-        </tbody>
+        <tbody id="rf-ecarts-tbody"></tbody>
       </table>
     </div>
-    
   </section>
 </div>
+<script>
+(function () {
+  function fmtMoney(v) {
+    if (v == null) return '—';
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v).replace('Ar', '').trim() + ' Ar';
+  }
+  function bar(container, items) {
+    var el = document.getElementById(container);
+    if (!el) return;
+    el.innerHTML = '';
+    var max = Math.max.apply(null, items.map(function (i) { return i.v; })) || 1;
+    items.forEach(function (i) {
+      var pct = Math.round((i.v / max) * 100);
+      var row = document.createElement('div');
+      row.className = 'ui-bar-row';
+      row.innerHTML =
+        '<div class="ui-bar-meta"><span>' + i.l + '</span><span>' + fmtMoney(i.v) + '</span></div>' +
+        '<div class="ui-bar" role="img" aria-label="' + i.l + ' : ' + fmtMoney(i.v) + '"><i style="width:' + pct + '%"></i></div>';
+      el.appendChild(row);
+    });
+  }
+  function load() {
+    fetch(appBaseUrl() + 'api/finance/rapport-financier')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var demande = Number(d.budget_total_demande || 0);
+        var approuve = Number(d.budget_total_approuve || 0);
+        var realise = Number(d.cout_recrutements_realis || 0);
+        var ecart = realise - approuve;
+        document.getElementById('rf-budget-demande').textContent = fmtMoney(demande) + ' <small>Ar</small>';
+        document.getElementById('rf-budget-approuve').textContent = fmtMoney(approuve) + ' <small>Ar</small>';
+        document.getElementById('rf-cout-realise').textContent = fmtMoney(realise) + ' <small>Ar</small>';
+        document.getElementById('rf-ecart').textContent = (ecart < 0 ? '−' : ecart > 0 ? '+' : '') + fmtMoney(Math.abs(ecart)) + ' <small>Ar</small>';
+        document.getElementById('rf-ecart-note').textContent = ecart > 0 ? 'Dépassement du budget approuvé' : ecart < 0 ? 'Sous le budget approuvé' : 'À l\'équilibre';
+
+        // Données par période depuis le suivi des budgets (approximation)
+        fetch(appBaseUrl() + 'api/finance/suivi-budgets-recrutement')
+          .then(function (r) { return r.json(); })
+          .then(function (list) {
+            var totalPrev = 0;
+            (list || []).forEach(function (x) { totalPrev += Number(x.budget_prev || 0); });
+            bar('rf-bars-periode', [
+              { l: 'Budget dédié', v: totalPrev },
+              { l: 'Budget approuvé', v: approuve },
+              { l: 'Coût réalisé', v: realise }
+            ]);
+            bar('rf-bars-prev-reel', [
+              { l: 'Prévu', v: approuve },
+              { l: 'Réel', v: realise }
+            ]);
+          });
+
+        // Tableau des écarts depuis le suivi des budgets
+        fetch(appBaseUrl() + 'api/finance/suivi-budgets-recrutement')
+          .then(function (r) { return r.json(); })
+          .then(function (list) {
+            var tbody = document.getElementById('rf-ecarts-tbody');
+            tbody.innerHTML = '';
+            (list || []).slice(0, 6).forEach(function (x) {
+              var prev = Number(x.budget_prev || 0);
+              var reel = Number(x.cout_reel || 0);
+              var e = reel - prev;
+              var pct = prev > 0 ? Math.round((e / prev) * 100) : 0;
+              var cls = e < 0 ? 'is-success' : e > 0 ? 'is-danger' : 'is-neutral';
+              var sign = e < 0 ? '−' : e > 0 ? '+' : '';
+              var tr = document.createElement('tr');
+              tr.innerHTML =
+                '<td class="ref">DEM-' + String(x.reference || x.id || '—').padStart(3, '0') + '</td>' +
+                '<td>' + (x.poste || '—') + '</td>' +
+                '<td class="num">' + fmtMoney(prev) + '</td>' +
+                '<td class="num">' + (reel > 0 ? fmtMoney(reel) : '—') + '</td>' +
+                '<td><span class="ui-badge ' + cls + '">' + sign + fmtMoney(Math.abs(e)) + '</span></td>' +
+                '<td><span class="ui-badge ' + cls + '">' + sign + pct + ' %</span></td>';
+              tbody.appendChild(tr);
+            });
+          });
+      });
+  }
+  load();
+})();
+</script>

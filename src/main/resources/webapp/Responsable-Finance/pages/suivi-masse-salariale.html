@@ -5,46 +5,99 @@
       <h1 class="ui-title">Suivi de la masse salariale</h1>
       <p class="ui-lead">Coûts salariaux par période et par poste. Les données réelles s'affichent lorsqu'elles sont disponibles.</p>
     </div>
-    
   </header>
 
   <section class="ui-stats" aria-label="Indicateurs">
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Masse salariale prévisionnelle</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></span></div>
-      <p class="ui-stat-value">120 000 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="ms-previsionnelle">— <small>Ar</small></p>
       <p class="ui-stat-note">Sur la période</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Masse salariale réelle</span><span class="ui-stat-icon is-orange"><svg class="icon" aria-hidden="true"><use href="#i-money"/></svg></span></div>
-      <p class="ui-stat-value">87 500 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="ms-reelle">— <small>Ar</small></p>
       <p class="ui-stat-note">Données disponibles</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Écart</span><span class="ui-stat-icon is-green"><svg class="icon" aria-hidden="true"><use href="#i-trend"/></svg></span></div>
-      <p class="ui-stat-value">−32 500 000 <small>Ar</small></p>
-      <p class="ui-stat-note">Sous le budget</p>
+      <p class="ui-stat-value" id="ms-ecart">— <small>Ar</small></p>
+      <p class="ui-stat-note" id="ms-ecart-note">Sous le budget</p>
     </article>
     <article class="ui-stat">
       <div class="ui-stat-top"><span class="ui-stat-label">Coût des nouvelles embauches</span><span class="ui-stat-icon"><svg class="icon" aria-hidden="true"><use href="#i-userplus"/></svg></span></div>
-      <p class="ui-stat-value">9 300 000 <small>Ar</small></p>
+      <p class="ui-stat-value" id="ms-embauches">— <small>Ar</small></p>
       <p class="ui-stat-note">Sur la période</p>
     </article>
   </section>
 
-<div class="ui-grid-2">
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Coût salarial par poste</h2><p class="ui-card-sub">Répartition par département</p></div></div>
-    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Développement</span><span>35 000 000 Ar</span></div><div class="ui-bar" role="img" aria-label="Développement : 35 000 000 Ar"><i style="width:100%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Marketing</span><span>26 000 000 Ar</span></div><div class="ui-bar" role="img" aria-label="Marketing : 26 000 000 Ar"><i style="width:74%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Comptabilité</span><span>21 000 000 Ar</span></div><div class="ui-bar" role="img" aria-label="Comptabilité : 21 000 000 Ar"><i style="width:60%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Ressources Humaines</span><span>14 000 000 Ar</span></div><div class="ui-bar" role="img" aria-label="Ressources Humaines : 14 000 000 Ar"><i style="width:40%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Support IT</span><span>10 500 000 Ar</span></div><div class="ui-bar" role="img" aria-label="Support IT : 10 500 000 Ar"><i style="width:30%"></i></div></div></div></div>
-  </section>
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Nouvelles embauches par mois</h2><p class="ui-card-sub">Évolution des coûts</p></div></div>
-    <div class="ui-card-body"><div class="ui-bars"><div class="ui-bar-row"><div class="ui-bar-meta"><span>Octobre 2026</span><span>4 500 000 Ar</span></div><div class="ui-bar is-accent" role="img" aria-label="Octobre 2026 : 4 500 000 Ar"><i style="width:100%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Novembre 2026</span><span>3 000 000 Ar</span></div><div class="ui-bar is-accent" role="img" aria-label="Novembre 2026 : 3 000 000 Ar"><i style="width:67%"></i></div></div>
-      <div class="ui-bar-row"><div class="ui-bar-meta"><span>Décembre 2026</span><span>1 800 000 Ar</span></div><div class="ui-bar is-accent" role="img" aria-label="Décembre 2026 : 1 800 000 Ar"><i style="width:40%"></i></div></div></div></div>
-  </section>
+  <div class="ui-grid-2">
+    <section class="ui-card">
+      <div class="ui-card-head"><div><h2 class="ui-card-title">Coût salarial par poste</h2><p class="ui-card-sub">Répartition par département</p></div></div>
+      <div class="ui-card-body"><div class="ui-bars" id="ms-bars-dept"></div></div>
+    </section>
+    <section class="ui-card">
+      <div class="ui-card-head"><div><h2 class="ui-card-title">Nouvelles embauches par mois</h2><p class="ui-card-sub">Évolution des coûts</p></div></div>
+      <div class="ui-card-body"><div class="ui-bars" id="ms-bars-mois"></div></div>
+    </section>
+  </div>
 </div>
-</div>
+<script>
+(function () {
+  function fmtMoney(v) {
+    if (v == null) return '—';
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v).replace('Ar', '').trim() + ' Ar';
+  }
+  function bar(container, items) {
+    var el = document.getElementById(container);
+    if (!el) return;
+    el.innerHTML = '';
+    var max = Math.max.apply(null, items.map(function (i) { return i.v; })) || 1;
+    items.forEach(function (i) {
+      var pct = Math.round((i.v / max) * 100);
+      var row = document.createElement('div');
+      row.className = 'ui-bar-row';
+      row.innerHTML =
+        '<div class="ui-bar-meta"><span>' + i.l + '</span><span>' + fmtMoney(i.v) + '</span></div>' +
+        '<div class="ui-bar ' + (i.accent ? 'is-accent' : '') + '" role="img" aria-label="' + i.l + ' : ' + fmtMoney(i.v) + '"><i style="width:' + pct + '%"></i></div>';
+      el.appendChild(row);
+    });
+  }
+  function load() {
+    fetch(appBaseUrl() + 'api/finance/suivi-masse-salariale')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var prev = Number(d.masse_previsionnelle || 0);
+        var reel = Number(d.masse_reelle || 0);
+        var ecart = reel - prev;
+        document.getElementById('ms-previsionnelle').textContent = fmtMoney(prev) + ' <small>Ar</small>';
+        document.getElementById('ms-reelle').textContent = fmtMoney(reel) + ' <small>Ar</small>';
+        document.getElementById('ms-ecart').textContent = (ecart < 0 ? '−' : ecart > 0 ? '+' : '') + fmtMoney(Math.abs(ecart)) + ' <small>Ar</small>';
+        document.getElementById('ms-ecart-note').textContent = ecart < 0 ? 'Sous le budget' : ecart > 0 ? 'Au-dessus du budget' : 'À l\'équilibre';
+        document.getElementById('ms-embauches').textContent = fmtMoney(reel) + ' <small>Ar</small>';
+      });
+
+    fetch(appBaseUrl() + 'api/finance/couts-nouvelles-embauches')
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        var byDept = {};
+        (list || []).forEach(function (d) {
+          var dept = d.departement || 'Non renseigné';
+          byDept[dept] = (byDept[dept] || 0) + Number(d.cout_estime || 0);
+        });
+        bar('ms-bars-dept', Object.entries(byDept).map(function (e) { return { l: e[0], v: e[1] }; }));
+      });
+
+    fetch(appBaseUrl() + 'api/finance/suivi-couts-contrats')
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        var byMois = {};
+        (list || []).forEach(function (d) {
+          var mo = d.debut ? String(d.debut).slice(0, 7) : 'Inconnu';
+          byMois[mo] = (byMois[mo] || 0) + Number(d.cout_estime || 0);
+        });
+        bar('ms-bars-mois', Object.entries(byMois).map(function (e) { return { l: e[0], v: e[1], accent: true }; }).slice(0, 6));
+      });
+  }
+  load();
+})();
+</script>

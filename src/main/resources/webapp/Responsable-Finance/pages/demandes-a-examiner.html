@@ -22,24 +22,3 @@
     <div class="ui-table-foot"><span id="finance-demand-count-foot"></span></div>
   </section>
 </div>
-<script>
-(function () {
-  var tbody = document.getElementById('demandes-tbody');
-  if (!tbody || tbody.dataset.loaded === '1') return;
-  tbody.dataset.loaded = '1';
-  function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  var base = (document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '');
-  fetch(base + '/api/finance/besoins-a-examiner', {headers:{Accept:'application/json'}})
-    .then(function (response) { if (!response.ok) throw new Error('Chargement impossible'); return response.json(); })
-    .then(function (rows) {
-      tbody.innerHTML = rows.length ? rows.map(function (r) {
-        var date = r.dateTransmissionFinance ? new Date(r.dateTransmissionFinance).toLocaleDateString('fr-FR') : '—';
-        return '<tr><td class="ref">DEM-'+esc(r.id)+'</td><td>'+esc(r.poste)+'</td><td class="num">'+esc(r.effectif)+'</td><td class="num">À estimer</td><td>'+esc(r.manager)+'</td><td>'+esc(date)+'</td><td><span class="ui-badge is-pending">À examiner</span></td><td><a href="#page=examen-financier&id='+encodeURIComponent(r.id)+'" data-page="examen-financier" data-id="'+esc(r.id)+'" class="ui-btn ui-btn-outline ui-btn-sm">Consulter</a></td></tr>';
-      }).join('') : '<tr><td colspan="8">Aucune demande n’a été transmise à la Finance.</td></tr>';
-      Array.from(new Set(rows.map(function (r) { return r.manager; }).filter(Boolean))).sort().forEach(function (name) { var option=document.createElement('option'); option.value=name; option.textContent=name; document.getElementById('finance-filter-manager').appendChild(option); });
-      document.getElementById('finance-demand-count').textContent = rows.length+' demande(s) à examiner';
-      document.getElementById('finance-demand-count-foot').textContent = rows.length+' demande(s)';
-    })
-    .catch(function () { tbody.innerHTML='<tr><td colspan="8">Impossible de charger les demandes transmises.</td></tr>'; document.getElementById('finance-demand-count').textContent='Erreur de chargement'; });
-})();
-</script>

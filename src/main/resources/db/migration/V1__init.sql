@@ -396,3 +396,65 @@ CREATE TABLE contrat_travail(
     )
 );
 
+-- ============================================================================
+-- DONNEES DE TEST POUR LA FINANCE (budget annuel, somme utilisee, besoins)
+-- A conserver pour tester le calcul automatique de faisabilite financiere.
+-- ============================================================================
+
+-- Budget de recrutement pour le poste "Developpeur backend" (annee 2026)
+-- budget annuel dedie = nombre_postes * budget_annuel_par_personne = 1 * 50 000 000 Ar
+INSERT INTO budgets_recrutement (id_poste, annee, nombre_postes, budget_annuel_par_personne, statut, id_validateur)
+SELECT p.id_poste, 2026, 1, 50000000,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'valide'),
+       (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
+-- Besoin transmis a la Finance (statut transmis_finance) pour Developpeur backend
+INSERT INTO besoins (id_poste, date_souhaitee, motif, effectif, statut, nom_manager_demandeur)
+SELECT p.id_poste, '2026-11-01', 'Renfort equipe developpement backend', 1,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'transmis_finance'),
+       'M. Dubois'
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM besoins WHERE id_poste = p.id_poste AND date_souhaitee = '2026-11-01');
+
+-- Somme utilisee : validation financiere APPROUVEE sur ce budget (10 000 000 Ar)
+-- Cela donne un ecart disponible de 40 000 000 Ar (50M - 10M)
+-- Cout annuel total pour 1 personne a 3 000 000 Ar/mois = 36 000 000 Ar < 40M => VALIDE
+INSERT INTO offres_emploi (id_poste, titre, description, statut, id_rh)
+SELECT p.id_poste, 'Offre test Developpeur backend', 'Test calcul finance', 2, 4
+FROM postes p WHERE p.titre = 'Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM offres_emploi WHERE titre = 'Offre test Developpeur backend');
+
+INSERT INTO candidats (nom, prenom, email)
+SELECT 'Candidat', 'Test Finance', 'test.finance@mg.mg'
+WHERE NOT EXISTS (SELECT 1 FROM candidats WHERE email = 'test.finance@mg.mg');
+
+INSERT INTO candidatures (id_candidat, id_offre, statut)
+SELECT c.id_candidat, o.id_offre, 1
+FROM candidats c, offres_emploi o
+WHERE c.email = 'test.finance@mg.mg' AND o.titre = 'Offre test Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM candidatures WHERE id_candidat = c.id_candidat AND id_offre = o.id_offre);
+
+INSERT INTO propositions_embauche (id_candidature, salaire_mensuel_propose, statut)
+SELECT ca.id_candidature, 3000000, 2
+FROM candidatures ca, offres_emploi o
+WHERE ca.id_offre = o.id_offre AND o.titre = 'Offre test Developpeur backend'
+AND NOT EXISTS (SELECT 1 FROM propositions_embauche WHERE id_candidature = ca.id_candidature AND numero_version = 1);
+
+INSERT INTO validations_financieres (id_proposition, id_budget, salaire_annuel_demande, decision, commentaire, id_financier)
+SELECT pr.id_proposition, b.id_budget, 10000000, 'APPROUVEE', 'Test somme utilisee developpeur backend', 4
+FROM propositions_embauche pr, budgets_recrutement b, postes po
+WHERE pr.id_proposition = (SELECT MAX(id_proposition) FROM propositions_embauche)
+  AND po.titre = 'Developpeur backend' AND b.id_poste = po.id_poste AND b.annee = 2026
+AND NOT EXISTS (SELECT 1 FROM validations_financieres WHERE id_proposition = pr.id_proposition);
+
+-- Budget de recrutement pour le poste "Responsable Finance" (annee 2026)
+-- Permet d'avoir un ecart disponible non nul lors de l'examen d'un besoin sur ce poste en 2026.
+INSERT INTO budgets_recrutement (id_poste, annee, nombre_postes, budget_annuel_par_personne, statut, id_validateur)
+SELECT p.id_poste, 2026, 1, 800000000,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'valide'),
+       (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
+FROM postes p WHERE p.titre = 'Responsable Finance'
+AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
