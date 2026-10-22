@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class BesoinDTO {
 
 	private Integer idPoste;
+	private Integer effectif = 1;
 	private String nomManagerDemandeur;
 	private LocalDate dateSouhaitee;
 	private String motif;
@@ -19,6 +20,14 @@ public class BesoinDTO {
 
 	public void setIdPoste(Integer idPoste) {
 		this.idPoste = idPoste;
+	}
+
+	public Integer getEffectif() {
+		return effectif;
+	}
+
+	public void setEffectif(Integer effectif) {
+		this.effectif = effectif;
 	}
 
 	public String getNomManagerDemandeur() {

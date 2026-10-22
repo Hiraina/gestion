@@ -21,6 +21,9 @@ public class Besoin {
 	@Column(name = "id_poste", nullable = false)
 	private Integer idPoste;
 
+	@Column(name = "effectif", nullable = false)
+	private Integer effectif = 1;
+
 	@Column(name = "nom_manager_demandeur", nullable = false, length = 150)
 	private String nomManagerDemandeur;
 
@@ -53,6 +56,14 @@ public class Besoin {
 
 	public void setIdPoste(Integer idPoste) {
 		this.idPoste = idPoste;
+	}
+
+	public Integer getEffectif() {
+		return effectif;
+	}
+
+	public void setEffectif(Integer effectif) {
+		this.effectif = effectif;
 	}
 
 	public String getNomManagerDemandeur() {

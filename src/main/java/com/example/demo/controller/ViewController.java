@@ -7,15 +7,20 @@ import com.example.demo.entity.departement.Departement;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.service.poste.PosteService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -91,15 +96,21 @@ public class ViewController {
 
 	/** Soumission d'une demande de besoin : insert en statut "en attente" (id 1). */
 	@PostMapping("/{dossier}/pages/demande_besoin/soumettre")
-	public String soumettreBesoin(@PathVariable String dossier, @ModelAttribute BesoinDTO besoinDTO, Model model) {
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> soumettreBesoin(@PathVariable String dossier,
+			@ModelAttribute BesoinDTO besoinDTO, BindingResult result) {
 		checkDossier(dossier);
+		if (result.hasErrors()) {
+			Map<String, Object> error = new HashMap<>();
+			error.put("success", false);
+			error.put("message", "Champs invalides : " + result.getAllErrors());
+			return ResponseEntity.badRequest().body(error);
+		}
 		besoinService.creerBesoin(besoinDTO);
-		model.addAttribute("dossier", dossier);
-		addDepartements(model);
-		addPostes(model);
-		model.addAttribute("besoinDTO", new BesoinDTO());
-		model.addAttribute("besoinEnvoye", true);
-		return dossier + "/pages/demande_besoin";
+		Map<String, Object> ok = new HashMap<>();
+		ok.put("success", true);
+		ok.put("message", "Votre demande a été soumise. Vous pouvez suivre son avancement dans « Suivi de mes demandes ».");
+		return ResponseEntity.ok(ok);
 	}
 
 	private void addDepartements(Model model) {

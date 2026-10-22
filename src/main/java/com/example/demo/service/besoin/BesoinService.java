@@ -19,6 +19,7 @@ public class BesoinService {
 	public void creerBesoin(BesoinDTO dto) {
 		Besoin besoin = new Besoin();
 		besoin.setIdPoste(dto.getIdPoste());
+		besoin.setEffectif(dto.getEffectif());
 		besoin.setNomManagerDemandeur(dto.getNomManagerDemandeur());
 		besoin.setDateSouhaitee(dto.getDateSouhaitee());
 		besoin.setMotif(dto.getMotif());

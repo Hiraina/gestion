@@ -63,26 +63,43 @@ function initManagerForm() {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     const action = event.submitter ? event.submitter.value : "soumettre";
-    const formData = new FormData(form);
+    const formData = new URLSearchParams(new FormData(form));
 
-    fetch(form.action, {
+    const baseMeta = document.querySelector('meta[name="context-path"]');
+    let contextPath = baseMeta ? baseMeta.getAttribute("content") || "/" : "/";
+    if (!contextPath.endsWith("/")) contextPath += "/";
+    const dossier = document.body ? document.body.getAttribute("data-dossier") || "" : "";
+    const endpoint = contextPath + dossier + "/pages/demande_besoin/soumettre";
+
+    fetch(endpoint, {
       method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
       body: formData
     })
     .then(function (response) {
-      if (response.ok) {
-        say(
-          action === "brouillon"
-            ? "Votre demande a été enregistrée dans vos brouillons."
-            : "Votre demande a été soumise. Vous pouvez suivre son avancement dans « Suivi de mes demandes ».",
-          true
-        );
-      } else {
-        say("Erreur lors de l'envoi de la demande.", false);
-      }
+      return response.text().then(function (body) {
+        let data = {};
+        try {
+          data = body ? JSON.parse(body) : {};
+        } catch (error) {
+          data = {};
+        }
+        if (response.ok && data.success) {
+          say(data.message || "Votre demande a été soumise.", true);
+        } else {
+          const serverMessage = data.message || data.detail || data.error;
+          const responseText = body
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 300);
+          say(serverMessage || responseText || "Le serveur a refusé la demande (" + response.status + "). Vérifiez les champs et réessayez.", false);
+        }
+      });
     })
     .catch(function () {
-      say("Erreur de connexion au serveur.", false);
+      say("Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.", false);
     });
   });
 
