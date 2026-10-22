@@ -747,12 +747,7 @@ var RHDrafts = (function () {
     return true;
   }
 
-  /* ------------------------------------------------------------
-     Publication de démonstration
-     Cette action ne publie pas réellement l'offre sur un site.
-     Une API backend sera nécessaire pour enregistrer l'offre
-     et la rendre accessible aux candidats.
-     ------------------------------------------------------------ */
+  /* Publication et enregistrement d'une offre côté RH. */
 
   function publishOffer(form, request) {
     if (!validatePublication(form)) {
@@ -761,38 +756,48 @@ var RHDrafts = (function () {
 
     var confirmed = window.confirm(
       "Confirmer la publication de cette offre ?\n\n" +
-        "Attention : dans cette version de démonstration, " +
-        "l'offre ne sera pas réellement publiée sur un site."
+        "Elle sera enregistrée comme publiée dans le suivi RH."
     );
 
     if (!confirmed) return;
 
-    try {
-      var data = getFormData(form, request);
+    var data = getFormData(form, request);
+    var buttons = form.querySelectorAll('button[type="submit"]');
+    var previewPublishButton = byId("publishFromPreviewButton");
+    buttons.forEach(function (button) { button.disabled = true; });
+    if (previewPublishButton) previewPublishButton.disabled = true;
+    var contextPath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
 
-      data.status = "Prête à publier";
-      data.preparedAt = new Date().toISOString();
-
-      localStorage.setItem(
-        "offre-preparee-" + request.reference,
-        JSON.stringify(data)
-      );
-
-      /* L'offre n'est plus un brouillon : elle sort de la liste. */
-      RHDrafts.remove(request.reference);
-
-      showNotification(
-        "La préparation de l'offre est enregistrée dans ce navigateur. La publication réelle nécessite encore la connexion au backend.",
-        "success"
-      );
-
-      closePreview();
-    } catch (error) {
-      showNotification(
-        "Impossible d'enregistrer les informations de l'offre.",
-        "error"
-      );
-    }
+    fetch(contextPath + "/Responsable-RH/api/offres", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        data: data,
+        request: {
+          requestId: request.requestId || null,
+          reference: request.reference,
+          standalone: Boolean(request.standalone)
+        }
+      })
+    })
+      .then(function (response) {
+        return response.json().catch(function () { return {}; }).then(function (body) {
+          if (!response.ok) throw new Error(body.message || "La publication a échoué.");
+          return body;
+        });
+      })
+      .then(function (result) {
+        RHDrafts.remove(request.reference);
+        showNotification(result.message || "L'offre a été publiée et enregistrée.", "success");
+        closePreview();
+      })
+      .catch(function (error) {
+        showNotification(error.message || "Impossible d'enregistrer l'offre.", "error");
+      })
+      .finally(function () {
+        buttons.forEach(function (button) { button.disabled = false; });
+        if (previewPublishButton) previewPublishButton.disabled = false;
+      });
   }
 
   /* ------------------------------------------------------------
@@ -1486,8 +1491,7 @@ var RHDrafts = (function () {
    Pilote la page
    Responsable-RH/pages/suivi-offres-publiees.html
 
-   Les filtres s'appliquent sur les lignes du tableau
-   (données de démonstration).
+   La liste et les statistiques viennent des offres enregistrées côté RH.
    ========================================= */
 
 (function () {
@@ -1499,8 +1503,8 @@ var RHDrafts = (function () {
 
   function initSuiviOffresPubliees() {
     var tableBody = byId("offers-tbody");
-
-    if (!tableBody) return;
+    if (!tableBody || tableBody.dataset.ready === "true") return;
+    tableBody.dataset.ready = "true";
 
     var searchInput = byId("search");
     var departmentFilter = byId("department-filter");
@@ -1510,104 +1514,246 @@ var RHDrafts = (function () {
     var emptyState = byId("empty-state");
     var visibleCount = byId("visible-count");
     var panelCount = byId("panel-count");
+    var offers = [];
+    var contextPath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    var endpoint = contextPath + "/Responsable-RH/api/offres";
 
-    var rows = Array.prototype.slice.call(tableBody.querySelectorAll("tr"));
+    function cell(text, className) {
+      var td = document.createElement("td");
+      td.textContent = text == null ? "" : String(text);
+      if (className) td.className = className;
+      return td;
+    }
 
-    /* ------------------------------------------------------------
-       Filtres et recherche
-       ------------------------------------------------------------ */
+    function localDate(value) {
+      if (!value) return null;
+      var parts = String(value).slice(0, 10).split("-");
+      if (parts.length !== 3) return null;
+      var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      return isNaN(date.getTime()) ? null : date;
+    }
 
-    function filterOffers() {
-      var search = searchInput ? searchInput.value.trim().toLowerCase() : "";
+    function formatDate(value) {
+      var date = localDate(value);
+      return date ? new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).format(date) : "—";
+    }
+
+    function statusKey(offer) {
+      if (offer.statut === "suspendue") return "suspended";
+      if (offer.statut === "cloturee") return "closed";
+      if (offer.statut === "publiee") {
+        var closingDate = localDate(offer.dateCloture);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (closingDate && closingDate < today) return "expired";
+        var soon = new Date(today);
+        soon.setDate(soon.getDate() + 7);
+        if (closingDate && closingDate >= today && closingDate <= soon) return "ending";
+        return "active";
+      }
+      return "closed";
+    }
+
+    function statusLabel(key) {
+      return { active: "Active", ending: "Bientôt expirée", expired: "Expirée", suspended: "Suspendue", closed: "Clôturée" }[key] || "Inconnue";
+    }
+
+    function actionButtons(offer, key) {
+      var wrapper = document.createElement("div");
+      wrapper.className = "actions";
+      var action = key === "active" || key === "ending"
+        ? [["suspendue", "Suspendre"], ["cloturee", "Clôturer"]]
+        : key === "suspended"
+          ? [["publiee", "Réactiver"], ["cloturee", "Clôturer"]]
+          : key === "expired"
+            ? [["cloturee", "Clôturer"]]
+            : [["publiee", "Réouvrir"]];
+      if (key === "closed") {
+        var deadline = localDate(offer.dateCloture);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (deadline && deadline < today) action = [];
+      }
+      action.forEach(function (item) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "action-button";
+        button.dataset.offerId = offer.id;
+        button.dataset.offerStatus = item[0];
+        button.textContent = item[1];
+        wrapper.appendChild(button);
+      });
+      return wrapper;
+    }
+
+    function render() {
+      var query = searchInput ? searchInput.value.trim().toLocaleLowerCase() : "";
       var department = departmentFilter ? departmentFilter.value : "";
       var status = statusFilter ? statusFilter.value : "";
-
-      var count = 0;
-
-      rows.forEach(function (row) {
-        var title = (row.dataset.title || "").toLowerCase();
-        var reference = (row.dataset.reference || "").toLowerCase();
-        var rowDepartment = row.dataset.department || "";
-        var rowStatus = row.dataset.status || "";
-        var contract = (row.dataset.contract || "").toLowerCase();
-
-        var matchesSearch =
-          !search ||
-          title.indexOf(search) !== -1 ||
-          reference.indexOf(search) !== -1 ||
-          rowDepartment.toLowerCase().indexOf(search) !== -1 ||
-          contract.indexOf(search) !== -1;
-
-        var matchesDepartment = !department || rowDepartment === department;
-
-        var matchesStatus = !status || rowStatus === status;
-
-        var isVisible = matchesSearch && matchesDepartment && matchesStatus;
-
-        row.style.display = isVisible ? "" : "none";
-
-        if (isVisible) count++;
+      var visible = offers.filter(function (offer) {
+        var title = String(offer.titre || "").toLocaleLowerCase();
+        var departmentName = String(offer.departement || "");
+        var contract = String(offer.contrat || "").toLocaleLowerCase();
+        var reference = "OFF-" + offer.id;
+        var requestReference = offer.request && offer.request.requestId ? "DEM-" + offer.request.requestId : "";
+        return (!query || [title, departmentName.toLocaleLowerCase(), contract, reference.toLocaleLowerCase(), requestReference.toLocaleLowerCase()].join(" ").includes(query)) &&
+          (!department || departmentName === department) &&
+          (!status || statusKey(offer) === status);
       });
 
-      if (visibleCount) {
-        visibleCount.textContent = count;
-      }
+      tableBody.innerHTML = "";
+      visible.forEach(function (offer) {
+        var key = statusKey(offer);
+        var row = document.createElement("tr");
+        row.dataset.title = offer.titre || "";
+        row.dataset.department = offer.departement || "";
+        row.dataset.contract = offer.contrat || "";
+        row.dataset.status = key;
 
-      if (panelCount) {
-        panelCount.textContent = count + (count > 1 ? " offres" : " offre");
-      }
+        var titleCell = document.createElement("td");
+        var offerCell = document.createElement("div");
+        offerCell.className = "offer-cell";
+        var icon = document.createElement("div");
+        icon.className = "offer-icon blue";
+        icon.textContent = "▤";
+        var titleWrap = document.createElement("div");
+        var title = document.createElement("div");
+        title.className = "offer-name";
+        title.textContent = offer.titre || "Offre sans titre";
+        var reference = document.createElement("div");
+        reference.className = "offer-reference";
+        reference.textContent = "Réf. OFF-" + offer.id + (offer.request && offer.request.requestId ? " · DEM-" + offer.request.requestId : "");
+        titleWrap.appendChild(title);
+        titleWrap.appendChild(reference);
+        offerCell.appendChild(icon);
+        offerCell.appendChild(titleWrap);
+        titleCell.appendChild(offerCell);
+        row.appendChild(titleCell);
 
+        var departmentCell = document.createElement("td");
+        var departmentTag = document.createElement("span");
+        departmentTag.className = "department-name";
+        departmentTag.textContent = offer.departement || "—";
+        departmentCell.appendChild(departmentTag);
+        row.appendChild(departmentCell);
+        row.appendChild(cell(offer.contrat || "À préciser"));
+
+        var statusCell = document.createElement("td");
+        var statusTag = document.createElement("span");
+        statusTag.className = "status status-" + key;
+        statusTag.textContent = statusLabel(key);
+        statusCell.appendChild(statusTag);
+        row.appendChild(statusCell);
+        row.appendChild(cell(offer.nombreCandidatures || 0));
+        row.appendChild(cell(formatDate(offer.datePublication), "date-cell"));
+        var actionCell = document.createElement("td");
+        actionCell.appendChild(actionButtons(offer, key));
+        row.appendChild(actionCell);
+        tableBody.appendChild(row);
+      });
+
+      var noOffers = offers.length === 0;
+      var noResults = visible.length === 0;
       if (emptyState) {
-        emptyState.classList.toggle("visible", count === 0);
+        emptyState.classList.toggle("visible", noResults);
+        var heading = emptyState.querySelector("h3");
+        var description = emptyState.querySelector("p");
+        if (heading) heading.textContent = noOffers ? "Aucune offre publiée" : "Aucune offre trouvée";
+        if (description) description.textContent = noOffers
+          ? "Les offres publiées par le service RH apparaîtront ici."
+          : "Aucune offre ne correspond à vos filtres. Essayez une autre recherche.";
       }
+      if (visibleCount) visibleCount.textContent = visible.length;
+      if (panelCount) panelCount.textContent = visible.length + (visible.length > 1 ? " offres" : " offre");
+      updateStatistics();
+    }
+
+    function updateStatistics() {
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var soon = new Date(today);
+      soon.setDate(soon.getDate() + 7);
+      var active = offers.filter(function (offer) {
+        var closing = localDate(offer.dateCloture);
+        return offer.statut === "publiee" && (!closing || closing >= today);
+      }).length;
+      var ending = offers.filter(function (offer) {
+        var closing = localDate(offer.dateCloture);
+        return offer.statut === "publiee" && closing && closing >= today && closing <= soon;
+      }).length;
+      var applications = offers.reduce(function (total, offer) { return total + Number(offer.nombreCandidatures || 0); }, 0);
+      var set = function (id, value) { var element = byId(id); if (element) element.textContent = value; };
+      set("total-offers", offers.length);
+      set("active-offers", active);
+      set("ending-offers", ending);
+      set("total-applications", applications);
+    }
+
+    function loadOffers() {
+      tableBody.innerHTML = '<tr><td colspan="7">Chargement des offres…</td></tr>';
+      fetch(endpoint, { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("Le suivi des offres est indisponible.");
+          return response.json();
+        })
+        .then(function (data) {
+          offers = Array.isArray(data) ? data : [];
+          if (departmentFilter) {
+            var current = departmentFilter.value;
+            Array.from(departmentFilter.querySelectorAll("option[data-dynamic]" )).forEach(function (option) { option.remove(); });
+            Array.from(new Set(offers.map(function (offer) { return offer.departement; }).filter(Boolean))).sort().forEach(function (name) {
+              if (Array.from(departmentFilter.options).some(function (option) { return option.value === name; })) return;
+              var option = document.createElement("option");
+              option.value = name;
+              option.textContent = name;
+              option.dataset.dynamic = "true";
+              departmentFilter.appendChild(option);
+            });
+            departmentFilter.value = current;
+          }
+          render();
+        })
+        .catch(function (error) {
+          tableBody.innerHTML = "";
+          var row = document.createElement("tr");
+          var message = cell(error.message || "Impossible de charger les offres.");
+          message.colSpan = 7;
+          row.appendChild(message);
+          tableBody.appendChild(row);
+        });
     }
 
     function resetFilters() {
       if (searchInput) searchInput.value = "";
       if (departmentFilter) departmentFilter.value = "";
       if (statusFilter) statusFilter.value = "";
-
-      filterOffers();
+      render();
     }
 
-    /* ------------------------------------------------------------
-       Événements
-       ------------------------------------------------------------ */
-
-    if (searchInput) {
-      searchInput.addEventListener("input", filterOffers);
-    }
-
-    if (departmentFilter) {
-      departmentFilter.addEventListener("change", filterOffers);
-    }
-
-    if (statusFilter) {
-      statusFilter.addEventListener("change", filterOffers);
-    }
-
-    if (resetButton) {
-      resetButton.addEventListener("click", resetFilters);
-    }
-
-    if (emptyResetButton) {
-      emptyResetButton.addEventListener("click", resetFilters);
-    }
-
-    Array.prototype.slice.call(
-      tableBody.querySelectorAll("[data-view-applications]")
-    ).forEach(function (button) {
-      button.addEventListener("click", function (event) {
-        event.preventDefault();
-        window.location.hash = "page=candidatures-recues";
-      });
+    if (searchInput) searchInput.addEventListener("input", render);
+    if (departmentFilter) departmentFilter.addEventListener("change", render);
+    if (statusFilter) statusFilter.addEventListener("change", render);
+    if (resetButton) resetButton.addEventListener("click", resetFilters);
+    if (emptyResetButton) emptyResetButton.addEventListener("click", resetFilters);
+    tableBody.addEventListener("click", function (event) {
+      var button = event.target.closest("button[data-offer-id][data-offer-status]");
+      if (!button) return;
+      button.disabled = true;
+      fetch(endpoint + "/" + encodeURIComponent(button.dataset.offerId) + "/statut", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ statut: button.dataset.offerStatus })
+      })
+        .then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (body) {
+            if (!response.ok) throw new Error(body.message || "La mise à jour du statut a échoué.");
+          });
+        })
+        .then(loadOffers)
+        .catch(function (error) { window.alert(error.message); button.disabled = false; });
     });
 
-    /* ------------------------------------------------------------
-       Initialisation
-       ------------------------------------------------------------ */
-
-    filterOffers();
+    loadOffers();
   }
 
   document.addEventListener("pageLoaded", initSuiviOffresPubliees);
