@@ -6,6 +6,8 @@ import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
 import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
+import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
+import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
 import com.example.demo.service.departement.DepartementService;
@@ -133,12 +135,42 @@ public class ViewController {
 		return brouillonDemandeService.lister();
 	}
 
+	@GetMapping("/api/rh/besoins-valides")
+	@ResponseBody
+	public List<DemandeBesoinValideProjection> besoinsValides() {
+		return besoinService.listerValides();
+	}
+
 	@GetMapping("/{dossier}/api/besoins/{id}")
 	@ResponseBody
 	public ResponseEntity<DemandeBesoinDetailProjection> detailsBesoin(@PathVariable String dossier,
 			@PathVariable Integer id) {
 		checkDossier(dossier);
 		return besoinService.trouverDetailsPourRH(id)
+				.map(ResponseEntity::ok)
+				.orElseGet(() -> ResponseEntity.notFound().build());
+	}
+
+	@PostMapping("/Responsable-RH/api/besoins/{id}/transmettre")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> transmettreBesoinFinance(@PathVariable Integer id) {
+		if (!besoinService.transmettreALaFinance(id)) {
+			return ResponseEntity.badRequest().body(Map.of("success", false,
+					"message", "Cette demande n’existe pas ou n’est plus en attente de transmission."));
+		}
+		return ResponseEntity.ok(Map.of("success", true, "message", "La demande a été transmise à la Finance."));
+	}
+
+	@GetMapping("/api/finance/besoins-a-examiner")
+	@ResponseBody
+	public List<DemandeBesoinFinanceProjection> besoinsAExaminerFinance() {
+		return besoinService.listerPourFinance();
+	}
+
+	@GetMapping("/api/finance/besoins/{id}")
+	@ResponseBody
+	public ResponseEntity<DemandeBesoinFinanceProjection> detailsBesoinFinance(@PathVariable Integer id) {
+		return besoinService.trouverPourFinance(id)
 				.map(ResponseEntity::ok)
 				.orElseGet(() -> ResponseEntity.notFound().build());
 	}

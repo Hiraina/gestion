@@ -42,6 +42,35 @@ function initBesoinDetail(event) {
         : null);
       setValue("besoin-detail-motif", demande.motif);
       setValue("besoin-detail-competence", demande.competence);
+
+      const transmitButton = document.getElementById("besoin-transmettre-finance");
+      const feedback = document.getElementById("besoin-transmission-feedback");
+      if (transmitButton) {
+        transmitButton.disabled = statut !== "en attente";
+        if (statut === "transmis finance") transmitButton.textContent = "Déjà transmise à la Finance";
+        transmitButton.addEventListener("click", function () {
+          transmitButton.disabled = true;
+          fetch(contextPath + dossier + "/api/besoins/" + encodeURIComponent(requestId) + "/transmettre", { method: "POST", headers: { "Accept": "application/json" } })
+            .then(function (response) {
+              return response.json().then(function (payload) {
+                if (!response.ok) throw new Error(payload.message || "La transmission a échoué.");
+                return payload;
+              });
+            })
+            .then(function (payload) {
+              feedback.hidden = false;
+              feedback.textContent = payload.message;
+              transmitButton.textContent = "Transmise à la Finance";
+              setValue("besoin-detail-statut", "transmis finance");
+              setValue("besoin-detail-statut-info", "transmis finance");
+            })
+            .catch(function (error) {
+              feedback.hidden = false;
+              feedback.textContent = error.message;
+              transmitButton.disabled = false;
+            });
+        });
+      }
     })
     .catch(function (error) {
       content.hidden = true;

@@ -1,277 +1,45 @@
 <div class="page-content">
-  <!-- CONTENU PRINCIPAL -->
   <main class="container">
     <section class="page-header">
       <h1 class="page-title">Suivi des validations</h1>
-
-      <p class="page-description">
-        Retrouvez les demandes définitivement approuvées par la Direction et
-        ouvrez le recrutement correspondant.
-      </p>
+      <p class="page-description">Demandes dont le statut est « valide » dans le circuit de recrutement.</p>
     </section>
-
-    <!-- FILTRES -->
     <section class="card">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Rechercher une demande</h2>
-
-          <p class="card-subtitle">
-            Recherchez une demande parmi celles approuvées par la Direction.
-          </p>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <form action="#" method="get">
-          <div class="filter-grid">
-            <div class="form-group">
-              <label for="recherche">Référence, poste ou responsable</label>
-
-              <input
-                type="search"
-                id="recherche"
-                name="recherche"
-                class="form-control"
-                placeholder="Ex. : DEM-001, Développeur..."
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="departement">Département</label>
-
-              <select id="departement" name="departement" class="form-control">
-                <option value="">Tous les départements</option>
-                <option value="informatique">Informatique</option>
-                <option value="comptabilite">Comptabilité</option>
-                <option value="rh">Ressources Humaines</option>
-                <option value="commercial">Commercial</option>
-                <option value="production">Production</option>
-                <option value="administration">Administration</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="date-debut">Date de début</label>
-
-              <input
-                type="date"
-                id="date-debut"
-                name="date_debut"
-                class="form-control"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="date-fin">Date de fin</label>
-
-              <input
-                type="date"
-                id="date-fin"
-                name="date_fin"
-                class="form-control"
-              />
-            </div>
-          </div>
-
-          <div class="filter-actions">
-            <button type="reset" class="button button-secondary">
-              ↺ Réinitialiser
-            </button>
-
-            <button type="submit" class="button button-primary">
-              🔍 Rechercher
-            </button>
-          </div>
-        </form>
-      </div>
+      <div class="card-header"><div><h2 class="card-title">Rechercher une demande validée</h2><p class="card-subtitle">La liste est chargée depuis les demandes enregistrées.</p></div></div>
+      <div class="card-body"><div class="filter-grid">
+        <div class="form-group"><label for="recherche">Référence, poste ou responsable</label><input type="search" id="recherche" class="form-control" placeholder="Ex. : DEM-12, développeur"></div>
+        <div class="form-group"><label for="departement">Département</label><select id="departement" class="form-control"><option value="">Tous les départements</option></select></div>
+      </div></div>
     </section>
-
-    <!-- TABLEAU DES DEMANDES VALIDÉES -->
     <section class="card">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Demandes validées par la Direction</h2>
-
-          <p class="card-subtitle">
-            Toutes les demandes de cette liste ont le même état : À ouvrir.
-          </p>
-        </div>
-      </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Référence</th>
-              <th>Poste demandé</th>
-              <th>Responsable</th>
-              <th>Département</th>
-              <th>Date de validation</th>
-              <th>État</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr>
-              <td><span class="request-id">DEM-001</span></td>
-              <td>
-                <div class="job-title">Développeur web</div>
-                <div class="secondary-text">2 personnes</div>
-              </td>
-              <td>Rakoto Jean</td>
-              <td>Informatique</td>
-                  <td>08/09/2026</td>
-                  <td>
-                    <span class="status">
-                      <span class="status-dot"></span>
-                      À ouvrir
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-links">
-                      <a href="#" class="details-link">Voir les détails →</a>
-                      <a
-                        href="#"
-                        class="recruitment-button"
-                        data-page="publication-offre"
-                        data-id="DEM-001"
-                        >+ Ouvrir le recrutement</a
-                      >
-                    </div>
-                  </td>
-            </tr>
-
-            <tr>
-              <td><span class="request-id">DEM-004</span></td>
-              <td>
-                <div class="job-title">Technicien informatique</div>
-                <div class="secondary-text">2 personnes</div>
-              </td>
-              <td>Andry Hery</td>
-              <td>Informatique</td>
-                  <td>18/09/2026</td>
-                  <td>
-                    <span class="status">
-                      <span class="status-dot"></span>
-                      À ouvrir
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-links">
-                      <a href="#" class="details-link">Voir les détails →</a>
-                      <a
-                        href="#"
-                        class="recruitment-button"
-                        data-page="publication-offre"
-                        data-id="DEM-004"
-                        >+ Ouvrir le recrutement</a
-                      >
-                    </div>
-                  </td>
-            </tr>
-
-            <tr>
-              <td><span class="request-id">DEM-006</span></td>
-              <td>
-                <div class="job-title">Agent administratif</div>
-                <div class="secondary-text">1 personne</div>
-              </td>
-              <td>Razanakoto Lala</td>
-              <td>Administration</td>
-                  <td>22/09/2026</td>
-                  <td>
-                    <span class="status">
-                      <span class="status-dot"></span>
-                      À ouvrir
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-links">
-                      <a href="#" class="details-link">Voir les détails →</a>
-                      <a
-                        href="#"
-                        class="recruitment-button"
-                        data-page="publication-offre"
-                        data-id="DEM-006"
-                        >+ Ouvrir le recrutement</a
-                      >
-                    </div>
-                  </td>
-            </tr>
-
-            <tr>
-              <td><span class="request-id">DEM-009</span></td>
-              <td>
-                <div class="job-title">Comptable</div>
-                <div class="secondary-text">1 personne</div>
-              </td>
-              <td>Rasoa Marie</td>
-              <td>Comptabilité</td>
-                  <td>23/09/2026</td>
-                  <td>
-                    <span class="status">
-                      <span class="status-dot"></span>
-                      À ouvrir
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-links">
-                      <a href="#" class="details-link">Voir les détails →</a>
-                      <a
-                        href="#"
-                        class="recruitment-button"
-                        data-page="publication-offre"
-                        data-id="DEM-009"
-                        >+ Ouvrir le recrutement</a
-                      >
-                    </div>
-                  </td>
-            </tr>
-
-            <tr>
-              <td><span class="request-id">DEM-010</span></td>
-              <td>
-                <div class="job-title">Assistant administratif</div>
-                <div class="secondary-text">1 personne</div>
-              </td>
-              <td>Rabe Paul</td>
-              <td>Administration</td>
-                  <td>25/09/2026</td>
-                  <td>
-                    <span class="status">
-                      <span class="status-dot"></span>
-                      À ouvrir
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-links">
-                      <a href="#" class="details-link">Voir les détails →</a>
-                      <a
-                        href="#"
-                        class="recruitment-button"
-                        data-page="publication-offre"
-                        data-id="DEM-010"
-                        >+ Ouvrir le recrutement</a
-                      >
-                    </div>
-                  </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- PAGINATION -->
-      <div class="table-footer">
-        <p class="results-info">
-          Affichage de 5 demandes validées par la Direction
-        </p>
-
-        <div class="pagination">
-          <a href="#" class="page-number active">1</a>
-        </div>
-      </div>
+      <div class="card-header"><div><h2 class="card-title">Demandes validées par la Direction</h2><p class="card-subtitle">La date de validation n’est pas encore enregistrée dans le système.</p></div></div>
+      <div class="table-container"><table><thead><tr><th>Référence</th><th>Poste demandé</th><th>Responsable</th><th>Département</th><th>Date de validation</th><th>État</th><th>Action</th></tr></thead>
+      <tbody id="validated-requests"><tr><td colspan="7">Chargement des demandes…</td></tr></tbody></table></div>
+      <div class="table-footer"><p class="results-info" id="validated-count"></p></div>
     </section>
   </main>
+  <script>
+  (function () {
+    var body = document.getElementById('validated-requests');
+    var search = document.getElementById('recherche');
+    var department = document.getElementById('departement');
+    var all = [];
+    function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function render() {
+      var q = search.value.trim().toLocaleLowerCase();
+      var dep = department.value;
+      var rows = all.filter(function (r) { return (!dep || r.departement === dep) && (!q || [r.reference,r.poste,r.manager,r.departement].join(' ').toLocaleLowerCase().includes(q)); });
+      body.innerHTML = rows.length ? rows.map(function (r) { return '<tr><td><span class="request-id">'+esc(r.reference)+'</span></td><td><div class="job-title">'+esc(r.poste)+'</div><div class="secondary-text">'+esc(r.effectif)+' personne(s)</div></td><td>'+esc(r.manager)+'</td><td>'+esc(r.departement || '—')+'</td><td>Non enregistrée</td><td><span class="status"><span class="status-dot"></span>Validée</span></td><td><div class="action-links"><a href="#page=publication-offre&id='+encodeURIComponent(r.id)+'" class="recruitment-button" data-page="publication-offre" data-id="'+esc(r.id)+'">+ Préparer une offre</a></div></td></tr>'; }).join('') : '<tr><td colspan="7">Aucune demande validée ne correspond aux filtres.</td></tr>';
+      document.getElementById('validated-count').textContent = rows.length+' demande(s) validée(s)';
+    }
+    search.addEventListener('input', render); department.addEventListener('change', render);
+    fetch((document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '') + '/api/rh/besoins-valides', {headers:{Accept:'application/json'}})
+      .then(function (response) { if (!response.ok) throw new Error('Erreur '+response.status); return response.json(); })
+      .then(function (data) {
+        all = data.map(function (r) { r.reference = 'DEM-'+r.id; return r; });
+        Array.from(new Set(all.map(function (r) { return r.departement; }).filter(Boolean))).sort().forEach(function (name) { var option=document.createElement('option'); option.value=name; option.textContent=name; department.appendChild(option); });
+        render();
+      }).catch(function () { body.innerHTML='<tr><td colspan="7">Impossible de charger les demandes validées.</td></tr>'; });
+  })();
+  </script>
 </div>
