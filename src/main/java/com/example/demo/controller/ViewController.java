@@ -1,16 +1,22 @@
 package com.example.demo.controller;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
+import com.example.demo.dto.besoin.BesoinDTO;
+import com.example.demo.dto.departement.DepartementDTO;
+import com.example.demo.dto.poste.PosteDTO;
+import com.example.demo.entity.departement.Departement;
+import com.example.demo.service.besoin.BesoinService;
+import com.example.demo.service.departement.DepartementService;
+import com.example.demo.service.poste.PosteService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Sert les vues Thymeleaf stockées dans classpath:/webapp/.
@@ -31,17 +37,23 @@ public class ViewController {
 	/** Nom de fichier de fragment : caractères sûrs uniquement. */
 	private static final Pattern SAFE_NAME = Pattern.compile("^[A-Za-z0-9_-]+$");
 
-	@Value("${spring.thymeleaf.prefix:classpath:/webapp/}")
-	private String templatePrefix;
+	private final DepartementService departementService;
+	private final PosteService posteService;
+	private final BesoinService besoinService;
 
-	@Value("${spring.thymeleaf.suffix:.html}")
-	private String templateSuffix;
+	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService) {
+		this.departementService = departementService;
+		this.posteService = posteService;
+		this.besoinService = besoinService;
+	}
 
 	/** Page principale d'un espace de travail. */
 	@GetMapping("/{dossier}/template.html")
 	public String template(@PathVariable String dossier, Model model) {
 		checkDossier(dossier);
 		model.addAttribute("dossier", dossier);
+		addDepartements(model);
+		addPostes(model);
 		return dossier + "/template";
 	}
 
@@ -50,12 +62,15 @@ public class ViewController {
 	public String page(@PathVariable String dossier, @PathVariable String page, Model model) {
 		checkDossier(dossier);
 		if (!SAFE_NAME.matcher(page).matches()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page inconnue : " + page);
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Page inconnue : " + page);
 		}
 		if (!exists(dossier + "/pages/" + page)) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page inconnue : " + page);
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Page inconnue : " + page);
 		}
 		model.addAttribute("dossier", dossier);
+		addDepartements(model);
+		addPostes(model);
+		model.addAttribute("besoinDTO", new BesoinDTO());
 		return dossier + "/pages/" + page;
 	}
 
@@ -63,26 +78,51 @@ public class ViewController {
 	@GetMapping("/candidat/{page}.html")
 	public String candidat(@PathVariable String page, Model model) {
 		if (!SAFE_NAME.matcher(page).matches()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page inconnue : " + page);
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Page inconnue : " + page);
 		}
 		if (!exists("candidat/" + page)) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page inconnue : " + page);
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Page inconnue : " + page);
 		}
 		model.addAttribute("dossier", "candidat");
+		addDepartements(model);
+		addPostes(model);
 		return "candidat/" + page;
+	}
+
+	/** Soumission d'une demande de besoin : insert en statut "en attente" (id 1). */
+	@PostMapping("/{dossier}/pages/demande_besoin/soumettre")
+	public String soumettreBesoin(@PathVariable String dossier, @ModelAttribute BesoinDTO besoinDTO, Model model) {
+		checkDossier(dossier);
+		besoinService.creerBesoin(besoinDTO);
+		model.addAttribute("dossier", dossier);
+		addDepartements(model);
+		addPostes(model);
+		model.addAttribute("besoinDTO", new BesoinDTO());
+		model.addAttribute("besoinEnvoye", true);
+		return dossier + "/pages/demande_besoin";
+	}
+
+	private void addDepartements(Model model) {
+		List<DepartementDTO> departements = departementService.listerTous();
+		model.addAttribute("departements", departements);
+	}
+
+	private void addPostes(Model model) {
+		List<PosteDTO> postes = posteService.listerTous();
+		model.addAttribute("postes", postes);
 	}
 
 	private void checkDossier(String dossier) {
 		if (!DOSSIERS.contains(dossier)) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Espace inconnu : " + dossier);
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Espace inconnu : " + dossier);
 		}
 	}
 
 	private boolean exists(String viewName) {
-		String location = templatePrefix + viewName + templateSuffix;
+		String location = "classpath:/webapp/" + viewName + ".html";
 		if (location.startsWith("classpath:")) {
 			location = location.substring("classpath:".length());
 		}
-		return new ClassPathResource(location).exists();
+		return new org.springframework.core.io.ClassPathResource(location).exists();
 	}
 }

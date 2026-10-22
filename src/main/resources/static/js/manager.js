@@ -63,12 +63,27 @@ function initManagerForm() {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     const action = event.submitter ? event.submitter.value : "soumettre";
-    say(
-      action === "brouillon"
-        ? "Votre demande a été enregistrée dans vos brouillons."
-        : "Votre demande a été soumise. Vous pouvez suivre son avancement dans « Suivi de mes demandes ».",
-      true
-    );
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: "POST",
+      body: formData
+    })
+    .then(function (response) {
+      if (response.ok) {
+        say(
+          action === "brouillon"
+            ? "Votre demande a été enregistrée dans vos brouillons."
+            : "Votre demande a été soumise. Vous pouvez suivre son avancement dans « Suivi de mes demandes ».",
+          true
+        );
+      } else {
+        say("Erreur lors de l'envoi de la demande.", false);
+      }
+    })
+    .catch(function () {
+      say("Erreur de connexion au serveur.", false);
+    });
   });
 
   form.addEventListener("reset", function () {
