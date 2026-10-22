@@ -6,6 +6,7 @@ import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
 import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
+import com.example.demo.repository.besoin.DemandeBesoinDirectionProjection;
 import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.service.besoin.BesoinService;
@@ -159,6 +160,22 @@ public class ViewController {
 					"message", "Cette demande n’existe pas ou n’est plus en attente de transmission."));
 		}
 		return ResponseEntity.ok(Map.of("success", true, "message", "La demande a été transmise à la Finance."));
+	}
+
+	@PostMapping("/Responsable-RH/api/besoins/{id}/transmettre-direction")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> transmettreBesoinDirection(@PathVariable Integer id) {
+		if (!besoinService.transmettreALaDirection(id)) {
+			return ResponseEntity.badRequest().body(Map.of("success", false,
+					"message", "Cette demande n’existe pas ou n’est pas validée par la Finance."));
+		}
+		return ResponseEntity.ok(Map.of("success", true, "message", "La demande a été transmise à la Direction."));
+	}
+
+	@GetMapping("/api/direction/besoins-a-approuver")
+	@ResponseBody
+	public List<DemandeBesoinDirectionProjection> besoinsAapprouverDirection() {
+		return besoinService.listerPourDirection();
 	}
 
 	@GetMapping("/api/finance/besoins-a-examiner")

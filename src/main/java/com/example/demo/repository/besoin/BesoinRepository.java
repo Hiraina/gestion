@@ -27,7 +27,7 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
 			+ "JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut "
 			+ "WHERE b.id_besoin = :id", nativeQuery = true)
-	Optional<DemandeBesoinDetailProjection> trouverDetailsPourRH(Integer id);
+	Optional<DemandeBesoinDetailProjection> trouverDetailsPourRH(@Param("id") Integer id);
 
 	@Query(value = "SELECT b.id_besoin AS id, p.titre AS poste, d.nom AS departement, "
 			+ "b.nom_manager_demandeur AS manager, b.effectif AS effectif, "
@@ -67,4 +67,20 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
 			+ "WHERE b.id_besoin = :id AND s.nom = 'transmis_finance'", nativeQuery = true)
 	Optional<DemandeBesoinFinanceProjection> trouverPourFinance(@Param("id") Integer id);
+
+	@Modifying
+	@Query(value = "UPDATE besoins SET statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'transmis_direction') "
+			+ "WHERE id_besoin = :id AND statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'validee_finance')",
+			nativeQuery = true)
+	int transmettreALaDirection(@Param("id") Integer id);
+
+	@Query(value = "SELECT b.id_besoin AS id, p.titre AS poste, d.nom AS departement, "
+			+ "b.nom_manager_demandeur AS manager, b.effectif AS effectif, "
+			+ "b.date_souhaitee AS \"dateSouhaitee\" "
+			+ "FROM besoins b JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut "
+			+ "JOIN postes p ON p.id_poste = b.id_poste "
+			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
+			+ "WHERE s.nom = 'transmis_direction' "
+			+ "ORDER BY b.id_besoin DESC", nativeQuery = true)
+	List<DemandeBesoinDirectionProjection> listerPourDirection();
 }
