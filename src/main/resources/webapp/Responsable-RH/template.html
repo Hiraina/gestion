@@ -26,7 +26,7 @@
         <ul>
           <li><a href="#page=welcome" data-page="welcome" data-label="Accueil"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg><span>Accueil</span></a></li>
           <li class="nav-group">Recrutement</li>
-          <li><a href="#page=liste-demandes" data-page="liste-demandes" data-label="Demandes reçues" data-children="detail-nouvelle-demande,detail-demande-direction"><svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg><span>Demandes reçues</span></a></li>
+          <li><a href="#page=liste-demandes" data-page="liste-demandes" data-label="Demandes reçues" data-children="detail-demande"><svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg><span>Demandes reçues</span></a></li>
           <li><a href="#page=suivi-validations" data-page="suivi-validations" data-label="Suivi des validations"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Suivi des validations</span></a></li>
           <li><a href="#page=brouillons-offre" data-page="brouillons-offre" data-label="Brouillons des offres" data-children="publication-offre"><svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg><span>Brouillons des offres</span></a></li>
           <li><a href="#page=suivi-offres-publiees" data-page="suivi-offres-publiees" data-label="Offres publiées" data-children="candidatures-recues"><svg class="icon" aria-hidden="true"><use href="#i-megaphone"/></svg><span>Offres publiées</span></a></li>
@@ -68,6 +68,7 @@
     </div>
 
     <script th:src="@{/js/rh.js}"></script>
+    <script th:src="@{/js/besoin-detail.js}"></script>
     <script th:src="@{/js/templating.js}"></script>
     <script th:src="@{/js/shell.js}"></script>
   </body>

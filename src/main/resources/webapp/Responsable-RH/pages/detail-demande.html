@@ -1,0 +1,50 @@
+<div class="page-content">
+  <div class="container">
+    <div class="ui-page-heading page-heading">
+      <div>
+        <span class="request-number">DEMANDE N° <span id="besoin-detail-id">—</span></span>
+        <h1>Détail de la demande</h1>
+        <p>Informations transmises par le Manager.</p>
+      </div>
+      <span id="besoin-detail-statut" class="status">Chargement…</span>
+    </div>
+
+    <main class="request-card" id="besoin-detail-content">
+      <section class="section">
+        <div class="section-title"><div class="section-number">1</div><h2>Informations générales</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Manager demandeur</span><span class="info-value" id="besoin-detail-manager">—</span></div>
+          <div class="info-item"><span class="info-label">Département</span><span class="info-value" id="besoin-detail-departement">—</span></div>
+          <div class="info-item"><span class="info-label">Statut</span><span class="info-value" id="besoin-detail-statut-info">—</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="section-number">2</div><h2>Nature du besoin</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Poste demandé</span><span class="info-value" id="besoin-detail-poste">—</span></div>
+          <div class="info-item"><span class="info-label">Nombre de personnes demandées</span><span class="info-value" id="besoin-detail-effectif">—</span></div>
+          <div class="info-item"><span class="info-label">Date souhaitée de prise de poste</span><span class="info-value" id="besoin-detail-date">—</span></div>
+        </div>
+        <div class="description-box">
+          <span class="info-label">Motif</span>
+          <p id="besoin-detail-motif">—</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="section-number">3</div><h2>Compétences requises</h2></div>
+        <div class="description-box"><p id="besoin-detail-competence">—</p></div>
+      </section>
+    </main>
+
+    <div id="besoin-detail-error" class="ui-note" role="status" hidden></div>
+
+    <!-- ACTIONS -->
+    <div class="form-actions">
+      <a href="#" data-page="liste-demandes" class="btn btn-secondary">← Retour</a>
+      <button type="button" class="btn btn-primary" id="besoin-transmettre-finance" disabled>Transmettre à la Finance →</button>
+      <span id="besoin-transmission-feedback" class="ui-note" role="status" hidden></span>
+    </div>
+  </div>
+</div>
