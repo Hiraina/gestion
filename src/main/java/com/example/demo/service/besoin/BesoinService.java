@@ -7,6 +7,7 @@ import com.example.demo.repository.besoin.DemandeBesoinListeProjection;
 import com.example.demo.repository.besoin.DemandeBesoinDetailProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
+import com.example.demo.repository.besoin.DemandeBesoinDirectionProjection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,5 +58,13 @@ public class BesoinService {
 
 	public Optional<DemandeBesoinFinanceProjection> trouverPourFinance(Integer id) {
 		return repository.trouverPourFinance(id);
+	}
+
+	public boolean transmettreALaDirection(Integer id) {
+		return repository.transmettreALaDirection(id) == 1;
+	}
+
+	public List<DemandeBesoinDirectionProjection> listerPourDirection() {
+		return repository.listerPourDirection();
 	}
 }

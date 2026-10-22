@@ -267,7 +267,9 @@ INSERT INTO statut_recrutement (nom) VALUES
 ('valide'),
 ('refuse'),
 ('cloture'),
-('transmis_finance');
+('transmis_finance'),
+('validee_finance'),
+('transmis_direction');
 
 -- DEMANDES DE BESOIN (circuit de validation manager -> direction -> RH)
 
@@ -284,6 +286,9 @@ CREATE TABLE besoins (
         REFERENCES statut_recrutement(id_statut_recrutement),
     date_transmission_finance TIMESTAMP
 );
+
+INSERT INTO besoins (id_poste, nom_manager_demandeur, date_souhaitee, motif, competance, effectif, statut, date_transmission_finance) VALUES
+(1, 'Manager Demo', CURRENT_DATE, 'Besoin valide finance', 'Competence demo', 1, (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom='validee_finance'), CURRENT_TIMESTAMP);
 
 CREATE TABLE brouillon_demande (
     id BIGSERIAL PRIMARY KEY,
