@@ -1818,12 +1818,7 @@ var RHDrafts = (function () {
 (function () {
   "use strict";
 
-  var candidates = {
-    1: { id: 1, name: "Rakoto Jean", initials: "RJ", email: "jean.rakoto@example.com", phone: "034 12 345 67", date: "20/10/2026", job: "Développeur web", contract: "CDI", cvName: "CV_Jean_Rakoto.pdf", cvUrl: "", letterName: "Lettre_motivation_Jean.pdf", letterUrl: "" },
-    2: { id: 2, name: "Rasoanaivo Sarah", initials: "RS", email: "sarah.rasoanaivo@example.com", phone: "032 45 678 90", date: "19/10/2026", job: "Développeur web", contract: "CDI", cvName: "CV_Sarah_Rasoanaivo.pdf", cvUrl: "", letterName: "Lettre_motivation_Sarah.pdf", letterUrl: "" },
-    3: { id: 3, name: "Andria Paul", initials: "AP", email: "paul.andria@example.com", phone: "033 56 789 01", date: "18/10/2026", job: "Développeur web", contract: "CDI", cvName: "CV_Paul_Andria.pdf", cvUrl: "", letterName: "Lettre_motivation_Paul.pdf", letterUrl: "" },
-    4: { id: 4, name: "Randria Marie", initials: "RM", email: "marie.randria@example.com", phone: "034 67 890 12", date: "17/10/2026", job: "Développeur web", contract: "CDI", cvName: "CV_Marie_Randria.pdf", cvUrl: "", letterName: "Lettre_motivation_Marie.pdf", letterUrl: "" }
-  };
+  var candidates = {};
 
   var selectedCandidates = new Set();
   var currentCandidateId = null;
@@ -1837,7 +1832,6 @@ var RHDrafts = (function () {
 
     var modal = page.querySelector("#candidateModal");
     var search = page.querySelector("#searchInput");
-    var rows = Array.prototype.slice.call(page.querySelectorAll("#candidatesTable tr"));
     var modalSelect = page.querySelector("#modalSelectButton");
 
     function setText(id, value) {
@@ -1925,13 +1919,42 @@ var RHDrafts = (function () {
 
     function selectCandidate(id) {
       if (!candidates[id] || selectedCandidates.has(id)) return;
-      selectedCandidates.add(id);
-      updateCandidateButton(id);
-      updateCounts();
-      if (currentCandidateId === id) updateModalButton(id);
+      var button = page.querySelector('[data-select-id="' + id + '"]');
+      if (button) button.disabled = true;
+      var basePath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+      fetch(basePath + "/Responsable-RH/api/candidatures/" + encodeURIComponent(id) + "/preselection", {
+        method: "POST",
+        headers: { Accept: "application/json" }
+      }).then(function (response) {
+        return response.json().catch(function () { return {}; }).then(function (body) {
+          if (!response.ok) throw new Error(body.message || "La présélection a échoué.");
+          return body;
+        });
+      }).then(function () {
+        selectedCandidates.add(id);
+        updateCandidateButton(id);
+        updateCounts();
+        if (currentCandidateId === id) updateModalButton(id);
+        var row = page.querySelector('[data-candidature-id="' + id + '"]');
+        if (row) row.remove();
+        filterCandidates();
+        showCandidateMessage("Le candidat a été ajouté à la liste des entretiens.");
+      }).catch(function (error) {
+        if (button) button.disabled = false;
+        window.alert(error.message);
+      });
+    }
+
+    function showCandidateMessage(message) {
+      var toast = page.querySelector("#candidateToast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(function () { toast.classList.remove("show"); }, 3000);
     }
 
     function filterCandidates() {
+      var rows = Array.prototype.slice.call(page.querySelectorAll("#candidatesTable tr[data-candidature-id]"));
       var term = search.value.trim().toLowerCase();
       var visible = 0;
 
@@ -1946,23 +1969,84 @@ var RHDrafts = (function () {
       if (emptyState) emptyState.style.display = visible ? "none" : "block";
     }
 
-    rows.forEach(function (row) {
-      var id = Number(row.querySelector("[data-select-id]").getAttribute("data-select-id"));
-      updateCandidateButton(id);
-      row.querySelector(".btn-details").addEventListener("click", function () { viewCandidate(id); });
-      row.querySelector("[data-select-id]").addEventListener("click", function () { selectCandidate(id); });
-    });
+    if (page.dataset.candidaturesLoaded !== "true") {
+      if (page.dataset.candidaturesLoading === "true") return;
+      page.dataset.candidaturesLoading = "true";
+      var basePath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+      fetch(basePath + "/Responsable-RH/api/candidatures", { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("Impossible de charger les candidatures.");
+          return response.json();
+        })
+        .then(function (items) {
+          var tbody = page.querySelector("#candidatesTable");
+          if (!tbody || !Array.isArray(items)) throw new Error("La liste des candidatures est invalide.");
+          candidates = {};
+          tbody.replaceChildren();
+          items.forEach(function (item) {
+            var id = Number(item.id);
+            var name = [item.prenom, item.nom].filter(Boolean).join(" ");
+            var candidate = {
+              id: id,
+              name: name || "Candidat",
+              initials: [item.prenom, item.nom].filter(Boolean).map(function (part) { return part.charAt(0); }).join("").toUpperCase() || "CA",
+              email: item.email || "",
+              phone: item.telephone || "Non renseigné",
+              date: item.dateCandidature ? new Date(item.dateCandidature).toLocaleDateString("fr-FR") : "Non renseignée",
+              job: item.poste || "Poste non renseigné",
+              contract: item.contract || "Non renseigné",
+              cvName: item.cvName || "CV non transmis",
+              cvUrl: item.cvUrl || "",
+              letterName: item.lettreName || "Lettre non transmise",
+              letterUrl: item.lettreUrl || ""
+            };
+            candidates[id] = candidate;
+            var row = document.createElement("tr");
+            row.dataset.candidatureId = id;
+            row.dataset.name = candidate.name;
+            row.dataset.email = candidate.email;
+            row.innerHTML = '<td><div class="candidate-info"><div class="candidate-avatar"></div><div><p class="candidate-name"></p><p class="candidate-email"></p></div></div></td>' +
+              '<td><span class="date"></span></td><td><div class="actions"><button type="button" class="btn btn-details">Voir le dossier</button><button type="button" class="btn btn-select" data-select-id="' + id + '">Présélectionner</button></div></td>';
+            row.querySelector(".candidate-avatar").textContent = candidate.initials;
+            row.querySelector(".candidate-name").textContent = candidate.name;
+            row.querySelector(".candidate-email").textContent = candidate.email;
+            row.querySelector(".date").textContent = candidate.date;
+            tbody.appendChild(row);
+            updateCandidateButton(id);
+            row.querySelector(".btn-details").addEventListener("click", function () { viewCandidate(id); });
+            row.querySelector("[data-select-id]").addEventListener("click", function () { selectCandidate(id); });
+          });
+          page.dataset.candidaturesLoaded = "true";
+          page.dataset.candidaturesLoading = "false";
+          setText("resultsCount", items.length + (items.length === 1 ? " candidat affiché" : " candidats affichés"));
+          updateCounts();
+          filterCandidates();
+          initCandidaturesRecues(event);
+        })
+        .catch(function (error) {
+          page.dataset.candidaturesLoading = "false";
+          var tbody = page.querySelector("#candidatesTable");
+          if (tbody) tbody.innerHTML = '<tr><td colspan="3"></td></tr>';
+          var messageCell = tbody && tbody.querySelector("td");
+          if (messageCell) messageCell.textContent = error.message;
+          setText("resultsCount", "Chargement impossible");
+        });
+      return;
+    }
 
-    page.querySelectorAll("[data-close-modal]").forEach(function (button) {
-      button.addEventListener("click", closeModal);
-    });
-    modal.addEventListener("click", function (eventClick) {
-      if (eventClick.target === modal) closeModal();
-    });
-    modalSelect.addEventListener("click", function () {
-      if (currentCandidateId !== null) selectCandidate(currentCandidateId);
-    });
-    search.addEventListener("input", filterCandidates);
+    if (page.dataset.candidatureHandlersBound !== "true") {
+      page.querySelectorAll("[data-close-modal]").forEach(function (button) {
+        button.addEventListener("click", closeModal);
+      });
+      modal.addEventListener("click", function (eventClick) {
+        if (eventClick.target === modal) closeModal();
+      });
+      modalSelect.addEventListener("click", function () {
+        if (currentCandidateId !== null) selectCandidate(currentCandidateId);
+      });
+      search.addEventListener("input", filterCandidates);
+      page.dataset.candidatureHandlersBound = "true";
+    }
 
     window.closeCandidateModal = closeModal;
 
@@ -1993,35 +2077,7 @@ var RHDrafts = (function () {
 (function () {
   "use strict";
 
-  var interviewCandidates = {
-    1: {
-      id: 1,
-      name: "Rakoto Jean",
-      initials: "RJ",
-      email: "jean.rakoto@example.com",
-      job: "Développeur web",
-      notes: "",
-      decision: null
-    },
-    2: {
-      id: 2,
-      name: "Rasoanaivo Sarah",
-      initials: "RS",
-      email: "sarah.rasoanaivo@example.com",
-      job: "Développeur web",
-      notes: "",
-      decision: null
-    },
-    3: {
-      id: 3,
-      name: "Andria Paul",
-      initials: "AP",
-      email: "paul.andria@example.com",
-      job: "Développeur web",
-      notes: "",
-      decision: null
-    }
-  };
+  var interviewCandidates = {};
 
   var currentInterviewCandidateId = null;
   var interviewToastTimeout = null;
@@ -2032,7 +2088,7 @@ var RHDrafts = (function () {
 
   window.startInterview = function(id) {
     var candidate = interviewCandidates[id];
-    if (!candidate || candidate.decision !== null) {
+    if (!candidate || candidate.resultat === "FAVORABLE" || candidate.resultat === "DEFAVORABLE") {
       return;
     }
 
@@ -2084,11 +2140,14 @@ var RHDrafts = (function () {
     if (!candidate) return;
 
     var notesArea = byId("interviewNotes");
-    if (notesArea) {
-      candidate.notes = notesArea.value;
-    }
-
-    showInterviewToast("Notes enregistrées pour " + candidate.name + ".");
+    var notes = notesArea ? notesArea.value : "";
+    postInterview("/" + encodeURIComponent(candidate.id) + "/notes", "POST", { notes: notes })
+      .then(function() {
+        candidate.notes = notes;
+        candidate.dateEntretien = new Date().toISOString();
+        showInterviewToast("Notes enregistrées pour " + candidate.name + ".");
+      })
+      .catch(function(error) { window.alert(error.message); });
   };
 
   window.makeInterviewDecision = function(decision) {
@@ -2118,23 +2177,34 @@ var RHDrafts = (function () {
       candidate.notes = notesArea.value;
     }
 
-    candidate.decision = decision;
-
-    updateInterviewCandidateRow(candidate);
-    updateInterviewStatistics();
-
-    window.closeInterviewModal();
-
-    if (decision === "accept") {
-      showInterviewToast(
-        candidate.name + " a été accepté à l'issue de l'entretien."
-      );
-    } else {
-      showInterviewToast(
-        candidate.name + " a été refusé à l'issue de l'entretien."
-      );
-    }
+    var notes = notesArea ? notesArea.value : "";
+    var result = decision === "accept" ? "FAVORABLE" : "DEFAVORABLE";
+    postInterview("/" + encodeURIComponent(candidate.id) + "/decision", "PATCH", { notes: notes, resultat: result })
+      .then(function() {
+        candidate.notes = notes;
+        candidate.resultat = result;
+        candidate.statut = decision === "accept" ? "proposition" : "rejetee";
+        updateInterviewCandidateRow(candidate);
+        updateInterviewStatistics();
+        window.closeInterviewModal();
+        showInterviewToast(candidate.name + (decision === "accept" ? " a été accepté" : " a été refusé") + " à l'issue de l'entretien.");
+      })
+      .catch(function(error) { window.alert(error.message); });
   };
+
+  function postInterview(suffix, method, payload) {
+    var basePath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    return fetch(basePath + "/Responsable-RH/api/entretiens" + suffix, {
+      method: method,
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function(response) {
+      return response.json().catch(function() { return {}; }).then(function(body) {
+        if (!response.ok) throw new Error(body.message || "L'enregistrement de l'entretien a échoué.");
+        return body;
+      });
+    });
+  }
 
   function updateInterviewCandidateRow(candidate) {
     var button = document.querySelector(
@@ -2149,10 +2219,15 @@ var RHDrafts = (function () {
     button.classList.remove("btn-start");
     button.classList.add("btn-completed");
 
-    if (candidate.decision === "accept") {
+    if (candidate.resultat === "FAVORABLE") {
       button.textContent = "Candidat accepté ✓";
-    } else {
+    } else if (candidate.resultat === "DEFAVORABLE") {
       button.textContent = "Candidat refusé";
+    } else {
+      button.disabled = false;
+      button.classList.remove("btn-completed");
+      button.classList.add("btn-start");
+      button.textContent = "Reprendre l'entretien";
     }
   }
 
@@ -2160,15 +2235,15 @@ var RHDrafts = (function () {
     var values = Object.values(interviewCandidates);
 
     var pending = values.filter(function(candidate) {
-      return candidate.decision === null;
+      return !candidate.resultat || candidate.resultat === "A_REVOIR";
     }).length;
 
     var accepted = values.filter(function(candidate) {
-      return candidate.decision === "accept";
+      return candidate.resultat === "FAVORABLE";
     }).length;
 
     var rejected = values.filter(function(candidate) {
-      return candidate.decision === "refuse";
+      return candidate.resultat === "DEFAVORABLE";
     }).length;
 
     var pendingCount = byId("pendingCount");
@@ -2198,23 +2273,69 @@ var RHDrafts = (function () {
 
   function initEntretiens() {
     var searchInput = byId("interviewsSearchInput");
-    var rows = document.querySelectorAll("#interviewCandidateTable tr");
+    var table = byId("interviewCandidateTable");
     var emptyState = byId("interviewsEmptyState");
 
-    if (emptyState) {
-      emptyState.style.display = "none";
-    }
-
-    rows.forEach(function(row) {
-      row.style.display = "";
-    });
+    if (!table || table.dataset.loaded === "true" || table.dataset.loading === "true") return;
+    table.dataset.loading = "true";
+    var basePath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    fetch(basePath + "/Responsable-RH/api/entretiens", { headers: { Accept: "application/json" } })
+      .then(function(response) {
+        if (!response.ok) throw new Error("Impossible de charger les entretiens.");
+        return response.json();
+      })
+      .then(function(items) {
+        if (!Array.isArray(items)) throw new Error("La liste des entretiens est invalide.");
+        interviewCandidates = {};
+        table.replaceChildren();
+        items.forEach(function(item) {
+          var id = Number(item.id);
+          var name = [item.prenom, item.nom].filter(Boolean).join(" ") || "Candidat";
+          var candidate = {
+            id: id,
+            name: name,
+            initials: [item.prenom, item.nom].filter(Boolean).map(function(part) { return part.charAt(0); }).join("").toUpperCase() || "CA",
+            email: item.email || "",
+            job: item.poste || "Poste non renseigné",
+            notes: item.notes || "",
+            resultat: item.resultat || null,
+            statut: item.statut || "entretien",
+            dateEntretien: item.dateEntretien || item.dateCandidature
+          };
+          interviewCandidates[id] = candidate;
+          var row = document.createElement("tr");
+          row.dataset.name = candidate.name;
+          row.dataset.job = candidate.job;
+          row.innerHTML = '<td><div class="candidate-info"><div class="candidate-avatar"></div><div><p class="candidate-name"></p><p class="candidate-email"></p></div></div></td>' +
+            '<td><span class="job-name"></span></td><td><span class="date"></span></td><td><button type="button" class="btn btn-start" data-action-id="' + id + '"></button></td>';
+          row.querySelector(".candidate-avatar").textContent = candidate.initials;
+          row.querySelector(".candidate-name").textContent = candidate.name;
+          row.querySelector(".candidate-email").textContent = candidate.email;
+          row.querySelector(".job-name").textContent = candidate.job;
+          row.querySelector(".date").textContent = candidate.dateEntretien ? new Date(candidate.dateEntretien).toLocaleDateString("fr-FR") : "En attente";
+          row.querySelector("[data-action-id]").textContent = candidate.resultat === "FAVORABLE" ? "Candidat accepté ✓" : candidate.resultat === "DEFAVORABLE" ? "Candidat refusé" : "Débuter l'entretien";
+          row.querySelector("[data-action-id]").disabled = candidate.resultat === "FAVORABLE" || candidate.resultat === "DEFAVORABLE";
+          row.querySelector("[data-action-id]").addEventListener("click", function() { window.startInterview(id); });
+          table.appendChild(row);
+        });
+        table.dataset.loaded = "true";
+        table.dataset.loading = "false";
+        updateInterviewStatistics();
+        if (emptyState) emptyState.style.display = items.length ? "none" : "block";
+        if (searchInput) searchInput.dispatchEvent(new Event("input"));
+      })
+      .catch(function(error) {
+        table.dataset.loading = "false";
+        table.innerHTML = "<tr><td colspan='4'></td></tr>";
+        table.querySelector("td").textContent = error.message;
+      });
 
     if (searchInput) {
       searchInput.addEventListener("input", function() {
         var term = this.value.trim().toLowerCase();
         var visible = 0;
 
-        rows.forEach(function(row) {
+        table.querySelectorAll("tr[data-name]").forEach(function(row) {
           var name = (row.dataset.name || "").toLowerCase();
           var job = (row.dataset.job || "").toLowerCase();
           var matches = name.includes(term) || job.includes(term);
@@ -2229,7 +2350,6 @@ var RHDrafts = (function () {
       });
     }
 
-    updateInterviewStatistics();
   }
 
   document.addEventListener("pageLoaded", function(event) {

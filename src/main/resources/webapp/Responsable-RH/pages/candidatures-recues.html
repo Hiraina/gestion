@@ -5,14 +5,14 @@
                     <h1>Candidatures reçues</h1>
                     <p>Consultez les dossiers des candidats et sélectionnez les profils à retenir pour la suite du recrutement.</p>
                 </div>
-                <div class="offer-tag">💼 Offre : <strong>Développeur web</strong></div>
+                <div class="offer-tag">💼 Offre : <strong id="applicationsOfferFilter">Toutes les offres publiées</strong></div>
             </div>
             <section class="stats">
                 <div class="stat-card">
                     <div class="stat-icon">📄</div>
                     <div>
                         <p class="stat-label">Total des candidatures</p>
-                        <p class="stat-value" id="totalCandidates">4</p>
+                        <p class="stat-value" id="totalCandidates">0</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -33,38 +33,17 @@
                         <span>⌕</span>
                         <input type="search" id="searchInput" placeholder="Rechercher un candidat..." aria-label="Rechercher un candidat">
                     </div>
-                    <div class="results-count" id="resultsCount">4 candidats affichés</div>
+                            <div class="results-count" id="resultsCount">Chargement des candidatures…</div>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Candidat</th><th>Date de candidature</th><th>Actions</th></tr></thead>
-                        <tbody id="candidatesTable">
-                            <tr data-name="Rakoto Jean" data-email="jean.rakoto@example.com">
-                                <td><div class="candidate-info"><div class="candidate-avatar">RJ</div><div><p class="candidate-name">Rakoto Jean</p><p class="candidate-email">jean.rakoto@example.com</p></div></div></td>
-                                <td><span class="date">20/10/2026</span></td>
-                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="1">Présélectionner</button></div></td>
-                            </tr>
-                            <tr data-name="Rasoanaivo Sarah" data-email="sarah.rasoanaivo@example.com">
-                                <td><div class="candidate-info"><div class="candidate-avatar">RS</div><div><p class="candidate-name">Rasoanaivo Sarah</p><p class="candidate-email">sarah.rasoanaivo@example.com</p></div></div></td>
-                                <td><span class="date">19/10/2026</span></td>
-                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="2">Présélectionner</button></div></td>
-                            </tr>
-                            <tr data-name="Andria Paul" data-email="paul.andria@example.com">
-                                <td><div class="candidate-info"><div class="candidate-avatar">AP</div><div><p class="candidate-name">Andria Paul</p><p class="candidate-email">paul.andria@example.com</p></div></div></td>
-                                <td><span class="date">18/10/2026</span></td>
-                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="3">Présélectionner</button></div></td>
-                            </tr>
-                            <tr data-name="Randria Marie" data-email="marie.randria@example.com">
-                                <td><div class="candidate-info"><div class="candidate-avatar">RM</div><div><p class="candidate-name">Randria Marie</p><p class="candidate-email">marie.randria@example.com</p></div></div></td>
-                                <td><span class="date">17/10/2026</span></td>
-                                <td><div class="actions"><button class="btn btn-details">Voir le dossier</button><button class="btn btn-select" data-select-id="4">Présélectionner</button></div></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="candidatesTable"><tr><td colspan="3">Chargement des candidatures…</td></tr></tbody>
                     </table>
-                    <div class="empty-state" id="emptyState">
+                    <div class="empty-state" id="emptyState" style="display:none;">
                         <div class="empty-icon">🔎</div>
-                        <h3>Aucun candidat trouvé</h3>
-                        <p>Essayez avec un autre nom ou une autre adresse e-mail.</p>
+                        <h3>Aucune candidature à traiter</h3>
+                        <p>Aucune candidature reçue n’est disponible pour une présélection.</p>
                     </div>
                 </div>
             </section>
@@ -103,3 +82,4 @@
         </div>
     </div>
 </div>
+<div class="interview-toast" id="candidateToast" role="status" aria-live="polite"></div>
