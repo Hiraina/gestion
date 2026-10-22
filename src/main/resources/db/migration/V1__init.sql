@@ -94,6 +94,29 @@ CREATE TABLE postes (
     )
 );
 
+-- Departements et postes de l'entreprise (donnees de demonstration)
+INSERT INTO departements (nom, description) VALUES
+('Ressources Humaines', 'Gestion du personnel et du recrutement'),
+('Direction', 'Direction generale et strategique'),
+('Finance', 'Budgets, comptabilite et validation financiere'),
+('Informatique', 'Systemes d information et support technique'),
+('Marketing', 'Communication et promotion'),
+('Production', 'Fabrication et operations'),
+('Ventes', 'Ventes et relation client')
+ON CONFLICT (nom) DO NOTHING;
+
+INSERT INTO postes (titre, description, id_departement, salaire_min, salaire_max, actif) VALUES
+('Directeur RH', 'Pilote la strategie RH et le circuit de validation des besoins', 2, 800000000, 1200000000, TRUE),
+('Charge de recrutement RH', 'Gere les offres, candidatures et entretiens', 1, 400000000, 600000000, TRUE),
+('Responsable Finance', 'Valide les budgets et les propositions salariales', 3, 700000000, 1000000000, TRUE),
+('Analyste budgets', 'Suivi des couts du personnel et des budgets de recrutement', 3, 450000000, 650000000, TRUE),
+('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 500000000, 800000000, TRUE),
+('Responsable Marketing', 'Communication et marque employeur', 5, 550000000, 850000000, TRUE),
+('Chef de production', 'Supervise les equipes de production', 6, 600000000, 900000000, TRUE),
+('Commercial', 'Developpement commercial et relation client', 7, 350000000, 700000000, TRUE),
+('Assistant administratif', 'Support administratif transverses', 1, 250000000, 400000000, TRUE)
+ON CONFLICT DO NOTHING;
+
 CREATE TABLE statut_emp (
     id_statut SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
@@ -250,15 +273,14 @@ INSERT INTO statut_recrutement (nom) VALUES
 CREATE TABLE besoins (
     id_besoin SERIAL PRIMARY KEY,
     id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
-    annee INTEGER NOT NULL,
+    nom_manager_demandeur VARCHAR(150) NOT NULL,
     date_souhaitee DATE NOT NULL,
     motif TEXT,
+    competance TEXT,
     effectif INTEGER NOT NULL DEFAULT 1
         CHECK (effectif > 0),
     statut INT NOT NULL
-        REFERENCES statut_recrutement(id_statut_recrutement),
-
-    UNIQUE (id_poste, annee)
+        REFERENCES statut_recrutement(id_statut_recrutement)
 );
 
 CREATE TABLE budgets_recrutement (
