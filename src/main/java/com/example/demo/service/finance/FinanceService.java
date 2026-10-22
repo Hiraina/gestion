@@ -1,6 +1,5 @@
 package com.example.demo.service.finance;
 
-import com.example.demo.entity.validationFinance.ValidationFinanciaire;
 import com.example.demo.repository.finance.BesoinFinanceRepository;
 import com.example.demo.repository.finance.BesoinFinanceSummary;
 import com.example.demo.repository.finance.BudgetRecrutementRepository;
@@ -43,10 +42,17 @@ public class FinanceService {
 			m.put("idPoste", b.getIdPoste());
 			m.put("effectif", b.getEffectif());
 			m.put("salaireMin", b.getSalaireMin() != null ? b.getSalaireMin().doubleValue() : 0);
+			BigDecimal salaireMin = b.getSalaireMin() != null ? b.getSalaireMin() : BigDecimal.ZERO;
+			BigDecimal coutAnnuel = salaireMin.multiply(BigDecimal.valueOf(12))
+					.multiply(BigDecimal.valueOf(b.getEffectif()));
+			m.put("personnes", b.getEffectif());
+			m.put("budget_estime", coutAnnuel.doubleValue());
+			m.put("salaire_annuel_demande", coutAnnuel.doubleValue());
 			m.put("manager", b.getManager());
 			m.put("motif", b.getMotif());
 			m.put("dateSouhaitee", b.getDateSouhaitee() != null ? b.getDateSouhaitee().toString() : null);
 			m.put("dateTransmissionFinance", b.getDateTransmissionFinance() != null ? b.getDateTransmissionFinance().toString() : null);
+			m.put("soumission", b.getDateSouhaitee() != null ? b.getDateSouhaitee().toString() : null);
 			result.add(m);
 		}
 		return result;
@@ -118,36 +124,45 @@ public class FinanceService {
 						: "Budget insuffisant : le coût annuel total dépasse l'écart disponible.");
 	}
 
-	/**
-	 * Enregistre la décision financière et met à jour le statut du besoin.
-	 * @param idBesoin identifiant du besoin
-	 * @param idBudget identifiant du budget lié
-	 * @param decision "valider" ou "refuser"
-	 * @param commentaire commentaire du financier
-	 * @param idFinancier identifiant du responsable finance
-	 */
-	public void enregistrerDecision(Integer idBesoin, Integer idBudget, String decision,
-			String commentaire, Integer idFinancier) {
+	/** Enregistre la décision et met à jour uniquement le besoin examiné. */
+	public boolean deciderBesoin(Integer idBesoin, String decision) {
+		String nouveauStatut;
+		if ("valider".equals(decision)) {
+			if (!verifierDemande(idBesoin).valide) {
+				return false;
+			}
+			nouveauStatut = "validee_finance";
+		} else if ("refuser".equals(decision)) {
+			nouveauStatut = "refuse";
+		} else {
+			return false;
+		}
+		return besoinRepository.deciderBesoin(idBesoin, nouveauStatut) == 1;
+	}
 
-		// Récupérer le besoin pour obtenir le salaire et l'effectif
-		BesoinFinanceSummary besoin = besoinRepository.trouverPourFinance(idBesoin)
-				.orElseThrow(() -> new IllegalStateException("Besoin introuvable"));
-
-		BigDecimal salaireAnnuel = besoin.getSalaireMin().multiply(BigDecimal.valueOf(12));
-
-		// Créer la validation financière
-		ValidationFinanciaire validation = new ValidationFinanciaire();
-		validation.setIdProposition(0); // pas de proposition encore
-		validation.setIdBudget(idBudget);
-		validation.setSalaireAnnuelDemande(salaireAnnuel.doubleValue());
-		validation.setDecision("APPROUVEE".equals(decision) ? "APPROUVEE" : "REFUSEE");
-		validation.setCommentaire(commentaire);
-		validation.setIdFinancier(idFinancier);
-		validationRepository.save(validation);
-
-		// Mettre à jour le statut du besoin
-		String nouveauStatut = "APPROUVEE".equals(validation.getDecision()) ? "validee_finance" : "refusee";
-		besoinRepository.mettreAJourStatutBesoin(idBudget, nouveauStatut);
+	public Map<String, Object> obtenirExamenFinancier(Integer idBesoin) {
+		VerificationResult verification = verifierDemande(idBesoin);
+		Map<String, Object> demande = trouverDemande(idBesoin).orElse(new HashMap<>());
+		Map<String, Object> resultat = new HashMap<>();
+		resultat.put("id", verification.idBesoin);
+		resultat.put("reference", verification.idBesoin);
+		resultat.put("id_budget", verification.idBudget);
+		resultat.put("poste_concerne", verification.poste);
+		resultat.put("poste", verification.poste);
+		resultat.put("nombre_personnes", verification.effectif);
+		resultat.put("effectif", verification.effectif);
+		resultat.put("motif", demande.get("motif"));
+		resultat.put("salaire_mensuel_reference", verification.salaireMin != null ? verification.salaireMin.doubleValue() : 0);
+		resultat.put("salaire_min", verification.salaireMin != null ? verification.salaireMin.doubleValue() : 0);
+		resultat.put("coutAnnuelTotal", verification.coutAnnuelTotal != null ? verification.coutAnnuelTotal.doubleValue() : 0);
+		resultat.put("ecartDisponible", verification.ecartDisponible != null ? verification.ecartDisponible.doubleValue() : 0);
+		resultat.put("budgetAnnuelDedie", verification.budgetAnnuelDedie != null ? verification.budgetAnnuelDedie.doubleValue() : 0);
+		resultat.put("sommeReellementUtilisee", verification.sommeReellementUtilisee != null ? verification.sommeReellementUtilisee.doubleValue() : 0);
+		resultat.put("commentaire", demande.get("motif"));
+		resultat.put("justification", demande.get("motif"));
+		resultat.put("valide", verification.valide);
+		resultat.put("message", verification.message);
+		return resultat;
 	}
 
 	/** Statistiques pour le tableau de bord Finance (page welcome). */

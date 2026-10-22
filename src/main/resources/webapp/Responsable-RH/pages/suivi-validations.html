@@ -12,8 +12,8 @@
       </div></div>
     </section>
     <section class="card">
-      <div class="card-header"><div><h2 class="card-title">Demandes validées par la Direction</h2><p class="card-subtitle">La date de validation n’est pas encore enregistrée dans le système.</p></div></div>
-      <div class="table-container"><table><thead><tr><th>Référence</th><th>Poste demandé</th><th>Responsable</th><th>Département</th><th>Date de validation</th><th>État</th><th>Action</th></tr></thead>
+      <div class="card-header"><div><h2 class="card-title">Demandes validées par la Direction</h2><p class="card-subtitle">Les demandes approuvées sont chargées depuis la base de données.</p></div></div>
+      <div class="table-container"><table><thead><tr><th>Réf.</th><th>Poste</th><th>Département</th><th>Demandeur</th><th>Effectif</th><th>Date souhaitée</th><th>Action</th></tr></thead>
       <tbody id="validated-requests"><tr><td colspan="7">Chargement des demandes…</td></tr></tbody></table></div>
       <div class="table-footer"><p class="results-info" id="validated-count"></p></div>
     </section>
@@ -29,7 +29,7 @@
       var q = search.value.trim().toLocaleLowerCase();
       var dep = department.value;
       var rows = all.filter(function (r) { return (!dep || r.departement === dep) && (!q || [r.reference,r.poste,r.manager,r.departement].join(' ').toLocaleLowerCase().includes(q)); });
-      body.innerHTML = rows.length ? rows.map(function (r) { return '<tr><td><span class="request-id">'+esc(r.reference)+'</span></td><td><div class="job-title">'+esc(r.poste)+'</div><div class="secondary-text">'+esc(r.effectif)+' personne(s)</div></td><td>'+esc(r.manager)+'</td><td>'+esc(r.departement || '—')+'</td><td>Non enregistrée</td><td><span class="status"><span class="status-dot"></span>Validée</span></td><td><div class="action-links"><a href="#page=publication-offre&id='+encodeURIComponent(r.id)+'" class="recruitment-button" data-page="publication-offre" data-id="'+esc(r.id)+'">+ Préparer une offre</a></div></td></tr>'; }).join('') : '<tr><td colspan="7">Aucune demande validée ne correspond aux filtres.</td></tr>';
+      body.innerHTML = rows.length ? rows.map(function (r) { var id=encodeURIComponent(r.id); return '<tr><td><span class="request-id">'+esc(r.reference)+'</span></td><td><div class="job-title">'+esc(r.poste)+'</div></td><td>'+esc(r.departement || '—')+'</td><td>'+esc(r.manager)+'</td><td class="num">'+esc(r.effectif)+'</td><td>'+esc(r.dateSouhaitee || '—')+'</td><td><div class="action-links"><a href="#page=detail-demande-validee&id='+id+'" class="details-link" data-page="detail-demande-validee" data-id="'+esc(r.id)+'">Voir les détails →</a><a href="#page=publication-offre&id='+id+'" class="recruitment-button" data-page="publication-offre" data-id="'+esc(r.id)+'">+ Ouvrir le recrutement</a></div></td></tr>'; }).join('') : '<tr><td colspan="7">Aucune demande validée ne correspond aux filtres.</td></tr>';
       document.getElementById('validated-count').textContent = rows.length+' demande(s) validée(s)';
     }
     search.addEventListener('input', render); department.addEventListener('change', render);

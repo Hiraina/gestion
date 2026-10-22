@@ -67,4 +67,14 @@ public class BesoinService {
 	public List<DemandeBesoinDirectionProjection> listerPourDirection() {
 		return repository.listerPourDirection();
 	}
+
+	public boolean deciderParDirection(Integer id, String decision) {
+		if ("approuver".equals(decision)) {
+			return repository.approuverParDirection(id) == 1;
+		}
+		if ("refuser".equals(decision)) {
+			return repository.refuserParDirection(id) == 1;
+		}
+		return false;
+	}
 }

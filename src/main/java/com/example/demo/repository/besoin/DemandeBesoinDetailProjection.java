@@ -1,5 +1,6 @@
 package com.example.demo.repository.besoin;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public interface DemandeBesoinDetailProjection {
@@ -12,4 +13,5 @@ public interface DemandeBesoinDetailProjection {
 	String getMotif();
 	String getCompetence();
 	String getStatut();
+	BigDecimal getCoutAnnuelTotal();
 }

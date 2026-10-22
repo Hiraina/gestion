@@ -38,7 +38,10 @@
               <td th:text="${demande.manager}">Manager</td>
               <td th:text="${demande.dateSouhaitee}">2026-10-22</td>
               <td><span class="status" th:text="${demande.statut}">en_attente</span></td>
-              <td><a href="#" class="details-button" data-page="detail-demande" th:attr="data-id=${demande.id}">Voir <span>→</span></a></td>
+              <td>
+                <a th:if="${demande.statut == 'valide' or demande.statut == 'refuse' or demande.statut == 'refus'}" href="#" class="details-button" data-page="detail-demande-terminee" th:attr="data-id=${demande.id}">Voir <span>→</span></a>
+                <a th:unless="${demande.statut == 'valide' or demande.statut == 'refuse' or demande.statut == 'refus'}" href="#" class="details-button" data-page="detail-demande" th:attr="data-id=${demande.id}">Voir <span>→</span></a>
+              </td>
             </tr>
             <tr th:if="${#lists.isEmpty(demandes)}">
               <td colspan="7">Aucune demande de besoin n’a été enregistrée.</td>

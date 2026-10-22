@@ -11,7 +11,7 @@
     if (!tbody) return;
 
     function showError(msg) {
-      tbody.innerHTML = '<tr><td colspan="8" style="color:#b00020;padding:12px">' + msg + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="color:#b00020;padding:12px">' + msg + '</td></tr>';
       if (countEl) countEl.textContent = msg;
       if (countFoot) countFoot.textContent = '';
     }
@@ -38,7 +38,6 @@
             '<td class="num">' + fmtMoney(d.budget_estime || d.salaire_annuel_demande) + '</td>' +
             '<td>' + (d.manager || '—') + '</td>' +
             '<td>' + (d.soumission || '—') + '</td>' +
-            '<td><span class="ui-badge is-pending">' + (d.statut || 'En attente') + '</span></td>' +
             '<td><a href="#page=examen-financier&id=' + d.id + '" data-page="examen-financier" data-id="' + d.id + '" class="ui-btn ui-btn-outline ui-btn-sm">Consulter</a></td>';
           tbody.appendChild(tr);
         });
@@ -54,12 +53,9 @@
   function initExamenDetail(idBesoin) {
     if (!idBesoin) return;
 
-    var idBudgetFinance = 0;
-
     fetch(appBaseUrl() + 'api/finance/examen-financier?id=' + encodeURIComponent(idBesoin))
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        idBudgetFinance = d.id_budget || 0;
         document.getElementById('finance-exam-title').textContent = 'Examen financier — DEM-' + String(d.reference || d.id || idBesoin).padStart(3, '0');
         document.getElementById('ex-ref').textContent = 'DEM-' + String(d.reference || d.id || idBesoin).padStart(3, '0');
         document.getElementById('ex-poste').textContent = d.poste_concerne || d.poste || '—';
@@ -98,19 +94,26 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var decision = form.querySelector('input[name="finance-decision"]:checked');
-        var comment = document.getElementById('finance-commentaire').value.trim();
         if (!decision) { say('Veuillez sélectionner une décision.', false); return; }
-        if ((decision.value === 'refuser' || decision.value === 'correction') && !comment) { say('Un commentaire est obligatoire en cas de refus ou de demande de correction.', false); return; }
-        var params = new URLSearchParams();
-        params.set('idProposition', idBesoin);
-        params.set('idBudget', idBudgetFinance);
-        params.set('salaireAnnuelDemande', '0');
-        params.set('decision', decision.value);
-        params.set('commentaire', comment);
-        params.set('idFinancier', '1');
-        fetch(appBaseUrl() + 'api/finance/decision?' + params.toString())
-          .then(function () { say('Décision enregistrée : ' + decision.parentNode.textContent.trim() + '.', true); })
-          .catch(function (err) { say('Erreur : ' + err.message, false); });
+        var submitButton = document.getElementById('btn-valider-finance');
+        submitButton.disabled = true;
+        fetch(appBaseUrl() + 'api/finance/besoins/' + encodeURIComponent(idBesoin) + '/decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ decision: decision.value })
+        }).then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (data) {
+            if (!response.ok) throw new Error(data.message || 'Impossible d’enregistrer la décision.');
+            say(decision.value === 'valider' ? 'Demande validée par la Finance.' : 'Demande refusée.', true);
+            window.setTimeout(function () {
+              if (decision.value === 'valider') {
+                window.location.href = appBaseUrl() + 'Responsable-RH/template.html#page=liste-demandes';
+              } else {
+                window.location.hash = '#page=demandes-a-examiner';
+              }
+            }, 700);
+          });
+        }).catch(function (err) { say('Erreur : ' + err.message, false); submitButton.disabled = false; });
       });
     }
   }

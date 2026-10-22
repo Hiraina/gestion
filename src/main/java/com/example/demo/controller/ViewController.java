@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -176,6 +177,21 @@ public class ViewController {
 	@ResponseBody
 	public List<DemandeBesoinDirectionProjection> besoinsAapprouverDirection() {
 		return besoinService.listerPourDirection();
+	}
+
+	@PostMapping("/api/direction/besoins/{id}/decision")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> deciderBesoinDirection(@PathVariable Integer id,
+			@RequestBody Map<String, String> request) {
+		String decision = request.get("decision");
+		if (!besoinService.deciderParDirection(id, decision)) {
+			return ResponseEntity.badRequest().body(Map.of("success", false,
+					"message", "Cette demande n’existe pas ou n’est plus en attente de décision."));
+		}
+		String message = "approuver".equals(decision)
+				? "La demande a été approuvée et ajoutée au suivi des validations."
+				: "La demande a été refusée.";
+		return ResponseEntity.ok(Map.of("success", true, "message", message));
 	}
 
 	@GetMapping("/api/finance/besoins-a-examiner")

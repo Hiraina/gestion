@@ -110,7 +110,7 @@ INSERT INTO postes (titre, description, id_departement, salaire_min, salaire_max
 ('Charge de recrutement RH', 'Gere les offres, candidatures et entretiens', 1, 400000000, 600000000, TRUE),
 ('Responsable Finance', 'Valide les budgets et les propositions salariales', 3, 700000000, 1000000000, TRUE),
 ('Analyste budgets', 'Suivi des couts du personnel et des budgets de recrutement', 3, 450000000, 650000000, TRUE),
-('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 500000000, 800000000, TRUE),
+('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 3000000, 8000000, TRUE),
 ('Responsable Marketing', 'Communication et marque employeur', 5, 550000000, 850000000, TRUE),
 ('Chef de production', 'Supervise les equipes de production', 6, 600000000, 900000000, TRUE),
 ('Commercial', 'Developpement commercial et relation client', 7, 350000000, 700000000, TRUE),
@@ -289,6 +289,28 @@ CREATE TABLE besoins (
 
 INSERT INTO besoins (id_poste, nom_manager_demandeur, date_souhaitee, motif, competance, effectif, statut, date_transmission_finance) VALUES
 (1, 'Manager Demo', CURRENT_DATE, 'Besoin valide finance', 'Competence demo', 1, (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom='validee_finance'), CURRENT_TIMESTAMP);
+
+INSERT INTO besoins (
+    id_poste,
+    nom_manager_demandeur,
+    date_souhaitee,
+    motif,
+    competance,
+    effectif,
+    statut
+)
+SELECT
+    p.id_poste,
+    'TEST RH - Brouillon',
+    CURRENT_DATE + 30,
+    'Demande temporaire pour tester la préparation d’une offre côté RH.',
+    'Compétences de test à compléter dans le brouillon.',
+    2,
+    s.id_statut_recrutement
+FROM postes p
+CROSS JOIN statut_recrutement s
+WHERE p.titre = 'Developpeur backend'
+  AND s.nom = 'valide';
 
 CREATE TABLE brouillon_demande (
     id BIGSERIAL PRIMARY KEY,
