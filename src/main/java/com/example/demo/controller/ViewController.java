@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.besoin.BesoinDTO;
+import com.example.demo.dto.besoin.BrouillonDemandeRequest;
 import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
 import com.example.demo.service.besoin.BesoinService;
+import com.example.demo.service.besoin.BrouillonDemandeService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.service.poste.PosteService;
 import org.springframework.http.ResponseEntity;
@@ -45,11 +47,14 @@ public class ViewController {
 	private final DepartementService departementService;
 	private final PosteService posteService;
 	private final BesoinService besoinService;
+	private final BrouillonDemandeService brouillonDemandeService;
 
-	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService) {
+	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService,
+			BrouillonDemandeService brouillonDemandeService) {
 		this.departementService = departementService;
 		this.posteService = posteService;
 		this.besoinService = besoinService;
+		this.brouillonDemandeService = brouillonDemandeService;
 	}
 
 	/** Page principale d'un espace de travail. */
@@ -98,7 +103,8 @@ public class ViewController {
 	@PostMapping("/{dossier}/pages/demande_besoin/soumettre")
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> soumettreBesoin(@PathVariable String dossier,
-			@ModelAttribute BesoinDTO besoinDTO, BindingResult result) {
+			@ModelAttribute BesoinDTO besoinDTO, BindingResult result,
+			@org.springframework.web.bind.annotation.RequestParam(required = false) Long brouillonId) {
 		checkDossier(dossier);
 		if (result.hasErrors()) {
 			Map<String, Object> error = new HashMap<>();
@@ -107,10 +113,32 @@ public class ViewController {
 			return ResponseEntity.badRequest().body(error);
 		}
 		besoinService.creerBesoin(besoinDTO);
+		if (brouillonId != null) {
+			brouillonDemandeService.supprimer(brouillonId);
+		}
 		Map<String, Object> ok = new HashMap<>();
 		ok.put("success", true);
 		ok.put("message", "Votre demande a été soumise. Vous pouvez suivre son avancement dans « Suivi de mes demandes ».");
 		return ResponseEntity.ok(ok);
+	}
+
+	@GetMapping("/{dossier}/pages/brouillons")
+	@ResponseBody
+	public List<com.example.demo.entity.besoin.BrouillonDemande> brouillons(@PathVariable String dossier) {
+		checkDossier(dossier);
+		return brouillonDemandeService.lister();
+	}
+
+	@PostMapping("/{dossier}/pages/brouillons")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> enregistrerBrouillon(@PathVariable String dossier,
+			@org.springframework.web.bind.annotation.RequestBody BrouillonDemandeRequest request) {
+		checkDossier(dossier);
+		if (request.donnees() == null || request.donnees().isEmpty()) {
+			return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Le formulaire est vide."));
+		}
+		var brouillon = brouillonDemandeService.enregistrer(request.id(), request.donnees());
+		return ResponseEntity.ok(Map.of("success", true, "id", brouillon.getId(), "message", "Brouillon enregistré."));
 	}
 
 	private void addDepartements(Model model) {

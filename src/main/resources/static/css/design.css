@@ -558,7 +558,7 @@ body.app .form-step.active { display: block; animation: fade-in 220ms ease; }
 
 /* Bandeau d'appel à l'action (accent 10 %) */
 .ui-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-5); padding: var(--sp-6); border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--navy), var(--navy-700)); color: var(--white); }
-.ui-cta h2 { margin: 0 0 var(--sp-2); color: var(--white); font-size: var(--fs-xl); }
+body.app .ui-cta h2 { margin: 0 0 var(--sp-2); color: var(--white); font-size: var(--fs-xl); }
 .ui-cta p { margin: 0; max-width: 520px; color: rgba(255, 255, 255, 0.78); }
 .ui-cta .ui-eyebrow { color: var(--orange); margin-bottom: var(--sp-2); }
 
