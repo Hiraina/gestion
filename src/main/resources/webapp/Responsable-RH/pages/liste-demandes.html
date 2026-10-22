@@ -1,230 +1,50 @@
 <div class="page-content">
-  <!-- CONTENU -->
   <main class="main">
-    <!-- TITRE -->
     <section class="ui-page-heading page-heading">
       <div>
         <div class="eyebrow">Gestion des demandes</div>
-
         <h2>Demandes reçues</h2>
-
-        <p>
-          Consultez les demandes envoyées par les Managers, vérifiez leurs
-          informations et assurez le suivi des validations jusqu'à la Direction.
-        </p>
+        <p>Demandes de besoin en personnel enregistrées par les Managers.</p>
       </div>
-
       <div class="page-count">
-        <strong>12</strong>
-        <span>Demandes en cours de traitement</span>
+        <strong th:text="${#lists.size(demandes)}">0</strong>
+        <span>Demandes enregistrées</span>
       </div>
     </section>
 
-    <!-- STATISTIQUES -->
-    <section class="stats-grid">
-      <article class="stat-card">
-        <div class="stat-top">
-          <span class="stat-label">Nouvelles demandes</span>
-          <div class="stat-icon icon-orange">📥</div>
-        </div>
-
-        <div class="stat-number">05</div>
-
-        <p class="stat-description">À vérifier et transmettre à la Finance</p>
-      </article>
-
-      <article class="stat-card">
-        <div class="stat-top">
-          <span class="stat-label">En attente Finance</span>
-          <div class="stat-icon icon-blue">💰</div>
-        </div>
-
-        <div class="stat-number">03</div>
-
-        <p class="stat-description">Décision financière en attente</p>
-      </article>
-
-      <article class="stat-card">
-        <div class="stat-top">
-          <span class="stat-label">À transmettre à la Direction</span>
-          <div class="stat-icon icon-green">📤</div>
-        </div>
-
-        <div class="stat-number">02</div>
-
-        <p class="stat-description">Validées par la Finance</p>
-      </article>
-
-      <article class="stat-card">
-        <div class="stat-top">
-          <span class="stat-label">En attente Direction</span>
-          <div class="stat-icon icon-violet">🏢</div>
-        </div>
-
-        <div class="stat-number">02</div>
-
-        <p class="stat-description">Décision finale en attente</p>
-      </article>
-    </section>
-
-    <!-- LISTE DES DEMANDES -->
     <section class="list-card">
       <div class="list-header">
         <h3>Liste des demandes</h3>
-
-        <p>
-          Chaque demande possède un statut qui indique sa position dans le
-          processus de validation.
-        </p>
       </div>
 
-      <!-- RECHERCHE ET TRI -->
-      <div class="filters">
-        <label class="search-box">
-          <span>⌕</span>
-          <input
-            type="search"
-            placeholder="Rechercher une référence, un poste..."
-            aria-label="Rechercher une demande"
-          />
-        </label>
-
-        <select class="filter-select" aria-label="Trier par date">
-          <option>Trier par date</option>
-          <option>Plus récentes</option>
-          <option>Plus anciennes</option>
-        </select>
-      </div>
-
-      <!-- FILTRES VISUELS -->
-      <div class="status-filters">
-        <a href="#" class="status-filter active">Toutes les demandes</a>
-
-        <a href="#" class="status-filter">Nouvelles</a>
-
-        <a href="#" class="status-filter">En attente Finance</a>
-
-        <a href="#" class="status-filter">À transmettre Direction</a>
-
-        <a href="#" class="status-filter">En attente Direction</a>
-      </div>
-
-      <!-- TABLEAU -->
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Référence</th>
+              <th>ID</th>
               <th>Poste demandé</th>
-              <th>Demandeur</th>
-              <th>Date de réception</th>
-              <th>Statut actuel</th>
+              <th>Effectif</th>
+              <th>Manager demandeur</th>
+              <th>Date souhaitée</th>
+              <th>Statut</th>
               <th>Action</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr>
-              <td>
-                <span class="reference">DEM-001</span>
-              </td>
-
-              <td>
-                <div class="position">Développeur web</div>
-                <div class="secondary-text">2 personnes</div>
-              </td>
-
-              <td>Manager informatique</td>
-
-              <td>15/10/2026</td>
-
-              <td>
-                <span class="status status-new"> Nouvelle demande </span>
-              </td>
-
-              <td>
-                <a
-                  href="#"
-                  class="details-button"
-                  data-page="detail-nouvelle-demande"
-                >
-                  Voir <span>→</span>
-                </a>
-              </td>
+            <tr th:each="demande : ${demandes}">
+              <td><span class="reference" th:text="${demande.id}">1</span></td>
+              <td><div class="position" th:text="${demande.poste}">Poste</div></td>
+              <td th:text="${demande.effectif}">1</td>
+              <td th:text="${demande.manager}">Manager</td>
+              <td th:text="${demande.dateSouhaitee}">2026-10-22</td>
+              <td><span class="status" th:text="${demande.statut}">en_attente</span></td>
+              <td><a href="#" class="details-button" data-page="detail-demande" th:attr="data-id=${demande.id}">Voir <span>→</span></a></td>
             </tr>
-
-            <tr>
-              <td>
-                <span class="reference">DEM-002</span>
-              </td>
-
-              <td>
-                <div class="position">Comptable</div>
-                <div class="secondary-text">1 personne</div>
-              </td>
-
-              <td>Manager administratif</td>
-
-              <td>14/10/2026</td>
-
-              <td>
-                <span class="status status-finance"> En attente Finance </span>
-              </td>
-
-              <td>
-                <a
-                  href="#"
-                  class="details-button"
-                  data-page="detail-nouvelle-demande"
-                >
-                  Voir <span>→</span>
-                </a>
-              </td>
-            </tr>
-
-            <tr>
-              <td>
-                <span class="reference">DEM-003</span>
-              </td>
-
-              <td>
-                <div class="position">Technicien réseau</div>
-                <div class="secondary-text">1 personne</div>
-              </td>
-
-              <td>Manager informatique</td>
-
-              <td>13/10/2026</td>
-
-              <td>
-                <span class="status status-transfer">
-                  À transmettre à la Direction
-                </span>
-              </td>
-
-              <td>
-                <a
-                  href="#"
-                  class="details-button"
-                  data-page="detail-demande-direction"
-                >
-                  Voir <span>→</span>
-                </a>
-              </td>
+            <tr th:if="${#lists.isEmpty(demandes)}">
+              <td colspan="7">Aucune demande de besoin n’a été enregistrée.</td>
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- PIED DU TABLEAU -->
-      <div class="table-footer">
-        <div class="pagination">
-          <a href="#" class="page-number">‹</a>
-          <a href="#" class="page-number active">1</a>
-          <a href="#" class="page-number">2</a>
-          <a href="#" class="page-number">3</a>
-          <a href="#" class="page-number">›</a>
-        </div>
       </div>
     </section>
   </main>
