@@ -3236,3 +3236,59 @@ function downloadResponse(){if(!submittedPayload){const raw=localStorage.getItem
 let toastTimer;function showToast(message){const toast=document.getElementById('toast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),4000);}
 const pmEl=document.getElementById('previewModal');if(pmEl)pmEl.addEventListener('click',e=>{if(e.target.id==='previewModal')closePreview();});
 if(document.readyState !== 'loading'){init();}else{document.addEventListener('DOMContentLoaded', init);}
+
+
+function initRhSuiviValidations() {
+    var body = document.getElementById('validated-requests');
+    var search = document.getElementById('recherche');
+    var department = document.getElementById('departement');
+    var all = [];
+    function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function render() {
+      var q = search.value.trim().toLocaleLowerCase();
+      var dep = department.value;
+      var rows = all.filter(function (r) { return (!dep || r.departement === dep) && (!q || [r.reference,r.poste,r.manager,r.departement].join(' ').toLocaleLowerCase().includes(q)); });
+      body.innerHTML = rows.length ? rows.map(function (r) { var id=encodeURIComponent(r.id); return '<tr><td><span class="request-id">'+esc(r.reference)+'</span></td><td><div class="job-title">'+esc(r.poste)+'</div></td><td>'+esc(r.departement || '—')+'</td><td>'+esc(r.manager)+'</td><td class="num">'+esc(r.effectif)+'</td><td>'+esc(r.dateSouhaitee || '—')+'</td><td><div class="action-links"><a href="#page=detail-demande-validee&id='+id+'" class="details-link" data-page="detail-demande-validee" data-id="'+esc(r.id)+'">Voir les détails →</a><a href="#page=publication-offre&id='+id+'" class="recruitment-button" data-page="publication-offre" data-id="'+esc(r.id)+'">+ Ouvrir le recrutement</a></div></td></tr>'; }).join('') : '<tr><td colspan="7">Aucune demande validée ne correspond aux filtres.</td></tr>';
+      document.getElementById('validated-count').textContent = rows.length+' demande(s) validée(s)';
+    }
+    search.addEventListener('input', render); department.addEventListener('change', render);
+    fetch((document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '') + '/api/rh/besoins-valides', {headers:{Accept:'application/json'}})
+      .then(function (response) { if (!response.ok) throw new Error('Erreur '+response.status); return response.json(); })
+      .then(function (data) {
+        all = data.map(function (r) { r.reference = 'DEM-'+r.id; return r; });
+        Array.from(new Set(all.map(function (r) { return r.departement; }).filter(Boolean))).sort().forEach(function (name) { var option=document.createElement('option'); option.value=name; option.textContent=name; department.appendChild(option); });
+        render();
+      }).catch(function () { body.innerHTML='<tr><td colspan="7">Impossible de charger les demandes validées.</td></tr>'; });
+
+}
+document.addEventListener("pageLoaded", function (event) { if (event.detail && event.detail.page === "suivi-validations") initRhSuiviValidations(); });
+
+// HTML pages expose declarative actions; keep behavior in this role bundle.
+function dispatchRoleAction(event) {
+  const target = event.target.closest("[data-js-action]");
+  if (!target) return;
+  const [action, argument] = target.dataset.jsAction.split(":", 2);
+  const handlers = {
+    previewResponses: () => window.previewResponses(),
+    submitResponses: () => window.submitResponses(),
+    downloadResponse: () => window.downloadResponse(),
+    closePreview: () => window.closePreview(),
+    printPage: () => window.print(),
+    closeInterviewModalOutside: () => window.closeInterviewModalOutside(event),
+    closeInterviewModal: () => window.closeInterviewModal(),
+    saveInterviewNotes: () => window.saveInterviewNotes(),
+    makeInterviewDecision: () => window.makeInterviewDecision(argument),
+    ctCloseModal: () => window.ctCloseModal(argument),
+    ctPreviewContract: () => window.ctPreviewContract(),
+    ctSendContract: () => window.ctSendContract(),
+    ctSubmitCandidateResponses: () => window.ctSubmitCandidateResponses(),
+    ctToggleDecisionFields: () => window.ctToggleDecisionFields(),
+    ctSendHRDecision: () => window.ctSendHRDecision()
+  };
+  if (handlers[action]) {
+    if (event.type === "click") event.preventDefault();
+    handlers[action]();
+  }
+}
+document.addEventListener("click", dispatchRoleAction);
+document.addEventListener("change", dispatchRoleAction);

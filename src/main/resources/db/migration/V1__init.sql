@@ -287,6 +287,35 @@ CREATE TABLE besoins (
     date_transmission_finance TIMESTAMP
 );
 
+CREATE TABLE historique_statut_besoin (
+    id_historique BIGSERIAL PRIMARY KEY,
+    id_besoin INTEGER NOT NULL REFERENCES besoins(id_besoin) ON DELETE CASCADE,
+    ancien_statut INTEGER REFERENCES statut_recrutement(id_statut_recrutement),
+    nouveau_statut INTEGER NOT NULL REFERENCES statut_recrutement(id_statut_recrutement),
+    date_changement TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION enregistrer_historique_statut_besoin()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+        VALUES (NEW.id_besoin, NULL, NEW.statut);
+    ELSIF OLD.statut IS DISTINCT FROM NEW.statut THEN
+        INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+        VALUES (NEW.id_besoin, OLD.statut, NEW.statut);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_historique_statut_besoin
+AFTER INSERT OR UPDATE OF statut ON besoins
+FOR EACH ROW EXECUTE FUNCTION enregistrer_historique_statut_besoin();
+
+CREATE INDEX idx_historique_statut_besoin_date
+    ON historique_statut_besoin (id_besoin, date_changement, id_historique);
+
 INSERT INTO besoins (id_poste, nom_manager_demandeur, date_souhaitee, motif, competance, effectif, statut, date_transmission_finance) VALUES
 (1, 'Manager Demo', CURRENT_DATE, 'Besoin valide finance', 'Competence demo', 1, (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom='validee_finance'), CURRENT_TIMESTAMP);
 
@@ -479,4 +508,11 @@ SELECT p.id_poste, 2026, 1, 800000000,
        (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
 FROM postes p WHERE p.titre = 'Responsable Finance'
 AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
+INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
+SELECT b.id_besoin, NULL, b.statut
+FROM besoins b
+WHERE NOT EXISTS (
+    SELECT 1 FROM historique_statut_besoin h WHERE h.id_besoin = b.id_besoin
+);
 

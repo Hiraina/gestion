@@ -7,10 +7,105 @@ function managerEndpoint(path) {
   return contextPath + dossier + path;
 }
 
+function managerApiEndpoint(path) {
+  const meta = document.querySelector('meta[name="context-path"]');
+  let contextPath = meta ? meta.getAttribute("content") || "/" : "/";
+  if (!contextPath.endsWith("/")) contextPath += "/";
+  return contextPath + path.replace(/^\//, "");
+}
+
 function managerEscape(value) {
   return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char];
   });
+}
+
+function initManagerWelcome() {
+  const total = document.getElementById("manager-stat-total");
+  const drafts = document.getElementById("manager-stat-drafts");
+  const progress = document.getElementById("manager-stat-progress");
+  const approved = document.getElementById("manager-stat-approved");
+  if (!total || total.dataset.ready === "1") return;
+  total.dataset.ready = "1";
+
+  fetch(managerApiEndpoint("api/manager/accueil"), { headers: { Accept: "application/json" } })
+    .then(function (response) {
+      if (!response.ok) throw new Error("Erreur serveur : " + response.status);
+      return response.json();
+    })
+    .then(function (summary) {
+      total.textContent = summary.totalDemandes;
+      drafts.textContent = summary.brouillons;
+      progress.textContent = summary.enCours;
+      approved.textContent = summary.validees;
+    })
+    .catch(function () {
+      [total, drafts, progress, approved].forEach(function (element) {
+        element.textContent = "—";
+        element.title = "Impossible de charger cet indicateur.";
+      });
+    });
+}
+
+function initManagerTracking() {
+  const list = document.getElementById("manager-suivi-list");
+  if (!list || list.dataset.ready === "1") return;
+  list.dataset.ready = "1";
+
+  const labels = {
+    en_attente: "En attente",
+    transmis_finance: "Transmise à la Finance",
+    validee_finance: "Validée par la Finance",
+    transmis_direction: "Transmise à la Direction",
+    valide: "Validée par la Direction",
+    refuse: "Refusée",
+    refusee: "Refusée",
+    cloture: "Clôturée"
+  };
+  function label(status) {
+    return labels[status] || String(status || "Statut inconnu").replace(/_/g, " ");
+  }
+  function formatDate(value) {
+    if (!value) return "Date inconnue";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString("fr-FR");
+  }
+  function badge(status) {
+    if (status === "valide" || status === "validee_finance") return "is-success";
+    if (status === "refuse" || status === "refusee") return "is-danger";
+    return "is-pending";
+  }
+
+  fetch(managerApiEndpoint("api/manager/suivi-besoins"), { headers: { Accept: "application/json" } })
+    .then(function (response) {
+      if (!response.ok) throw new Error("Erreur serveur : " + response.status);
+      return response.json();
+    })
+    .then(function (requests) {
+      if (!requests.length) {
+        list.innerHTML = '<p class="ui-note">Aucune demande enregistrée.</p>';
+        return;
+      }
+      list.innerHTML = requests.map(function (request) {
+        const history = request.historique || [];
+        const timeline = history.length
+          ? '<div class="ui-request-note"><span>Historique des statuts</span><ol class="ui-track">' + history.map(function (event, index) {
+              const current = index === history.length - 1;
+              return '<li class="' + (current ? "is-current" : "is-completed") + '"><span>' + (current ? "•" : "✓") + '</span><em>' + managerEscape(label(event.nouveauStatut)) + '<br><small>' + managerEscape(formatDate(event.dateChangement)) + '</small></em></li>';
+            }).join("") + '</ol></div>'
+          : '<p class="ui-request-note"><span>Historique des statuts</span>Historique indisponible pour cette demande.</p>';
+        const dateSouhaitee = request.dateSouhaitee ? new Date(request.dateSouhaitee + "T00:00:00").toLocaleDateString("fr-FR") : "—";
+        const dateCreation = history.length ? formatDate(history[0].dateChangement) : "—";
+        return '<article class="ui-card ui-request">' +
+          '<div class="ui-request-head"><div><h3>' + managerEscape(request.poste || "Demande de besoin") + '</h3><span class="ui-ref">Référence : DB-' + String(request.id).padStart(3, "0") + '</span></div><span class="ui-badge ' + badge(request.statut) + '">' + managerEscape(label(request.statut)) + '</span></div>' +
+          '<div class="ui-info"><div><span>Département</span><strong>' + managerEscape(request.departement || "—") + '</strong></div><div><span>Date souhaitée</span><strong>' + managerEscape(dateSouhaitee) + '</strong></div><div><span>Demande enregistrée le</span><strong>' + managerEscape(dateCreation) + '</strong></div></div>' +
+          timeline +
+          '</article>';
+      }).join("");
+    })
+    .catch(function (error) {
+      list.innerHTML = '<p class="ui-note">Impossible de charger le suivi : ' + managerEscape(error.message) + '</p>';
+    });
 }
 
 function initManagerDraftList() {
@@ -204,3 +299,55 @@ if (document.readyState === "loading") {
 
 document.addEventListener("pageLoaded", initManagerForm);
 document.addEventListener("pageLoaded", initManagerDraftList);
+document.addEventListener("pageLoaded", initManagerTracking);
+document.addEventListener("pageLoaded", function (event) {
+  if (event.detail && event.detail.page === "welcome") initManagerWelcome();
+});
+
+
+function initManagerHistory() {
+  const body = document.getElementById('manager-history-body');
+  const search = document.getElementById('hist-search');
+  const statusFilter = document.getElementById('hist-statut');
+  if (!body || !search || !statusFilter) return;
+
+  const escapeHtml = function (value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  };
+  const formatDateTime = function (value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString('fr-FR');
+  };
+  let requests = [];
+  function render() {
+    const query = search.value.trim().toLocaleLowerCase();
+    const status = statusFilter.value;
+    const visible = requests.filter(function (request) {
+      const searchable = ['DB-' + String(request.id).padStart(3, '0'), request.poste, request.manager].join(' ').toLocaleLowerCase();
+      return (!status || request.statut === status || (status === 'refuse' && request.statut === 'refusee')) && (!query || searchable.includes(query));
+    });
+    body.innerHTML = visible.length ? visible.map(function (request) {
+      const refused = request.statut === 'refuse' || request.statut === 'refusee';
+      const label = refused ? 'Refusée' : 'Validée';
+      return '<tr><td class="ref">DB-' + String(request.id).padStart(3, '0') + '</td><td>' + escapeHtml(request.poste || '—') + '</td><td>' + escapeHtml(request.effectif) + ' personne(s)</td><td>' + escapeHtml(formatDateTime(request.dateStatutFinal)) + '</td><td><span class="ui-badge ' + (refused ? 'is-danger' : 'is-success') + '">' + label + '</span></td><td><a href="#page=detail-demande-manager-terminee&id=' + encodeURIComponent(request.id) + '" data-page="detail-demande-manager-terminee" data-id="' + escapeHtml(request.id) + '" class="ui-btn ui-btn-ghost ui-btn-sm">Détails</a></td></tr>';
+    }).join('') : '<tr><td colspan="6">Aucune demande terminée ne correspond aux filtres.</td></tr>';
+    const summary = visible.length + ' demande(s) terminée(s)';
+    document.getElementById('manager-history-count').textContent = summary;
+    document.getElementById('manager-history-count-foot').textContent = summary;
+  }
+
+  search.addEventListener('input', render);
+  statusFilter.addEventListener('change', render);
+  const meta = document.querySelector('meta[name="context-path"]');
+  let context = meta ? meta.content || '/' : '/';
+  if (!context.endsWith('/')) context += '/';
+  fetch(context + 'api/manager/historique-besoins', { headers: { Accept: 'application/json' } })
+    .then(function (response) { if (!response.ok) throw new Error('Erreur serveur : ' + response.status); return response.json(); })
+    .then(function (data) { requests = data; render(); })
+    .catch(function () { body.innerHTML = '<tr><td colspan="6">Impossible de charger l’historique.</td></tr>'; });
+
+}
+document.addEventListener("pageLoaded", function (event) { if (event.detail && event.detail.page === "historique") initManagerHistory(); });

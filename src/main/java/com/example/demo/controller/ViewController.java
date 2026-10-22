@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.besoin.BesoinDTO;
 import com.example.demo.dto.besoin.BrouillonDemandeRequest;
+import com.example.demo.dto.besoin.ResumeManagerDTO;
 import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
@@ -11,6 +12,7 @@ import com.example.demo.repository.besoin.DemandeBesoinFinanceProjection;
 import com.example.demo.repository.besoin.DemandeBesoinValideProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
+import com.example.demo.service.besoin.ManagerAccueilService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.service.poste.PosteService;
 import org.springframework.http.ResponseEntity;
@@ -53,13 +55,15 @@ public class ViewController {
 	private final PosteService posteService;
 	private final BesoinService besoinService;
 	private final BrouillonDemandeService brouillonDemandeService;
+	private final ManagerAccueilService managerAccueilService;
 
 	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService,
-			BrouillonDemandeService brouillonDemandeService) {
+			BrouillonDemandeService brouillonDemandeService, ManagerAccueilService managerAccueilService) {
 		this.departementService = departementService;
 		this.posteService = posteService;
 		this.besoinService = besoinService;
 		this.brouillonDemandeService = brouillonDemandeService;
+		this.managerAccueilService = managerAccueilService;
 	}
 
 	/** Page principale d'un espace de travail. */
@@ -141,6 +145,24 @@ public class ViewController {
 	@ResponseBody
 	public List<DemandeBesoinValideProjection> besoinsValides() {
 		return besoinService.listerValides();
+	}
+
+	@GetMapping("/api/manager/suivi-besoins")
+	@ResponseBody
+	public List<Map<String, Object>> suiviBesoinsManager() {
+		return besoinService.listerSuiviManager();
+	}
+
+	@GetMapping("/api/manager/accueil")
+	@ResponseBody
+	public ResumeManagerDTO resumeAccueilManager() {
+		return managerAccueilService.obtenirResume();
+	}
+
+	@GetMapping("/api/manager/historique-besoins")
+	@ResponseBody
+	public List<Map<String, Object>> historiqueBesoinsManager() {
+		return besoinService.listerHistoriqueFinaliseManager();
 	}
 
 	@GetMapping("/{dossier}/api/besoins/{id}")

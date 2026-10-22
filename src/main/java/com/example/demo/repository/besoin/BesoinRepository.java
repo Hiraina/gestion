@@ -12,9 +12,10 @@ import java.util.Optional;
 public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 
 	@Query(value = "SELECT b.id_besoin AS id, p.titre AS poste, b.effectif AS effectif, "
-			+ "b.nom_manager_demandeur AS manager, b.date_souhaitee AS \"dateSouhaitee\", "
+			+ "b.nom_manager_demandeur AS manager, d.nom AS departement, b.date_souhaitee AS \"dateSouhaitee\", "
 			+ "s.nom AS statut "
 			+ "FROM besoins b JOIN postes p ON p.id_poste = b.id_poste "
+			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
 			+ "JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut "
 			+ "ORDER BY b.id_besoin DESC", nativeQuery = true)
 	List<DemandeBesoinListeProjection> listerPourRH();

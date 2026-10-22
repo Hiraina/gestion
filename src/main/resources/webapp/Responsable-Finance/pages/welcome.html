@@ -5,7 +5,7 @@
       <h1 class="ui-title">Tableau de bord</h1>
       <p class="ui-lead">Suivez les demandes à examiner et l'état des budgets de recrutement.</p>
     </div>
-    
+
   </header>
 
   <section class="ui-stats" aria-label="Indicateurs">
@@ -43,50 +43,13 @@
 
   <section class="ui-card">
     <div class="ui-card-head"><div><h2 class="ui-card-title">Dernières demandes de recrutement</h2><p class="ui-card-sub">Les quatre demandes les plus récentes</p></div></div>
-    
+
     <div class="ui-table-wrap">
       <table class="ui-table">
         <thead><tr><th>Référence</th><th>Poste</th><th class="num">Effectif</th><th class="num">Budget estimé</th><th>Manager</th><th>Date</th><th>Statut</th><th></th></tr></thead>
         <tbody id="welcome-demandes-tbody"></tbody>
       </table>
     </div>
-    
+
   </section>
 </div>
-<script>
-(function () {
-  function fmtMoney(v) {
-    if (v == null) return '—';
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v).replace('Ar', '').trim() + ' Ar';
-  }
-  fetch(appBaseUrl() + 'api/finance/welcome')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      document.getElementById('stat-demandes-attente').textContent = d.demandes_attente || 0;
-      document.getElementById('stat-budgets-valides').textContent = d.budgets_valides || 0;
-      document.getElementById('stat-demandes-retournees').textContent = d.demandes_retournees || 0;
-      document.getElementById('stat-budget-demande').textContent = fmtMoney(d.budget_demande) ;
-      document.getElementById('stat-budget-approuve').textContent = fmtMoney(d.budget_approuve) ;
-      document.getElementById('stat-budget-restant').textContent = fmtMoney(d.budget_restant) ;
-    });
-  fetch(appBaseUrl() + 'api/finance/demandes-a-examiner')
-    .then(function (r) { return r.json(); })
-    .then(function (list) {
-      var tbody = document.getElementById('welcome-demandes-tbody');
-      tbody.innerHTML = '';
-      (list || []).slice(0, 4).forEach(function (d, i) {
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td class="ref">DEM-' + String(d.id).padStart(3, '0') + '</td>' +
-          '<td>' + (d.poste || '—') + '</td>' +
-          '<td class="num">' + (d.personnes || d.effectif || 1) + '</td>' +
-          '<td class="num">' + fmtMoney(d.budget_estime || d.salaire_annuel_demande) + '</td>' +
-          '<td>' + (d.manager || '—') + '</td>' +
-          '<td>' + (d.soumission || '—') + '</td>' +
-          '<td><span class="ui-badge is-pending">' + (d.statut || 'En attente') + '</span></td>' +
-          '<td><a href="#page=examen-financier&id=' + d.id + '" data-page="examen-financier" data-id="' + d.id + '" class="ui-btn ui-btn-outline ui-btn-sm">Consulter</a></td>';
-        tbody.appendChild(tr);
-      });
-    });
-})();
-</script>
