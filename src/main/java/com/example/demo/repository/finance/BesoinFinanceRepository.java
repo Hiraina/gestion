@@ -38,13 +38,11 @@ public interface BesoinFinanceRepository extends JpaRepository<Besoin, Integer> 
 	Optional<BesoinFinanceSummary> trouverPourFinance(@Param("id") Integer id);
 
 	@Modifying
-	@Query(value = "UPDATE besoins b SET statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = :nouveauStatut) " +
-			"FROM budgets_recrutement br " +
-			"WHERE b.id_poste = br.id_poste " +
-			"  AND br.id_budget = :idBudget " +
-			"  AND b.statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'transmis_finance')",
+	@Query(value = "UPDATE besoins SET statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = :nouveauStatut) " +
+			"WHERE id_besoin = :idBesoin " +
+			"AND statut = (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'transmis_finance')",
 			nativeQuery = true)
-	int mettreAJourStatutBesoin(@Param("idBudget") Integer idBudget, @Param("nouveauStatut") String nouveauStatut);
+	int deciderBesoin(@Param("idBesoin") Integer idBesoin, @Param("nouveauStatut") String nouveauStatut);
 
 	@Query(value = "SELECT COUNT(*) FROM besoins b " +
 			"JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut " +
@@ -53,7 +51,7 @@ public interface BesoinFinanceRepository extends JpaRepository<Besoin, Integer> 
 
 	@Query(value = "SELECT COUNT(*) FROM besoins b " +
 			"JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut " +
-			"WHERE s.nom = 'refusee'", nativeQuery = true)
+			"WHERE s.nom = 'refuse'", nativeQuery = true)
 	Long compterRefusee();
 
 	@Query(value = "SELECT COALESCE(SUM(p.salaire_min * 12 * b.effectif), 0) " +

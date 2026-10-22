@@ -25,11 +25,9 @@
   </section>
 
   <section class="ui-card" id="ex-decision-section">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Décision financière</h2><p class="ui-card-sub">Sélectionnez une décision et justifiez-la si nécessaire</p></div></div>
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Décision financière</h2><p class="ui-card-sub">Sélectionnez votre décision.</p></div></div>
     <div class="ui-card-body"><form id="finance-form" novalidate>
-      <div class="ui-choices" role="radiogroup" aria-label="Décision financière"><label class="ui-choice"><input type="radio" name="finance-decision" value="valider" id="finance-valider"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Valider le budget</span></label><label class="ui-choice"><input type="radio" name="finance-decision" value="refuser" id="finance-refuser"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>Refuser le budget</span></label><label class="ui-choice"><input type="radio" name="finance-decision" value="correction" id="finance-correction"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>Demander une correction</span></label></div>
-      <div class="ui-field" style="margin-top:24px"><label for="finance-commentaire">Commentaire</label>
-        <textarea class="ui-textarea" id="finance-commentaire" name="finance-commentaire" placeholder="Obligatoire en cas de refus ou de demande de correction"></textarea></div>
+      <div class="ui-choices" role="radiogroup" aria-label="Décision financière"><label class="ui-choice"><input type="radio" name="finance-decision" value="valider" id="finance-valider"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Valider le budget</span></label><label class="ui-choice"><input type="radio" name="finance-decision" value="refuser" id="finance-refuser"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>Refuser le budget</span></label></div>
       <div id="finance-feedback" class="ui-note" role="status" hidden style="margin-top:16px"></div>
       <div class="ui-actions" style="margin-top:24px">
         <button type="submit" class="ui-btn ui-btn-primary" id="btn-valider-finance">Enregistrer la décision</button>

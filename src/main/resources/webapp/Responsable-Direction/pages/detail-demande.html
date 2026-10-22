@@ -1,31 +1,48 @@
-<div class="ui-page">
-  <header class="ui-head">
-    <div class="ui-head-text">
-      <p class="ui-eyebrow">Décisions</p>
-      <h1 class="ui-title">Détail de la demande D-001</h1>
-      <p class="ui-lead">Consultez l'ensemble des avis avant de décider.</p>
+<div class="direction-request-detail">
+  <div class="container">
+    <div class="ui-page-heading page-heading">
+      <div>
+        <span class="request-number">DEMANDE N° <span id="direction-detail-id">—</span></span>
+        <h1>Détail de la demande</h1>
+        <p>Consultez les informations transmises avant de prendre votre décision.</p>
+      </div>
+      <span id="direction-detail-statut" class="status">Chargement…</span>
     </div>
-    <div class="ui-actions"><a href="#page=demandes-en-attente" data-page="demandes-en-attente" class="ui-btn ui-btn-outline" ><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Retour</a></div>
-  </header>
 
-<div class="ui-grid-2">
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Informations générales</h2></div></div>
-    <dl class="ui-detail"><div class="ui-detail-row"><dt>Poste demandé</dt><dd>Chargée de contenu</dd></div><div class="ui-detail-row"><dt>Département</dt><dd>Marketing</dd></div><div class="ui-detail-row"><dt>Nombre de personnes</dt><dd>1</dd></div><div class="ui-detail-row"><dt>Type de besoin</dt><dd>Remplacement</dd></div><div class="ui-detail-row"><dt>Motif</dt><dd>Congé prolongé</dd></div><div class="ui-detail-row"><dt>Date souhaitée</dt><dd>20/10/2026</dd></div><div class="ui-detail-row"><dt>Manager demandeur</dt><dd>Mme Leroy</dd></div></dl>
-  </section>
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Informations budgétaires</h2></div></div>
-    <dl class="ui-detail"><div class="ui-detail-row"><dt>Budget prévisionnel</dt><dd>2 500 000 Ar</dd></div><div class="ui-detail-row"><dt>Coût estimé</dt><dd>2 500 000 Ar</dd></div><div class="ui-detail-row"><dt>Commentaire Finance</dt><dd>Budget validé pour ce poste</dd></div><div class="ui-detail-row"><dt>Validation Finance</dt><dd><span class="ui-badge is-success">Validée</span></dd></div></dl>
-  </section>
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Avis des Ressources Humaines</h2></div></div>
-    <dl class="ui-detail"><div class="ui-detail-row"><dt>Commentaire RH</dt><dd>Le profil recherché correspond au descriptif de poste</dd></div><div class="ui-detail-row"><dt>Justification du besoin</dt><dd>Maintien de l'activité du service Marketing</dd></div><div class="ui-detail-row"><dt>Validation RH</dt><dd><span class="ui-badge is-success">Validée</span></dd></div></dl>
-  </section>
-  <section class="ui-card">
-    <div class="ui-card-head"><div><h2 class="ui-card-title">Historique du circuit</h2></div></div>
-    <dl class="ui-detail"><div class="ui-detail-row"><dt>Soumission par le Manager</dt><dd>15/10/2026</dd></div><div class="ui-detail-row"><dt>Validation RH</dt><dd>16/10/2026</dd></div><div class="ui-detail-row"><dt>Validation Finance</dt><dd>17/10/2026</dd></div><div class="ui-detail-row"><dt>Transmission à la Direction</dt><dd>17/10/2026</dd></div><div class="ui-detail-row"><dt>Décisions précédentes</dt><dd>Aucune</dd></div></dl>
-  </section>
-</div>
+    <main class="request-card" id="direction-detail-content">
+      <section class="section">
+        <div class="section-title"><div class="section-number">1</div><h2>Informations générales</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Manager demandeur</span><span class="info-value" id="direction-detail-manager">—</span></div>
+          <div class="info-item"><span class="info-label">Département</span><span class="info-value" id="direction-detail-departement">—</span></div>
+          <div class="info-item"><span class="info-label">Statut</span><span class="info-value" id="direction-detail-statut-info">—</span></div>
+        </div>
+      </section>
 
-<div class="ui-actions"><a href="#page=decision" data-page="decision" class="ui-btn ui-btn-primary" ><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>Prendre la décision</a><a href="#page=demandes-en-attente" data-page="demandes-en-attente" class="ui-btn ui-btn-outline" >Retour à la liste</a></div>
+      <section class="section">
+        <div class="section-title"><div class="section-number">2</div><h2>Nature du besoin</h2></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">Poste demandé</span><span class="info-value" id="direction-detail-poste">—</span></div>
+          <div class="info-item"><span class="info-label">Nombre de personnes demandées</span><span class="info-value" id="direction-detail-effectif">—</span></div>
+          <div class="info-item"><span class="info-label">Date souhaitée de prise de poste</span><span class="info-value" id="direction-detail-date">—</span></div>
+        </div>
+        <div class="description-box">
+          <span class="info-label">Motif</span>
+          <p id="direction-detail-motif">—</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="section-number">3</div><h2>Compétences requises</h2></div>
+        <div class="description-box"><p id="direction-detail-competence">—</p></div>
+      </section>
+    </main>
+
+    <div id="direction-detail-error" class="ui-note" role="status" hidden></div>
+
+    <div class="ui-actions">
+      <a href="#page=decision" data-page="decision" class="ui-btn ui-btn-primary"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>Prendre la décision</a>
+      <a href="#page=demandes-en-attente" data-page="demandes-en-attente" class="ui-btn ui-btn-outline">Retour à la liste</a>
+    </div>
+  </div>
 </div>
