@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.offre.OffreEmploiService;
+import com.example.demo.service.departement.DepartementService;
+import com.example.demo.dto.departement.DepartementDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +21,16 @@ import java.util.Map;
 public class OffreEmploiController {
 
 	private final OffreEmploiService service;
+	private final DepartementService departementService;
 
-	public OffreEmploiController(OffreEmploiService service) {
+	public OffreEmploiController(OffreEmploiService service, DepartementService departementService) {
 		this.service = service;
+		this.departementService = departementService;
+	}
+
+	@GetMapping("/referentiels/departements")
+	public List<DepartementDTO> listerDepartements() {
+		return departementService.listerTous();
 	}
 
 	@GetMapping

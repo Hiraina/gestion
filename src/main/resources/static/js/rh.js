@@ -811,6 +811,53 @@ var RHDrafts = (function () {
 
     /* Évite une double initialisation sur la même page. */
     if (form.dataset.publicationOffreReady === "true") return;
+
+    if (form.dataset.departmentOptionsLoaded !== "true") {
+      if (form.dataset.departmentOptionsLoading === "true") return;
+      form.dataset.departmentOptionsLoading = "true";
+      var contextPath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+      fetch(contextPath + "/Responsable-RH/api/offres/referentiels/departements")
+        .then(function (response) {
+          if (!response.ok) throw new Error("Impossible de charger les départements.");
+          return response.json();
+        })
+        .then(function (departements) {
+          var select = byId("department");
+          if (!select || !Array.isArray(departements)) throw new Error("La liste des départements est invalide.");
+          select.innerHTML = "";
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = departements.length ? "À choisir" : "Aucun département disponible";
+          select.appendChild(placeholder);
+          departements.forEach(function (departement) {
+            if (!departement || !departement.nom) return;
+            var option = document.createElement("option");
+            option.value = departement.nom;
+            option.textContent = departement.nom;
+            select.appendChild(option);
+          });
+          form.dataset.departmentOptionsLoaded = "true";
+          form.dataset.departmentOptionsLoading = "false";
+          initPublicationOffre(event);
+        })
+        .catch(function () {
+          form.dataset.departmentOptionsLoading = "false";
+          var select = byId("department");
+          if (select) {
+            select.innerHTML = "";
+            var option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Départements indisponibles";
+            select.appendChild(option);
+          }
+          showNotification("Les départements n'ont pas pu être chargés depuis les données.", "error");
+          form.querySelectorAll("button[type='submit'], #saveDraftButton, #previewButton").forEach(function (button) {
+            button.disabled = true;
+          });
+        });
+      return;
+    }
+
     form.dataset.publicationOffreReady = "true";
 
     var reference = resolveReference(event);
