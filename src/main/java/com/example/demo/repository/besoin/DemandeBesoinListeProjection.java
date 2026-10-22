@@ -7,6 +7,7 @@ public interface DemandeBesoinListeProjection {
 	String getPoste();
 	Integer getEffectif();
 	String getManager();
+	String getDepartement();
 	LocalDate getDateSouhaitee();
 	String getStatut();
 }

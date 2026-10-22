@@ -58,7 +58,7 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2>Préparer le contrat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctEditModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctEditModal">&times;</button>
         </div>
         <div class="ct-modal-body">
             <p class="ct-small-muted" style="margin-bottom: 20px;">
@@ -150,8 +150,8 @@
             </div>
         </div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctEditModal')">Annuler</button>
-            <button class="ct-btn ct-btn-orange" onclick="ctPreviewContract()">👁 Prévisualiser</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctEditModal">Annuler</button>
+            <button class="ct-btn ct-btn-orange" data-js-action="ctPreviewContract">👁 Prévisualiser</button>
         </div>
     </div>
 </div>
@@ -161,15 +161,15 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2>Prévisualisation du contrat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctPreviewModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctPreviewModal">&times;</button>
         </div>
         <div class="ct-modal-body">
             <div id="ctContractDocument" class="ct-contract-document"></div>
         </div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" onclick="window.print()">🖨 Imprimer / PDF</button>
-            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctPreviewModal')">Retour</button>
-            <button class="ct-btn ct-btn-green" onclick="ctSendContract()">📩 Envoyer au candidat</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="printPage">🖨 Imprimer / PDF</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctPreviewModal">Retour</button>
+            <button class="ct-btn ct-btn-green" data-js-action="ctSendContract">📩 Envoyer au candidat</button>
         </div>
     </div>
 </div>
@@ -179,7 +179,7 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2 id="ctCandidateModalTitle">Espace candidat — Contrat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctCandidateResponseModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctCandidateResponseModal">&times;</button>
         </div>
         <div class="ct-modal-body">
             <div class="ct-candidate-banner">
@@ -201,7 +201,7 @@
                     <input type="checkbox" id="ctCandidateConfirm" />
                     Je confirme avoir examiné les articles et souhaite transmettre mes réponses.
                 </label>
-                <button class="ct-btn ct-btn-green" style="width: 100%; padding: 14px;" onclick="ctSubmitCandidateResponses()">
+                <button class="ct-btn ct-btn-green" style="width: 100%; padding: 14px;" data-js-action="ctSubmitCandidateResponses">
                     Envoyer mes réponses à la RH
                 </button>
             </div>
@@ -214,11 +214,11 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2>Examiner la réponse du candidat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctReviewModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctReviewModal">&times;</button>
         </div>
         <div class="ct-modal-body" id="ctReviewContent"></div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctReviewModal')">Fermer</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctReviewModal">Fermer</button>
         </div>
     </div>
 </div>
@@ -228,7 +228,7 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2>Répondre à la proposition du candidat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctDecisionModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctDecisionModal">&times;</button>
         </div>
         <div class="ct-modal-body">
             <p class="ct-small-muted" id="ctDecisionIntro" style="margin-bottom: 18px;"></p>
@@ -237,11 +237,11 @@
                 <label>Décision de la RH</label>
                 <div class="ct-radio-options">
                     <label class="ct-radio-option">
-                        <input type="radio" name="ctHrDecision" value="accept" checked onchange="ctToggleDecisionFields()" />
+                        <input type="radio" name="ctHrDecision" value="accept" checked data-js-action="ctToggleDecisionFields" />
                         Accepter la condition proposée
                     </label>
                     <label class="ct-radio-option">
-                        <input type="radio" name="ctHrDecision" value="reject" onchange="ctToggleDecisionFields()" />
+                        <input type="radio" name="ctHrDecision" value="reject" data-js-action="ctToggleDecisionFields" />
                         Refuser la condition proposée
                     </label>
                 </div>
@@ -264,8 +264,8 @@
             </div>
         </div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctDecisionModal')">Annuler</button>
-            <button class="ct-btn ct-btn-orange" onclick="ctSendHRDecision()">📩 Envoyer la réponse au candidat</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctDecisionModal">Annuler</button>
+            <button class="ct-btn ct-btn-orange" data-js-action="ctSendHRDecision">📩 Envoyer la réponse au candidat</button>
         </div>
     </div>
 </div>
@@ -275,11 +275,11 @@
     <div class="ct-modal">
         <div class="ct-modal-header">
             <h2 id="ctInfoTitle">Détails du contrat</h2>
-            <button class="ct-close-btn" onclick="ctCloseModal('ctInfoModal')">&times;</button>
+            <button class="ct-close-btn" data-js-action="ctCloseModal:ctInfoModal">&times;</button>
         </div>
         <div class="ct-modal-body" id="ctInfoContent"></div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" onclick="ctCloseModal('ctInfoModal')">Fermer</button>
+            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctInfoModal">Fermer</button>
         </div>
     </div>
 </div>

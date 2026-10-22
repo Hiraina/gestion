@@ -84,13 +84,13 @@
             <button
               type="button"
               class="btn btn-outline"
-              onclick="previewResponses()"
+              data-js-action="previewResponses"
             >
               👁 Vérifier mes réponses</button
             ><button
               type="button"
               class="btn btn-primary"
-              onclick="submitResponses()"
+              data-js-action="submitResponses"
             >
               📩 Envoyer mes réponses
             </button>
@@ -116,9 +116,9 @@
           fichier JSON.
         </div>
         <div class="submit-row" style="justify-content: center">
-          <button class="btn btn-outline" onclick="downloadResponse()">
+          <button class="btn btn-outline" data-js-action="downloadResponse">
             ⬇ Télécharger ma réponse</button
-          ><button class="btn btn-primary" onclick="window.print()">
+          ><button class="btn btn-primary" data-js-action="printPage">
             🖨 Imprimer le récapitulatif
           </button>
         </div>
@@ -137,7 +137,7 @@
         <p>Voici le résumé des choix effectués.</p>
         <div id="previewContent"></div>
         <div class="modal-actions">
-          <button class="btn btn-outline" onclick="closePreview()">
+          <button class="btn btn-outline" data-js-action="closePreview">
             Retour au formulaire
           </button>
         </div>
