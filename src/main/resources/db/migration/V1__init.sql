@@ -266,7 +266,8 @@ INSERT INTO statut_recrutement (nom) VALUES
 ('en_attente'),
 ('valide'),
 ('refuse'),
-('cloture');
+('cloture'),
+('transmis_finance');
 
 -- DEMANDES DE BESOIN (circuit de validation manager -> direction -> RH)
 
@@ -280,7 +281,8 @@ CREATE TABLE besoins (
     effectif INTEGER NOT NULL DEFAULT 1
         CHECK (effectif > 0),
     statut INT NOT NULL
-        REFERENCES statut_recrutement(id_statut_recrutement)
+        REFERENCES statut_recrutement(id_statut_recrutement),
+    date_transmission_finance TIMESTAMP
 );
 
 CREATE TABLE brouillon_demande (

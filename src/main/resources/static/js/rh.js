@@ -874,7 +874,41 @@ var RHDrafts = (function () {
     form.dataset.publicationOffreReady = "true";
 
     var reference = resolveReference(event);
-    var request = DEMO_REQUESTS[reference] || DEMO_REQUESTS[DEFAULT_REFERENCE];
+    var request = DEMO_REQUESTS[reference];
+    if (!request && /^\d+$/.test(reference)) {
+      fetch((document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '') + '/api/rh/besoins-valides')
+        .then(function (response) { if (!response.ok) throw new Error('Chargement impossible'); return response.json(); })
+        .then(function (items) {
+          var row = items.find(function (item) { return String(item.id) === reference; });
+          if (!row) throw new Error('Cette demande n’est plus dans la liste des demandes validées.');
+          DEMO_REQUESTS[reference] = {
+            reference: 'DEM-' + row.id,
+            approvalDate: 'Non enregistrée',
+            manager: row.manager,
+            department: row.departement || '',
+            positions: row.effectif,
+            needType: 'Type non renseigné dans la demande',
+            contract: 'À préciser',
+            startDate: row.date_souhaitee || '',
+            experience: 'À préciser',
+            education: 'À préciser',
+            reason: row.motif || 'Aucun motif renseigné.',
+            jobTitle: row.poste
+          };
+          form.dataset.publicationOffreReady = 'false';
+          initPublicationOffre(event);
+        })
+        .catch(function (error) {
+          setText('requestReference', error.message);
+          form.querySelectorAll('button[type="submit"], #saveDraftButton, #previewButton').forEach(function (button) { button.disabled = true; });
+        });
+      return;
+    }
+    if (!request) {
+      setText('requestReference', 'Demande validée introuvable');
+      form.querySelectorAll('button[type="submit"], #saveDraftButton, #previewButton').forEach(function (button) { button.disabled = true; });
+      return;
+    }
     var modal = byId("previewModal");
 
     fillRequestInformation(request);
