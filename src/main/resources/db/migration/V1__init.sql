@@ -1,4 +1,27 @@
+-- Migration Flyway V1 : schema initial de l'application Carriere+
+--
+-- Source de verite du schema. Appliquee automatiquement au demarrage.
+-- Toute evolution du schema doit passer par une nouvelle migration
+-- (V2__....sql, V3__....sql) et JAMAIS par une modification de ce fichier.
+--
+-- Contenu : les 23 tables de la base + les donnees de demonstration
+-- (roles, statuts, 4 comptes utilisateurs et leurs roles).
+--
+-- Ce fichier est genere a partir de database.sql (copie de confort pour
+-- un reset manuel via psql) ; les deux doivent rester identiques.
+--
+-- Corrections appliquees par rapport a la version initiale :
+--   * utilisateur_roles : CREATE TABLE deplace avant son INSERT
+--   * "INSERT INTO TABLE statut_emp" -> "INSERT INTO statut_emp"
+--   * ";" manquant apres "CREATE TABLE statut_offre (...)"
+--   * table besoins : ";" manquant, colonne "annee" absente alors que la
+--     contrainte UNIQUE (id_poste, annee) la reference, et deplacement apres
+--     la creation de statut_recrutement dont elle depend
+--   * les INSERT de semence (utilisateurs, utilisateur_roles) sont conserves :
+--     le login de l'application lit ces tables
+
 -- COMPTE, RÔLES et UTILISATEURS
+
 
 CREATE TABLE roles (
     id_role SERIAL PRIMARY KEY,
@@ -23,6 +46,11 @@ CREATE TABLE utilisateurs (
     date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe_hash, actif) VALUES
+('Direction', 'User', 'direction@gmail.com', 'direction123', TRUE),
+('Finance', 'User', 'finance@gmail.com', 'finance123', TRUE),
+('Manager', 'User', 'manager@gmail.com', 'manager123', TRUE),
+('RH', 'User', 'rh@gmail.com', 'rh123', TRUE);
 
 CREATE TABLE utilisateur_roles (
     id_utilisateur INTEGER NOT NULL
@@ -32,6 +60,14 @@ CREATE TABLE utilisateur_roles (
 
     PRIMARY KEY (id_utilisateur, id_role)
 );
+
+INSERT INTO utilisateur_roles (id_utilisateur, id_role)
+SELECT u.id_utilisateur, r.id_role
+FROM utilisateurs u JOIN roles r ON
+  (u.email='direction@gmail.com' AND r.nom='direction') OR
+  (u.email='finance@gmail.com' AND r.nom='finance') OR
+  (u.email='manager@gmail.com' AND r.nom='manager') OR
+  (u.email='rh@gmail.com' AND r.nom='RH');
 
 CREATE TABLE departements (
     id_departement SERIAL PRIMARY KEY,
@@ -58,12 +94,35 @@ CREATE TABLE postes (
     )
 );
 
+-- Departements et postes de l'entreprise (donnees de demonstration)
+INSERT INTO departements (nom, description) VALUES
+('Ressources Humaines', 'Gestion du personnel et du recrutement'),
+('Direction', 'Direction generale et strategique'),
+('Finance', 'Budgets, comptabilite et validation financiere'),
+('Informatique', 'Systemes d information et support technique'),
+('Marketing', 'Communication et promotion'),
+('Production', 'Fabrication et operations'),
+('Ventes', 'Ventes et relation client')
+ON CONFLICT (nom) DO NOTHING;
+
+INSERT INTO postes (titre, description, id_departement, salaire_min, salaire_max, actif) VALUES
+('Directeur RH', 'Pilote la strategie RH et le circuit de validation des besoins', 2, 800000000, 1200000000, TRUE),
+('Charge de recrutement RH', 'Gere les offres, candidatures et entretiens', 1, 400000000, 600000000, TRUE),
+('Responsable Finance', 'Valide les budgets et les propositions salariales', 3, 700000000, 1000000000, TRUE),
+('Analyste budgets', 'Suivi des couts du personnel et des budgets de recrutement', 3, 450000000, 650000000, TRUE),
+('Developpeur backend', 'Developpement et maintenance du SI RH', 4, 500000000, 800000000, TRUE),
+('Responsable Marketing', 'Communication et marque employeur', 5, 550000000, 850000000, TRUE),
+('Chef de production', 'Supervise les equipes de production', 6, 600000000, 900000000, TRUE),
+('Commercial', 'Developpement commercial et relation client', 7, 350000000, 700000000, TRUE),
+('Assistant administratif', 'Support administratif transverses', 1, 250000000, 400000000, TRUE)
+ON CONFLICT DO NOTHING;
+
 CREATE TABLE statut_emp (
     id_statut SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
 );
 
-INSERT INTO TABLE statut_emp (nom) VALUES
+INSERT INTO statut_emp (nom) VALUES
 ('actif'),
 ('suspendu'),
 ('parti');
@@ -107,7 +166,7 @@ CREATE TABLE candidats (
 CREATE TABLE statut_offre (
     id_statut_offre SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL UNIQUE
-)
+);
 
 INSERT INTO statut_offre (nom) VALUES
 ('brouillon'),
@@ -159,6 +218,22 @@ CREATE TABLE candidatures (
     UNIQUE (id_candidat, id_offre)
 );
 
+CREATE TABLE type_document (
+    id_type_document SERIAL PRIMARY KEY,
+    libelle VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE documents_candidature (
+    id_document SERIAL PRIMARY KEY,
+    id_candidature INTEGER NOT NULL
+        REFERENCES candidatures(id_candidature),
+    type_document INTEGER NOT NULL
+        REFERENCES type_document(id_type_document),
+    url_document TEXT NOT NULL,
+    date_ajout TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (id_candidature, type_document)
+);
 
 CREATE TABLE entretiens (
     id_entretien SERIAL PRIMARY KEY,
@@ -191,7 +266,30 @@ INSERT INTO statut_recrutement (nom) VALUES
 ('en_attente'),
 ('valide'),
 ('refuse'),
-('cloture');
+('cloture'),
+('transmis_finance');
+
+-- DEMANDES DE BESOIN (circuit de validation manager -> direction -> RH)
+
+CREATE TABLE besoins (
+    id_besoin SERIAL PRIMARY KEY,
+    id_poste INTEGER NOT NULL REFERENCES postes(id_poste),
+    nom_manager_demandeur VARCHAR(150) NOT NULL,
+    date_souhaitee DATE NOT NULL,
+    motif TEXT,
+    competance TEXT,
+    effectif INTEGER NOT NULL DEFAULT 1
+        CHECK (effectif > 0),
+    statut INT NOT NULL
+        REFERENCES statut_recrutement(id_statut_recrutement),
+    date_transmission_finance TIMESTAMP
+);
+
+CREATE TABLE brouillon_demande (
+    id BIGSERIAL PRIMARY KEY,
+    date_creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    donnees JSONB NOT NULL
+);
 
 CREATE TABLE budgets_recrutement (
     id_budget SERIAL PRIMARY KEY,
@@ -238,8 +336,7 @@ CREATE TABLE propositions_embauche (
             salaire_mensuel_demande IS NULL
             OR salaire_mensuel_demande >= 0
         ),
-    statut INT NOT NULL
-        REFERENCES statut_embauche(id),
+    statut INT NOT NULL REFERENCES statut_embauche(id),
     date_proposition TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_reponse TIMESTAMP,
 
@@ -266,3 +363,31 @@ CREATE TABLE validations_financieres (
     date_decision TIMESTAMP,
     date_demande TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE type_contrat(
+    id_type_contrat SERIAL PRIMARY KEY,
+    libelle VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE contrat_travail(
+    id_contrat SERIAL PRIMARY KEY,
+    id_type_contrat INTEGER NOT NULL REFERENCES type_contrat(id_type_contrat),
+    id_proposition INTEGER NOT NULL REFERENCES propositions_embauche(id_proposition),
+    date_signature TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    duree_travail INTEGER,
+    periode_essai INTEGER,
+    date_debut DATE NOT NULL,
+    date_fin DATE,
+    salaire_mensuel NUMERIC(12, 2) NOT NULL
+        CHECK (salaire_mensuel >= 0),
+    salaire_annuel NUMERIC(14, 2)
+        GENERATED ALWAYS AS (
+            salaire_mensuel * 12
+        ) STORED,
+
+    CHECK (
+        date_fin IS NULL
+        OR date_fin >= date_debut
+    )
+);
+

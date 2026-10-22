@@ -1,0 +1,31 @@
+<div class="ui-page">
+  <header class="ui-head">
+    <div class="ui-head-text">
+      <p class="ui-eyebrow">Nouvelle demande</p>
+      <h1 class="ui-title">Demande de besoin en personnel</h1>
+      <p class="ui-lead">Renseignez votre besoin en trois étapes.</p>
+    </div>
+    
+  </header>
+
+  <section class="ui-card"><div class="ui-card-body ui-form-body">
+  <form id="besoin-form" th:action="@{/{dossier}/pages/demande_besoin/soumettre(dossier=${dossier})}" th:object="${besoinDTO}" method="post" novalidate>
+    <ol class="ui-stepper" aria-label="Progression du formulaire">
+      <li class="is-active" data-step-dot="1"><span>1</span><em>Informations générales</em></li>
+      <li data-step-dot="2"><span>2</span><em>Nature du besoin</em></li>
+      <li data-step-dot="3"><span>3</span><em>Caractéristiques du poste</em></li>
+    </ol>
+    <div id="step-1" class="form-step active"><h3 class="ui-step-title">Informations générales</h3><div class="ui-form-grid"><div class="ui-field"><label for="date_demande">Date de la demande</label><input class="ui-input" type="date" id="date_demande" name="dateDemande" required></div><div class="ui-field"><label for="manager">Manager demandeur</label><input class="ui-input" type="text" id="manager" th:field="*{nomManagerDemandeur}"></div><div class="ui-field"><label for="departement">Département</label><select class="ui-select" id="departement" name="departement" required><option value="">Sélectionner</option><option th:each="d : ${departements}" th:value="${d.nom}" th:text="${d.nom}"></option></select></div></div></div>
+    <div id="step-2" class="form-step"><h3 class="ui-step-title">Nature du besoin</h3><div class="ui-form-grid"><div class="ui-field"><label for="effectif">Nombre de personnes demandées</label><input class="ui-input" type="number" id="effectif" name="effectif" value="2" min="1" required></div><div class="ui-field"><label for="poste">Intitulé du poste</label><select class="ui-select" id="poste" th:field="*{idPoste}" required><option value="">Sélectionner</option><option th:each="p : ${postes}" th:value="${p.id}" th:text="${p.titre}"></option></select></div><div class="ui-field is-full"><label for="description">Motif détaillé du besoin</label><textarea class="ui-textarea" id="description" th:field="*{motif}" rows="5" placeholder="Expliquez pourquoi ce recrutement est nécessaire…" required></textarea></div></div></div>
+    <div id="step-3" class="form-step"><h3 class="ui-step-title">Caractéristiques du poste</h3><div class="ui-form-grid"><div class="ui-field is-full"><label for="competences">Compétences requises <span class="ui-optional">Facultatif</span></label><textarea class="ui-textarea" id="competences" th:field="*{competance}" rows="4" placeholder="Exemple : Java, SQL, développement web…"></textarea></div><div class="ui-field"><label for="date_prise_poste">Date souhaitée de prise de poste</label><input class="ui-input" type="date" id="date_prise_poste" th:field="*{dateSouhaitee}" required></div></div></div>
+    <div id="besoin-feedback" class="ui-note" role="status" hidden style="margin-top:24px"></div>
+    <div class="ui-actions ui-form-actions">
+      <button type="button" id="prev-btn" class="ui-btn ui-btn-outline">Précédent</button>
+      <button type="button" id="next-btn" class="ui-btn ui-btn-dark">Suivant</button>
+      <button type="submit" id="submit-btn" name="action" value="soumettre" class="ui-btn ui-btn-primary hidden">Soumettre la demande</button>
+      <button type="submit" id="draft-btn" name="action" value="brouillon" class="ui-btn ui-btn-outline hidden">Enregistrer comme brouillon</button>
+      <button type="reset" id="reset-btn" class="ui-btn ui-btn-ghost hidden">Réinitialiser</button>
+    </div>
+  </form>
+  </div></section>
+</div>

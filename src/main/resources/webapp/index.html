@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="context-path" th:content="@{/}" />
+    <title>Connexion · Carrière+</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" th:href="@{/css/design.css}" />
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+  </head>
+
+  <body class="login-page">
+    <main class="login-layout">
+      <aside class="login-aside" aria-hidden="true">
+        <div class="login-brand">
+          <img class="login-brand-mark" th:src="@{/img/logo.png}" alt="" />
+          <span class="login-brand-name">Carrière+</span>
+        </div>
+        <div class="login-aside-body">
+          <p class="login-eyebrow">Gestion du recrutement</p>
+          <h2>Du besoin en personnel à la signature du contrat, en un seul espace.</h2>
+          <ul class="login-points">
+            <li>Demandes de besoin et circuit de validation</li>
+            <li>Budgets et coûts du personnel</li>
+            <li>Offres, candidatures et entretiens</li>
+          </ul>
+        </div>
+        <p class="login-aside-foot">&copy; 2026 Carrière+ · Antananarivo, Madagascar</p>
+      </aside>
+
+      <section class="login-panel">
+        <div class="login-card">
+          <div class="login-brand login-brand-mobile">
+            <img class="login-brand-mark" th:src="@{/img/logo.png}" alt="" />
+            <span class="login-brand-name">Carrière+</span>
+          </div>
+
+          <h1>Connexion</h1>
+          <p class="login-sub">Accédez à votre espace de travail.</p>
+
+          <div id="error-message" class="error-message" role="alert"></div>
+
+          <form id="login-form" method="post" th:action="@{/api/login}" novalidate>
+            <div class="ui-field">
+              <label for="email">Adresse e-mail</label>
+              <input class="ui-input" type="email" id="email" name="email" placeholder="rh@gmail.com" autocomplete="username" required />
+            </div>
+
+            <div class="ui-field">
+              <label for="password">Mot de passe</label>
+              <div class="password-wrap">
+                <input class="ui-input" type="password" id="password" name="password" placeholder="Votre mot de passe" autocomplete="current-password" required />
+                <button type="button" class="password-toggle" id="password-toggle" aria-label="Afficher le mot de passe">Afficher</button>
+              </div>
+            </div>
+
+            <button type="submit" class="ui-btn ui-btn-primary login-btn">Se connecter</button>
+          </form>
+
+          <div class="demo-box">
+            <p>Comptes de démonstration</p>
+            <div class="demo-list">
+              <button type="button" class="demo-chip" data-email="rh@gmail.com" data-password="rh123">RH</button>
+              <button type="button" class="demo-chip" data-email="manager@gmail.com" data-password="manager123">Manager</button>
+              <button type="button" class="demo-chip" data-email="finance@gmail.com" data-password="finance123">Finance</button>
+              <button type="button" class="demo-chip" data-email="direction@gmail.com" data-password="direction123">Direction</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script th:src="@{/js/login.js}"></script>
+  </body>
+</html>

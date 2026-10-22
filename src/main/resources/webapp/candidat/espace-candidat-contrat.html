@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="context-path" th:content="@{/}" />
+    <title>Espace candidat — Contrat de travail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/design.css}" />
+    <link rel="stylesheet" th:href="@{/css/candidat-contrat.css}" />
+  </head>
+  <body class="cand-contract-page" th:attr="data-dossier=${dossier}">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <span class="logo"><img class="logo-icon" th:src="@{/img/logo.png}" alt="" /><span>Carrière<span class="logo-plus">+</span></span></span>
+        <small>Espace candidat · Contrat de travail</small>
+      </div>
+    </header>
+    <main class="container">
+      <section class="welcome">
+        <div class="eyebrow">Votre espace personnel</div>
+        <h1>Bonjour <span id="candidateNameHeading">Randria Hery</span> 👋</h1>
+        <p>
+          Vous avez reçu un contrat de travail. Prenez le temps de lire chaque
+          article et transmettez votre réponse à l'équipe des ressources
+          humaines.
+        </p>
+        <div class="candidate-meta">
+          <div class="meta">
+            <span>Poste proposé</span><strong id="jobValue">Comptable</strong>
+          </div>
+          <div class="meta">
+            <span>Type de contrat</span><strong id="typeValue">CDI</strong>
+          </div>
+          <div class="meta">
+            <span>État de votre réponse</span
+            ><strong
+              ><span class="status-pill" id="statusValue"
+                >Réponse attendue</span
+              ></strong
+            >
+          </div>
+        </div>
+      </section>
+
+      <div id="formView">
+        <div class="notice">
+          <strong>Comment répondre ?</strong><br />Pour chaque article,
+          choisissez <strong>Accepter</strong>, <strong>Refuser</strong> ou
+          <strong>Compléter / proposer une modification</strong>. Si vous
+          refusez ou demandez une modification, vous devez expliquer votre
+          choix. Vos réponses seront transmises à la RH pour examen.
+        </div>
+        <div
+          id="hrMessageBox"
+          class="previous-proposal"
+          style="display: none"
+        ></div>
+        <div class="section-head">
+          <h2>Votre contrat, article par article</h2>
+          <span class="progress" id="progressLabel">0 / 7 réponses</span>
+        </div>
+        <div id="articlesContainer"></div>
+        <section class="general">
+          <h2>Commentaire général</h2>
+          <p>
+            Vous pouvez ajouter un message destiné à l'équipe RH. Ce champ est
+            facultatif.
+          </p>
+          <textarea
+            id="generalComment"
+            placeholder="Écrivez votre message ici..."
+          ></textarea>
+          <label class="confirm"
+            ><input type="checkbox" id="confirmRead" /><span
+              >Je confirme avoir lu les articles et souhaite transmettre mes
+              réponses à l'équipe RH.</span
+            ></label
+          >
+          <div class="submit-row">
+            <button
+              type="button"
+              class="btn btn-outline"
+              onclick="previewResponses()"
+            >
+              👁 Vérifier mes réponses</button
+            ><button
+              type="button"
+              class="btn btn-primary"
+              onclick="submitResponses()"
+            >
+              📩 Envoyer mes réponses
+            </button>
+          </div>
+          <p class="article-hint" style="margin-top: 13px">
+            Après l'envoi, vos réponses ne pourront plus être modifiées depuis
+            cette page.
+          </p>
+        </section>
+      </div>
+
+      <section id="submittedView" class="screen-message">
+        <div class="icon">✅</div>
+        <h2>Vos réponses ont été préparées</h2>
+        <p id="submittedText">Votre récapitulatif est prêt.</p>
+        <div
+          id="submittedSummary"
+          style="text-align: left; margin: 20px 0"
+        ></div>
+        <div class="notice" style="text-align: left">
+          Cette page est une démonstration autonome. Le récapitulatif est
+          enregistré dans le stockage local de ce navigateur et téléchargé en
+          fichier JSON.
+        </div>
+        <div class="submit-row" style="justify-content: center">
+          <button class="btn btn-outline" onclick="downloadResponse()">
+            ⬇ Télécharger ma réponse</button
+          ><button class="btn btn-primary" onclick="window.print()">
+            🖨 Imprimer le récapitulatif
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <strong>Carrière+</strong> · Espace de recrutement<br />
+      Merci de l'intérêt que vous portez à nos opportunités professionnelles.
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="previewModal" class="modal-backdrop">
+      <div class="modal">
+        <h2>Vérifier vos réponses</h2>
+        <p>Voici le résumé des choix effectués.</p>
+        <div id="previewContent"></div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="closePreview()">
+            Retour au formulaire
+          </button>
+        </div>
+      </div>
+    </div>
+    <script th:src="@{/js/rh.js}"></script>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+<div class="ui-page">
+  <header class="ui-head">
+    <div class="ui-head-text">
+      <p class="ui-eyebrow">Budget et validation</p>
+      <h1 class="ui-title" id="finance-exam-title">Examen financier</h1>
+      <p class="ui-lead">La Finance évalue la faisabilité budgétaire ; la décision finale de recruter appartient à la Direction.</p>
+    </div>
+    <div class="ui-actions"><a href="#page=demandes-a-examiner" data-page="demandes-a-examiner" class="ui-btn ui-btn-outline" ><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Retour</a></div>
+  </header>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Informations de la demande</h2><p class="ui-card-sub">Données transmises par le Manager</p></div></div>
+    <dl class="ui-detail" id="finance-exam-details"><div class="ui-detail-row"><dt>Demande</dt><dd>Chargement…</dd></div></dl>
+  </section>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><h2 class="ui-card-title">Décision financière</h2><p class="ui-card-sub">Sélectionnez une décision et justifiez-la si nécessaire</p></div></div>
+    <div class="ui-card-body"><form id="finance-form" novalidate>
+      <div class="ui-choices" role="radiogroup" aria-label="Décision financière"><label class="ui-choice"><input type="radio" name="finance-decision" value="valider" id="finance-valider"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Valider le budget</span></label><label class="ui-choice"><input type="radio" name="finance-decision" value="refuser" id="finance-refuser"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>Refuser le budget</span></label><label class="ui-choice"><input type="radio" name="finance-decision" value="correction" id="finance-correction"><span class="ui-choice-card"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>Demander une correction</span></label></div>
+      <div class="ui-field" style="margin-top:24px"><label for="finance-commentaire">Commentaire</label>
+        <textarea class="ui-textarea" id="finance-commentaire" name="finance-commentaire" placeholder="Obligatoire en cas de refus ou de demande de correction"></textarea></div>
+      <div id="finance-feedback" class="ui-note" role="status" hidden style="margin-top:16px"></div>
+      <div class="ui-actions" style="margin-top:24px">
+        <button type="submit" class="ui-btn ui-btn-primary" id="btn-valider-finance">Enregistrer la décision</button>
+        <a href="#page=demandes-a-examiner" data-page="demandes-a-examiner" class="ui-btn ui-btn-outline" >Retour à la liste</a>
+      </div>
+    </form></div>
+  </section>
+</div>
+<script>
+(function () {
+  var detail = document.getElementById('finance-exam-details');
+  var requestId = window.currentPageId;
+  if (detail) {
+    var base = (document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '');
+    function escape(value) { return String(value == null || value === '' ? 'Non renseigné' : value).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    fetch(base + '/api/finance/besoins/' + encodeURIComponent(requestId), {headers:{Accept:'application/json'}})
+      .then(function (response) { if (!response.ok) throw new Error('Cette demande n’est plus en attente d’examen.'); return response.json(); })
+      .then(function (r) {
+        document.getElementById('finance-exam-title').textContent = 'Examen financier — DEM-' + r.id;
+        detail.innerHTML = [['Référence','DEM-'+r.id],['Poste concerné',r.poste],['Département',r.departement],['Nombre de personnes',r.effectif],['Manager demandeur',r.manager],['Date souhaitée',r.dateSouhaitee],['Motif du recrutement',r.motif],['Compétences requises',r.competence]].map(function (pair) { return '<div class="ui-detail-row"><dt>'+escape(pair[0])+'</dt><dd>'+escape(pair[1])+'</dd></div>'; }).join('');
+      })
+      .catch(function (error) { detail.innerHTML = '<div class="ui-detail-row"><dt>État</dt><dd>'+escape(error.message)+'</dd></div>'; });
+  }
+  var form = document.getElementById('finance-form');
+  var box = document.getElementById('finance-feedback');
+  if (!form) return;
+  function say(msg, ok) { box.hidden = false; box.textContent = msg; box.style.background = ok ? 'var(--success-bg)' : 'var(--orange-50)'; box.style.borderLeftColor = ok ? 'var(--success)' : 'var(--orange)'; box.style.color = ok ? 'var(--success)' : '#5c3d00'; }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var decision = form.querySelector('input[name="finance-decision"]:checked');
+    var comment = document.getElementById('finance-commentaire').value.trim();
+    if (!decision) { say('Veuillez sélectionner une décision.', false); return; }
+    if ((decision.value === 'refuser' || decision.value === 'correction') && !comment) { say('Un commentaire est obligatoire en cas de refus ou de demande de correction.', false); return; }
+    say('Décision enregistrée : ' + decision.parentNode.textContent.trim() + '.', true);
+  });
+})();
+</script>
