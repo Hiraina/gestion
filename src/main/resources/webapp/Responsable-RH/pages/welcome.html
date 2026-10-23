@@ -19,7 +19,7 @@
             </div>
 
             <div class="date-box">
-                <div class="date-icon">📅</div>
+                <div class="date-icon"><svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg></div>
 
                 <div>
                     <span>Votre espace RH</span>
@@ -35,10 +35,10 @@
             <article class="stat-card">
                 <div class="stat-top">
                     <span class="stat-label">Nouvelles demandes</span>
-                    <div class="stat-icon icon-orange">📥</div>
+                    <div class="stat-icon icon-orange"><svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg></div>
                 </div>
 
-                <div class="stat-number">05</div>
+                <div class="stat-number" id="rh-accueil-nouvelles">—</div>
 
                 <p class="stat-description">
                     <strong>À examiner</strong><br>
@@ -49,10 +49,10 @@
             <article class="stat-card">
                 <div class="stat-top">
                     <span class="stat-label">En attente de la Finance</span>
-                    <div class="stat-icon icon-blue">💰</div>
+                    <div class="stat-icon icon-blue"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></div>
                 </div>
 
-                <div class="stat-number">03</div>
+                <div class="stat-number" id="rh-accueil-finance">—</div>
 
                 <p class="stat-description">
                     Demandes transmises au responsable financier
@@ -62,10 +62,10 @@
             <article class="stat-card">
                 <div class="stat-top">
                     <span class="stat-label">En attente de la Direction</span>
-                    <div class="stat-icon icon-purple">🏢</div>
+                    <div class="stat-icon icon-purple"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></div>
                 </div>
 
-                <div class="stat-number">02</div>
+                <div class="stat-number" id="rh-accueil-direction">—</div>
 
                 <p class="stat-description">
                     Demandes validées par la Finance et transmises à la Direction
@@ -75,10 +75,10 @@
             <article class="stat-card">
                 <div class="stat-top">
                     <span class="stat-label">Demandes approuvées</span>
-                    <div class="stat-icon icon-green">✓</div>
+                    <div class="stat-icon icon-green"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></div>
                 </div>
 
-                <div class="stat-number">08</div>
+                <div class="stat-number" id="rh-accueil-approuvees">—</div>
 
                 <p class="stat-description">
                     Demandes ayant reçu la validation finale de la Direction
@@ -136,7 +136,7 @@
                 </div>
 
                 <div class="notice">
-                    <div class="notice-icon">💡</div>
+                    <div class="notice-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></div>
 
                     <div>
                         <h4>À retenir</h4>
@@ -159,9 +159,9 @@
                     Accédez directement aux principales fonctionnalités RH.
                 </p>
 
-                <a href="#" class="shortcut">
+                <a href="#page=liste-demandes" data-page="liste-demandes" class="shortcut">
 
-                    <div class="shortcut-icon">📥</div>
+                    <div class="shortcut-icon"><svg class="icon" aria-hidden="true"><use href="#i-inbox"/></svg></div>
 
                     <div class="shortcut-text">
                         <h4>Demandes reçues</h4>
@@ -172,9 +172,9 @@
 
                 </a>
 
-                <a href="#" class="shortcut">
+                <a href="#page=suivi-validations" data-page="suivi-validations" class="shortcut">
 
-                    <div class="shortcut-icon">↻</div>
+                    <div class="shortcut-icon"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg></div>
 
                     <div class="shortcut-text">
                         <h4>Suivi des demandes</h4>
@@ -185,9 +185,9 @@
 
                 </a>
 
-                <a href="#" class="shortcut">
+                <a href="#page=historique-demandes" data-page="historique-demandes" class="shortcut">
 
-                    <div class="shortcut-icon">◷</div>
+                    <div class="shortcut-icon"><svg class="icon" aria-hidden="true"><use href="#i-history"/></svg></div>
 
                     <div class="shortcut-text">
                         <h4>Historique</h4>

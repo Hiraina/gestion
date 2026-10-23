@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.besoin.BesoinDTO;
 import com.example.demo.dto.besoin.BrouillonDemandeRequest;
 import com.example.demo.dto.besoin.ResumeManagerDTO;
+import com.example.demo.dto.besoin.ResumeRhDTO;
 import com.example.demo.dto.departement.DepartementDTO;
 import com.example.demo.dto.poste.PosteDTO;
 import com.example.demo.entity.departement.Departement;
@@ -14,6 +15,7 @@ import com.example.demo.repository.besoin.ResumeDirectionProjection;
 import com.example.demo.service.besoin.BesoinService;
 import com.example.demo.service.besoin.BrouillonDemandeService;
 import com.example.demo.service.besoin.ManagerAccueilService;
+import com.example.demo.service.besoin.ResponsableRhAccueilService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.service.poste.PosteService;
 import org.springframework.http.ResponseEntity;
@@ -57,14 +59,17 @@ public class ViewController {
 	private final BesoinService besoinService;
 	private final BrouillonDemandeService brouillonDemandeService;
 	private final ManagerAccueilService managerAccueilService;
+	private final ResponsableRhAccueilService responsableRhAccueilService;
 
 	public ViewController(DepartementService departementService, PosteService posteService, BesoinService besoinService,
-			BrouillonDemandeService brouillonDemandeService, ManagerAccueilService managerAccueilService) {
+			BrouillonDemandeService brouillonDemandeService, ManagerAccueilService managerAccueilService,
+			ResponsableRhAccueilService responsableRhAccueilService) {
 		this.departementService = departementService;
 		this.posteService = posteService;
 		this.besoinService = besoinService;
 		this.brouillonDemandeService = brouillonDemandeService;
 		this.managerAccueilService = managerAccueilService;
+		this.responsableRhAccueilService = responsableRhAccueilService;
 	}
 
 	/** Page principale d'un espace de travail. */
@@ -146,6 +151,12 @@ public class ViewController {
 	@ResponseBody
 	public List<DemandeBesoinValideProjection> besoinsValides() {
 		return besoinService.listerValides();
+	}
+
+	@GetMapping("/api/rh/accueil")
+	@ResponseBody
+	public ResumeRhDTO resumeAccueilRh() {
+		return responsableRhAccueilService.obtenirResume();
 	}
 
 	@GetMapping("/api/rh/historique-demandes")

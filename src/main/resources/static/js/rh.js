@@ -3466,6 +3466,36 @@ function initRhSuiviValidations() {
 }
 document.addEventListener("pageLoaded", function (event) { if (event.detail && event.detail.page === "suivi-validations") initRhSuiviValidations(); });
 
+function initResponsableRhAccueil(event) {
+  if (event && event.detail && event.detail.page !== 'welcome') return;
+  var stats = {
+    'rh-accueil-nouvelles': 'nouvellesDemandes',
+    'rh-accueil-finance': 'enAttenteFinance',
+    'rh-accueil-direction': 'enAttenteDirection',
+    'rh-accueil-approuvees': 'demandesApprouvees'
+  };
+  var context = (document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '');
+  fetch(context + '/api/rh/accueil', {headers:{Accept:'application/json'}})
+    .then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
+    .then(function (data) {
+      Object.keys(stats).forEach(function (id) {
+        var element = document.getElementById(id);
+        if (element) element.textContent = data[stats[id]] == null ? '0' : data[stats[id]];
+      });
+    })
+    .catch(function (error) {
+      console.error('Impossible de charger le tableau de bord RH :', error);
+      Object.keys(stats).forEach(function (id) {
+        var element = document.getElementById(id);
+        if (element) element.textContent = '—';
+      });
+    });
+}
+document.addEventListener('pageLoaded', initResponsableRhAccueil);
+
 function initRhHistoriqueDemandes() {
   var body = document.getElementById('historique-demandes-body');
   var form = document.getElementById('historique-filtres');
