@@ -17,28 +17,26 @@ public class EntretienRepository {
 	public List<Map<String, Object>> listerCandidatures() {
 		return jdbc.queryForList("""
 				SELECT c.id_candidature AS id, ca.nom, ca.prenom, ca.email, ca.telephone,
+				       c.donnees_candidature::text AS "donneesCandidatureJson",
 				       c.date_candidature AS "dateCandidature", o.titre AS poste,
 				       CASE WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
 				         THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}'
 				       END AS contract,
-				       s.nom AS statut, cv.url_document AS "cvUrl", lm.url_document AS "lettreUrl",
-				       (SELECT td.libelle FROM type_document td JOIN documents_candidature dc
-				          ON dc.type_document = td.id_type_document
-				        WHERE dc.id_candidature = c.id_candidature AND LOWER(td.libelle) LIKE '%cv%' LIMIT 1) AS "cvName",
-				       (SELECT td.libelle FROM type_document td JOIN documents_candidature dc
-				          ON dc.type_document = td.id_type_document
-				        WHERE dc.id_candidature = c.id_candidature AND (LOWER(td.libelle) LIKE '%motivation%' OR LOWER(td.libelle) LIKE '%lettre%') LIMIT 1) AS "lettreName"
+				       s.nom AS statut, cv.url_document AS "cvUrl",
+				       COALESCE(cv.nom_original, 'CV') AS "cvName", cv.taille_octets AS "cvSize",
+				       lm.url_document AS "lettreUrl",
+				       COALESCE(lm.nom_original, 'Lettre de motivation') AS "lettreName", lm.taille_octets AS "lettreSize"
 				FROM candidatures c
 				JOIN candidats ca ON ca.id_candidat = c.id_candidat
 				JOIN offres_emploi o ON o.id_offre = c.id_offre
 				JOIN statut_candidature s ON s.id_statut_candidature = c.statut
 				LEFT JOIN LATERAL (
-				  SELECT dc.url_document FROM documents_candidature dc JOIN type_document td
+				  SELECT dc.url_document, dc.nom_original, dc.taille_octets FROM documents_candidature dc JOIN type_document td
 				    ON td.id_type_document = dc.type_document
 				  WHERE dc.id_candidature = c.id_candidature AND LOWER(td.libelle) LIKE '%cv%' LIMIT 1
 				) cv ON TRUE
 				LEFT JOIN LATERAL (
-				  SELECT dc.url_document FROM documents_candidature dc JOIN type_document td
+				  SELECT dc.url_document, dc.nom_original, dc.taille_octets FROM documents_candidature dc JOIN type_document td
 				    ON td.id_type_document = dc.type_document
 				  WHERE dc.id_candidature = c.id_candidature
 				    AND (LOWER(td.libelle) LIKE '%motivation%' OR LOWER(td.libelle) LIKE '%lettre%') LIMIT 1

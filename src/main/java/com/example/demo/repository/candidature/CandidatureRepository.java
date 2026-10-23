@@ -44,20 +44,21 @@ public class CandidatureRepository {
 		return count != null && count > 0;
 	}
 
-	public int creerCandidature(int candidatId, int offreId) {
+	public int creerCandidature(int candidatId, int offreId, String donneesCandidatureJson) {
 		return jdbc.queryForObject("""
-				INSERT INTO candidatures (id_candidat, id_offre, statut)
-				VALUES (?, ?, (SELECT id_statut_candidature FROM statut_candidature WHERE nom = 'recue'))
+				INSERT INTO candidatures (id_candidat, id_offre, statut, donnees_candidature)
+				VALUES (?, ?, (SELECT id_statut_candidature FROM statut_candidature WHERE nom = 'recue'), CAST(? AS jsonb))
 				RETURNING id_candidature
-				""", Integer.class, candidatId, offreId);
+				""", Integer.class, candidatId, offreId, donneesCandidatureJson);
 	}
 
-	public void enregistrerDocument(int candidatureId, String type, String url) {
+	public void enregistrerDocument(int candidatureId, String type, String url, String nomOriginal, long tailleOctets) {
 		jdbc.update("INSERT INTO type_document (libelle) VALUES (?) ON CONFLICT (libelle) DO NOTHING", type);
 		jdbc.update("""
-				INSERT INTO documents_candidature (id_candidature, type_document, url_document)
-				VALUES (?, (SELECT id_type_document FROM type_document WHERE libelle = ?), ?)
-				""", candidatureId, type, url);
+				INSERT INTO documents_candidature
+					(id_candidature, type_document, url_document, nom_original, taille_octets)
+				VALUES (?, (SELECT id_type_document FROM type_document WHERE libelle = ?), ?, ?, ?)
+				""", candidatureId, type, url, nomOriginal, tailleOctets);
 	}
 
 	public void enregistrerCv(int candidatId, String url) {

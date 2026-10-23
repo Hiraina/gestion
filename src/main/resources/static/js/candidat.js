@@ -358,6 +358,35 @@
   /* La page n'est pas le formulaire de candidature : rien à faire. */
   if (!form) return;
 
+  function loadEducationLevels() {
+    var select = document.getElementById("education");
+    if (!select) return;
+    var context = document.querySelector('meta[name="context-path"]')?.content || "/";
+    context = context.replace(/\/$/, "");
+    fetch(context + "/Responsable-RH/api/offres/referentiels/niveaux-etude", {
+      cache: "no-store",
+      headers: { Accept: "application/json" }
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Réponse HTTP " + response.status);
+        return response.json();
+      })
+      .then(function (levels) {
+        if (!Array.isArray(levels)) throw new Error("Le référentiel des niveaux d'étude est invalide.");
+        select.replaceChildren(new Option("Sélectionnez un niveau", ""));
+        levels.forEach(function (level) {
+          if (typeof level !== "string" || !level.trim()) return;
+          select.add(new Option(level, level));
+        });
+      })
+      .catch(function (error) {
+        console.error("[Candidat] Impossible de charger les niveaux d'étude depuis la base :", error);
+        select.replaceChildren(new Option("Niveaux d'étude indisponibles", ""));
+      });
+  }
+
+  loadEducationLevels();
+
   var steps = Array.prototype.slice.call(document.querySelectorAll(".form-step"));
   var indicators = Array.prototype.slice.call(document.querySelectorAll(".step-item"));
 
@@ -839,8 +868,6 @@
 
     fillReview("review-motivation", [
       { label: "Poste souhaité", id: "position" },
-      { label: "Disponibilité", id: "availability" },
-      { label: "Mode de travail", id: "workMode" },
       { label: "Motivation", id: "motivation", fullWidth: true },
       { label: "Informations complémentaires", id: "additionalInfo", fullWidth: true }
     ]);

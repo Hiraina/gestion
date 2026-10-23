@@ -214,6 +214,7 @@ CREATE TABLE candidatures (
         REFERENCES offres_emploi(id_offre),
     date_candidature TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     statut INT NOT NULL REFERENCES statut_candidature(id_statut_candidature),
+    donnees_candidature JSONB NOT NULL DEFAULT '{}'::jsonb,
 
     UNIQUE (id_candidat, id_offre)
 );
@@ -230,6 +231,8 @@ CREATE TABLE documents_candidature (
     type_document INTEGER NOT NULL
         REFERENCES type_document(id_type_document),
     url_document TEXT NOT NULL,
+    nom_original VARCHAR(255),
+    taille_octets BIGINT,
     date_ajout TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE (id_candidature, type_document)
