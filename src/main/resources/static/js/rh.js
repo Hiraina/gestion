@@ -2436,41 +2436,7 @@ var RHDrafts = (function () {
     { id: "ctArticle7", title: "Article 7 — Dispositions complémentaires" },
   ];
 
-  const ctCandidates = [
-    {
-      id: 1,
-      name: "Rakoto Jean",
-      email: "jean@example.com",
-      job: "Développeur web",
-      type: "CDI",
-      status: "preparation",
-      contract: null,
-      responses: null,
-      negotiation: null,
-    },
-    {
-      id: 2,
-      name: "Rasoanaivo Sarah",
-      email: "sarah@example.com",
-      job: "Assistante RH",
-      type: "CDD",
-      status: "sent",
-      contract: ctMakeSampleContract("Rasoanaivo Sarah", "Assistante RH", "CDD"),
-      responses: null,
-      negotiation: null,
-    },
-    {
-      id: 3,
-      name: "Randria Hery",
-      email: "hery@example.com",
-      job: "Comptable",
-      type: "CDI",
-      status: "review",
-      contract: ctMakeSampleContract("Randria Hery", "Comptable", "CDI"),
-      responses: null,
-      negotiation: null,
-    },
-  ];
+  let ctCandidates = [];
 
   function ctMakeSampleContract(name, job, type) {
     const articles = {
@@ -2497,19 +2463,6 @@ var RHDrafts = (function () {
       articles,
     };
   }
-
-  ctCandidates[2].responses = {
-    articles: {
-      ctArticle3: {
-        title: "Article 3 — Rémunération",
-        choice: "refused",
-        comment: "La rémunération proposée ne correspond pas aux responsabilités du poste. Je souhaiterais discuter d'un salaire mensuel de 1 500 000 Ar.",
-      },
-    },
-    generalComment: "Je reste intéressé par le poste et suis disponible pour discuter de cette condition.",
-    submittedAt: "20/10/2026 à 10:30",
-    status: "refused",
-  };
 
   let ctActiveCandidateId = null;
   let ctActiveResponseCandidateId = null;
@@ -2540,8 +2493,8 @@ var RHDrafts = (function () {
   function ctStatusInfo(c) {
     const m = {
       preparation: ["À préparer", "ct-status-preparation"],
-      sent: ["En attente de la réponse du candidat", "ct-status-sent"],
-      review: ["Réponse du candidat à examiner", "ct-status-response"],
+      sent: ["Envoyé au candidat", "ct-status-sent"],
+      review: ["Réponse reçue", "ct-status-response"],
       negotiation: ["En attente de la réponse du candidat", "ct-status-pending"],
       accepted: ["Contrat accepté", "ct-status-accepted"],
       refused: ["Article refusé — négociation requise", "ct-status-refused"],
@@ -2561,17 +2514,21 @@ var RHDrafts = (function () {
       const s = ctStatusInfo(c);
       let buttons = "";
       if (c.status === "preparation") {
-        buttons = `<button class="ct-btn ct-btn-outline" onclick="ctEditContract(${c.id})">✏️ Préparer</button><button class="ct-btn ct-btn-orange" onclick="ctPreviewExistingOrEdit(${c.id})">👁 Prévisualiser</button>`;
+        buttons = `<button class="ct-btn ct-btn-primary" type="button" onclick="ctEditContract(${c.id})">Préparer le contrat <span aria-hidden="true">→</span></button>`;
       } else if (c.status === "sent") {
-        buttons = `<button class="ct-btn ct-btn-blue" onclick="ctSimulateCandidateResponse(${c.id})">📝 Espace candidat (démo)</button>`;
+        const sentDate = c.sentAt ? new Date(c.sentAt).toLocaleDateString("fr-FR") : "";
+        buttons = `<span class="ct-sent-note">Transmis${sentDate ? " le " + ctEsc(sentDate) : ""}</span>`;
       } else if (c.status === "review") {
-        buttons = `<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(${c.id})">📋 Examiner les réponses</button>`;
+        buttons = `<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(${c.id})">📋 Réponse du candidat</button>`;
       } else if (c.status === "negotiation") {
         buttons = `<button class="ct-btn ct-btn-blue" onclick="ctSimulateCandidateResponse(${c.id})">↩️ Réponse du candidat (démo)</button><button class="ct-btn ct-btn-outline" onclick="ctViewNegotiation(${c.id})">👁 Voir l'échange</button>`;
       } else {
         buttons = `<button class="ct-btn ct-btn-outline" onclick="ctViewContract(${c.id})">👁 Voir le contrat</button><button class="ct-btn ct-btn-orange" onclick="ctViewNegotiation(${c.id})">📋 Voir l'échange</button>`;
       }
-      return `<tr><td><strong>${ctEsc(c.name)}</strong><span class="subtext">${ctEsc(c.email)}</span></td><td>${ctEsc(c.job)}</td><td>${ctEsc(c.type)}</td><td><span class="ct-badge ${s[1]}">${s[0]}</span></td><td><div class="ct-actions">${buttons}</div></td></tr>`;
+      const financeValue = c.salaryAnnualApproved == null
+        ? '<span class="ct-finance-missing">Non validé</span>'
+        : `<strong>${ctEsc(c.salaryAnnualApprovedFormatted)} Ar</strong>`;
+      return `<tr><td><strong>${ctEsc(c.name)}</strong><span class="subtext">${ctEsc(c.email)}</span></td><td>${ctEsc(c.job)}</td><td>${ctEsc(c.type)}</td><td>${financeValue}</td><td><span class="ct-badge ${s[1]}">${s[0]}</span></td><td><div class="ct-actions">${buttons}</div></td></tr>`;
     }).join("");
     const prep = document.getElementById("ct-statPreparation");
     const sent = document.getElementById("ct-statSent");
@@ -2603,12 +2560,28 @@ var RHDrafts = (function () {
     for (const [el, key] of Object.entries(map || {})) {
       const node = document.getElementById(el);
       if (!node) continue;
-      node.value = c.contract ? c.contract[key] : (key === "candidateName" ? c.name : key === "job" ? c.job : key === "type" ? c.type : key === "companyName" ? "Entreprise Exemple" : key === "companyAddress" ? "Antananarivo, Madagascar" : key === "duration" ? (c.type === "CDI" ? "Indéterminée" : "12 mois") : key === "location" ? "Antananarivo" : key === "hours" ? "40 heures par semaine" : "");
+      if (key === "type" && c.type && !Array.from(node.options).some((option) => option.value === c.type)) {
+        node.add(new Option(c.type, c.type));
+      }
+      node.value = c.contract ? c.contract[key] : (key === "candidateName" ? c.name : key === "job" ? c.job : key === "type" ? c.type : key === "companyName" ? (c.companyName || "Entreprise") : key === "companyAddress" ? "Antananarivo, Madagascar" : key === "duration" ? (c.type === "CDI" ? "Indéterminée" : "À préciser") : key === "location" ? "Antananarivo" : key === "hours" ? "40 heures par semaine" : key === "salary" ? c.salaryMonthly : "");
     }
     ctArticleFields.forEach((a) => {
       const node = document.getElementById(a.id);
       if (node) node.value = c.contract?.articles[a.id] || "";
     });
+    const financeHelp = document.getElementById("ctFinanceSalaryHelp");
+    if (financeHelp) {
+      if (c.salaryAnnualApproved != null) {
+        const comment = c.financeComment ? " — " + c.financeComment : "";
+        const budgetYear = c.financeBudgetYear ? " (budget " + c.financeBudgetYear + ")" : "";
+        financeHelp.textContent = "Validé par la Finance : " + c.salaryAnnualApprovedFormatted +
+          " Ar/an, soit " + c.salaryMonthly + " par mois" + budgetYear + comment;
+        financeHelp.classList.add("is-approved");
+      } else {
+        financeHelp.textContent = "Aucune validation financière approuvée pour cette proposition. Le salaire reste à renseigner.";
+        financeHelp.classList.remove("is-approved");
+      }
+    }
     if (!c.contract) {
       const a1 = document.getElementById("ctArticle1");
       if (a1) a1.value = `Le salarié exercera les fonctions de ${c.job} selon les missions définies par l'employeur.`;
@@ -2652,7 +2625,11 @@ var RHDrafts = (function () {
   function ctRenderContractDocument(contract) {
     const el = document.getElementById("ctContractDocument");
     if (!el) return;
-    el.innerHTML = `<h2>CONTRAT DE TRAVAIL</h2><p class="ct-document-subtitle">Document préparatoire — à vérifier avant signature</p><p style="font-size:13px;line-height:1.8;margin-bottom:20px"><strong>Employeur :</strong> ${ctEsc(contract.companyName)}<br><strong>Adresse :</strong> ${ctEsc(contract.companyAddress)}<br><strong>Candidat :</strong> ${ctEsc(contract.candidateName)}<br><strong>Poste :</strong> ${ctEsc(contract.job)}<br><strong>Type :</strong> ${ctEsc(contract.type)}<br><strong>Durée :</strong> ${ctEsc(contract.duration || "À préciser")}<br><strong>Début :</strong> ${ctEsc(contract.startDate || "À préciser")}<br><strong>Lieu :</strong> ${ctEsc(contract.location || "À préciser")}<br><strong>Rémunération :</strong> ${ctEsc(contract.salary || "À préciser")}<br><strong>Horaires :</strong> ${ctEsc(contract.hours || "À préciser")}<br><strong>Avantages :</strong> ${ctEsc(contract.benefits || "À préciser")}</p>${ctArticleFields.map((a) => `<div class="ct-contract-article"><h3>${ctEsc(a.title)}</h3><p>${ctEsc(contract.articles[a.id])}</p></div>`).join("")}<p class="ct-small-muted">Les propositions du candidat doivent être examinées par la RH et convenues par les deux parties avant d'intégrer le contrat définitif.</p>`;
+    const field = (label, value) => `<div class="ct-document-field"><span>${ctEsc(label)}</span><strong>${ctEsc(value || "À préciser")}</strong></div>`;
+    const startDate = contract.startDate
+      ? new Date(contract.startDate + "T00:00:00").toLocaleDateString("fr-FR")
+      : "À préciser";
+    el.innerHTML = `<h2>CONTRAT DE TRAVAIL</h2><p class="ct-document-subtitle">Document préparatoire · à relire avant impression</p><div class="ct-document-meta">${field("Employeur", contract.companyName)}${field("Adresse", contract.companyAddress)}${field("Candidat", contract.candidateName)}${field("Poste", contract.job)}${field("Type de contrat", contract.type)}${field("Durée", contract.duration)}${field("Date de début", startDate)}${field("Lieu de travail", contract.location)}${field("Rémunération mensuelle", contract.salary)}${field("Horaires", contract.hours)}${field("Avantages", contract.benefits)}</div>${ctArticleFields.map((a) => `<div class="ct-contract-article"><h3>${ctEsc(a.title)}</h3><p>${ctEsc(contract.articles[a.id] || "À préciser")}</p></div>`).join("")}<p class="ct-small-muted">Cette prévisualisation est un brouillon. Vérifiez les informations et les dispositions applicables avant signature.</p>`;
   }
 
   window.ctPreviewContract = function() {
@@ -2673,17 +2650,51 @@ var RHDrafts = (function () {
     ctRenderTable();
   };
 
+  window.ctReturnToEdit = function() {
+    if (ctActiveCandidateId === null) return;
+    ctCloseModal("ctPreviewModal");
+    ctEditContract(ctActiveCandidateId);
+  };
+
   window.ctSendContract = function() {
     const c = ctGetCandidate(ctActiveCandidateId);
     if (!c?.contract) return;
-    if (!confirm("Envoyer ce contrat à " + c.name + " ?")) return;
-    c.status = "sent";
-    c.responses = null;
-    c.negotiation = null;
-    ctCloseModal("ctPreviewModal");
-    ctCloseModal("ctEditModal");
-    ctRenderTable();
-    alert("Contrat marqué comme envoyé dans la démonstration.");
+    if (!c.contract.salary || !c.contract.startDate) {
+      alert("Renseignez la rémunération mensuelle et la date de début avant l'envoi.");
+      window.ctReturnToEdit();
+      return;
+    }
+    if (!confirm("Confirmer la transmission du contrat à " + c.name + " ?")) return;
+    const sendButton = document.getElementById("ctSendButton");
+    if (sendButton?.dataset.sending === "true") return;
+    if (sendButton) {
+      sendButton.dataset.sending = "true";
+      sendButton.disabled = true;
+      sendButton.textContent = "Envoi en cours…";
+    }
+    const context = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    fetch(context + "/Responsable-RH/api/contrats/candidatures/" + encodeURIComponent(c.id) + "/envoyer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(c.contract),
+    }).then((response) => response.json().catch(() => ({})).then((body) => {
+      if (!response.ok) throw new Error(body.message || "Le contrat n'a pas pu être transmis.");
+      return body;
+    })).then((body) => {
+      c.status = body.status === "ENVOYE_CANDIDAT" ? "sent" : c.status;
+      c.sentAt = new Date().toISOString();
+      ctCloseModal("ctPreviewModal");
+      ctCloseModal("ctEditModal");
+      ctRenderTable();
+      alert(body.message || "Le contrat a été transmis au candidat.");
+    }).catch((error) => {
+      if (sendButton) {
+        sendButton.dataset.sending = "false";
+        sendButton.disabled = false;
+        sendButton.innerHTML = 'Envoyer au candidat <span aria-hidden="true">→</span>';
+      }
+      alert(error.message);
+    });
   };
 
   window.ctViewContract = function(id) {
@@ -2795,11 +2806,12 @@ var RHDrafts = (function () {
     if (!c?.responses) return;
     const articles = c.responses.articles || {};
     const content = document.getElementById("ctReviewContent");
-    let html = `<div class="ct-response-summary"><h4>${ctEsc(c.name)} — ${ctEsc(c.job)}</h4><p class="ct-small-muted">Envoyé le : ${ctEsc(c.responses.submittedAt || "-")}</p>${c.responses.generalComment ? `<p style="margin-top:10px;font-size:13px"><strong>Commentaire général :</strong><br>${ctEsc(c.responses.generalComment)}</p>` : ""}</div>`;
+    let html = `<div class="ct-response-summary"><h4>${ctEsc(c.name)} — ${ctEsc(c.job)}</h4><p class="ct-small-muted">Réponse reçue le : ${ctEsc(c.responses.submittedAt || "-")}</p>${c.responses.generalComment ? `<p style="margin-top:10px;font-size:13px"><strong>Commentaire général :</strong><br>${ctEsc(c.responses.generalComment)}</p>` : ""}</div>`;
     Object.entries(articles || {}).forEach(([articleId, r]) => {
       const label = ctArticleFields.find((a) => a.id === articleId)?.title || articleId;
-      const choiceMap = { accepted: "Accepté", refused: "Refusé", modify: "À modifier / proposition" };
-      html += `<div style="margin-bottom:18px"><strong style="color:#14213d">${ctEsc(label)}</strong><p style="margin:8px 0;font-size:13px"><span class="ct-badge ${r.choice === "accepted" ? "ct-status-accepted" : r.choice === "refused" ? "ct-status-refused" : "ct-status-response"}">${choiceMap[r.choice]}</span></p>${r.comment ? `<div class="ct-proposal-box">${ctEsc(r.comment)}</div>` : ""}<button class="ct-btn ct-btn-orange" onclick="ctOpenDecisionModal(${c.id}, '${articleId}')">Répondre à ce point</button></div>`;
+      const choiceMap = { accepted: "Accepté", accept: "Accepté", refused: "Refusé", refuse: "Refusé", modify: "Modification proposée" };
+      const choiceLabel = choiceMap[r.choice] || "Réponse enregistrée";
+      html += `<div style="margin-bottom:18px"><strong style="color:#14213d">${ctEsc(label)}</strong><p style="margin:8px 0;font-size:13px"><span class="ct-badge ${["accepted", "accept"].includes(r.choice) ? "ct-status-accepted" : ["refused", "refuse"].includes(r.choice) ? "ct-status-refused" : "ct-status-response"}">${ctEsc(choiceLabel)}</span></p>${r.comment ? `<div class="ct-proposal-box">${ctEsc(r.comment)}</div>` : ""}</div>`;
     });
     if (content) content.innerHTML = html;
     ctOpenModal("ctReviewModal");
@@ -2867,7 +2879,62 @@ var RHDrafts = (function () {
   function ctInit() {
     const search = document.getElementById("ctSearchInput");
     if (search) search.addEventListener("input", ctRenderTable);
-    ctRenderTable();
+    const tbody = document.getElementById("ctCandidateTable");
+    if (!tbody || tbody.dataset.loading === "true" || tbody.dataset.loaded === "true") return;
+    tbody.dataset.loading = "true";
+    tbody.innerHTML = '<tr><td colspan="6" class="ct-loading-cell">Chargement des candidats acceptés…</td></tr>';
+    const context = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    fetch(context + "/Responsable-RH/api/contrats/candidats-acceptes", { headers: { Accept: "application/json" } })
+      .then((response) => {
+        if (!response.ok) throw new Error("Impossible de charger les candidats acceptés.");
+        return response.json();
+      })
+      .then((items) => {
+        if (!Array.isArray(items)) throw new Error("La liste des candidats acceptés est invalide.");
+        ctCandidates = items.map((item) => {
+          let candidateResponses = null;
+          if (item.candidateResponseData) {
+            try {
+              candidateResponses = typeof item.candidateResponseData === "string"
+                ? JSON.parse(item.candidateResponseData)
+                : item.candidateResponseData;
+            } catch (error) {
+              console.warn("Réponse de candidat illisible pour la candidature", item.id, error);
+            }
+          }
+          const responseReceived = Boolean(candidateResponses) || item.contractStatus === "REPONSE_RECUE";
+          if (!candidateResponses && responseReceived) candidateResponses = { articles: {} };
+          return {
+            id: Number(item.id),
+            name: [item.prenom, item.nom].filter(Boolean).join(" ") || "Candidat",
+            email: item.email || "",
+            job: item.poste || "Poste non renseigné",
+            type: item.contractType || "CDI",
+            companyName: item.companyName || "Entreprise",
+            salaryAnnualApproved: item.salaryAnnualApproved == null ? null : Number(item.salaryAnnualApproved),
+            salaryAnnualApprovedFormatted: item.salaryAnnualApproved == null ? "" : new Intl.NumberFormat("fr-FR").format(Number(item.salaryAnnualApproved)),
+            salaryMonthly: item.salaryMonthlyApproved == null ? "" : new Intl.NumberFormat("fr-FR").format(Number(item.salaryMonthlyApproved)) + " Ar",
+            financeComment: item.financeComment || "",
+            financeDecisionDate: item.financeDecisionDate || null,
+            financeBudgetYear: item.financeBudgetYear || null,
+            status: responseReceived ? "review" : item.contractStatus === "ENVOYE_CANDIDAT" ? "sent" : "preparation",
+            sentAt: item.contractSentAt || null,
+            responses: candidateResponses ? {
+              ...candidateResponses,
+              submittedAt: candidateResponses.submittedAt || item.candidateResponseAt || null,
+            } : null,
+            contract: null,
+            negotiation: null,
+          };
+        });
+        tbody.dataset.loading = "false";
+        tbody.dataset.loaded = "true";
+        ctRenderTable();
+      })
+      .catch((error) => {
+        tbody.dataset.loading = "false";
+        tbody.innerHTML = `<tr><td colspan="6">${ctEsc(error.message)}</td></tr>`;
+      });
   }
 
   document.addEventListener("pageLoaded", function(event) {
@@ -3400,6 +3467,7 @@ function dispatchRoleAction(event) {
     makeInterviewDecision: () => window.makeInterviewDecision(argument),
     ctCloseModal: () => window.ctCloseModal(argument),
     ctPreviewContract: () => window.ctPreviewContract(),
+    ctReturnToEdit: () => window.ctReturnToEdit(),
     ctSendContract: () => window.ctSendContract(),
     ctSubmitCandidateResponses: () => window.ctSubmitCandidateResponses(),
     ctToggleDecisionFields: () => window.ctToggleDecisionFields(),

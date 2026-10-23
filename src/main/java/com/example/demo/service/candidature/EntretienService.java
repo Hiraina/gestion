@@ -43,6 +43,7 @@ public class EntretienService {
 	}
 
 	public boolean preselectionner(int id) {
+		if (id <= 0) return false;
 		return repository.preselectionner(id);
 	}
 
@@ -53,6 +54,7 @@ public class EntretienService {
 
 	public void enregistrerNotes(int id, Map<String, Object> payload) {
 		verifierEnEntretien(id);
+		verifierPayload(payload);
 		String notes = texte(payload.get("notes"));
 		if (notes.length() > 20000) throw new IllegalArgumentException("Les notes ne peuvent pas dépasser 20 000 caractères.");
 		repository.enregistrerNotes(id, notes, offreRepository.trouverResponsableRh());
@@ -60,6 +62,7 @@ public class EntretienService {
 
 	public void enregistrerDecision(int id, Map<String, Object> payload) {
 		verifierEnEntretien(id);
+		verifierPayload(payload);
 		String resultat = texte(payload.get("resultat"));
 		if (!List.of("FAVORABLE", "DEFAVORABLE", "A_REVOIR").contains(resultat)) {
 			throw new IllegalArgumentException("La décision d'entretien est invalide.");
@@ -72,6 +75,12 @@ public class EntretienService {
 	private void verifierEnEntretien(int id) {
 		if (id <= 0 || !repository.estEnEntretien(id)) {
 			throw new IllegalArgumentException("Cette candidature n'est plus en attente d'entretien.");
+		}
+	}
+
+	private void verifierPayload(Map<String, Object> payload) {
+		if (payload == null) {
+			throw new IllegalArgumentException("Les informations de l'entretien sont manquantes.");
 		}
 	}
 
