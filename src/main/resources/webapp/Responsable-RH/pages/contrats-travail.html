@@ -1,36 +1,29 @@
 <div class="ct-wrap">
     <div class="ct-container">
         <section class="ct-intro">
-            <h2>Contrats de travail</h2>
-            <p>
-                Préparez, envoyez et négociez les contrats des candidats retenus.
-                Chaque article peut faire l'objet d'une réponse ou d'une proposition distincte.
-            </p>
+            <div>
+                <p class="ct-eyebrow">Recrutement · Étape finale</p>
+                <h2>Préparation des contrats</h2>
+                <p>Retrouvez les candidats acceptés après entretien, préparez leur contrat et consultez leurs réponses lorsqu’elles sont transmises.</p>
+            </div>
+            <span class="ct-intro-badge">Après entretien favorable</span>
         </section>
 
         <section class="ct-stats">
-            <div class="ct-stat-card">
-                <p>Contrats à préparer</p>
-                <h3 id="ct-statPreparation">0</h3>
+            <div class="ct-stat-card ct-stat-card-main">
+                <span class="ct-stat-icon" aria-hidden="true">✓</span>
+                <div><p>Candidats acceptés à préparer</p><h3 id="ct-statPreparation">0</h3></div>
             </div>
-            <div class="ct-stat-card">
-                <p>En attente du candidat</p>
-                <h3 id="ct-statSent">0</h3>
-            </div>
-            <div class="ct-stat-card">
-                <p>Réponses à examiner</p>
-                <h3 id="ct-statReview">0</h3>
-            </div>
-            <div class="ct-stat-card">
-                <p>Négociation en cours</p>
-                <h3 id="ct-statNegotiation">0</h3>
-            </div>
+            <p class="ct-stats-help">Les informations disponibles sont préremplies. Vous pourrez les compléter avant la prévisualisation.</p>
         </section>
 
         <section class="ct-panel">
             <div class="ct-panel-header">
-                <h3>Candidats retenus après entretien</h3>
-                <input id="ctSearchInput" type="search" placeholder="Rechercher un candidat..." />
+                <div>
+                    <h3>Candidats retenus</h3>
+                    <p>Préparez le contrat ou consultez la réponse du candidat lorsqu’elle est disponible.</p>
+                </div>
+                <label class="ct-search" for="ctSearchInput"><span aria-hidden="true">⌕</span><input id="ctSearchInput" type="search" placeholder="Nom ou poste" autocomplete="off" /></label>
             </div>
             <div class="ct-table-wrapper">
                 <table class="ct-table">
@@ -38,8 +31,9 @@
                         <tr>
                             <th>Candidat</th>
                             <th>Poste</th>
-                            <th>Contrat</th>
-                            <th>État</th>
+                            <th>Type proposé</th>
+                            <th>Budget validé / an</th>
+                            <th>Étape</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -47,7 +41,7 @@
                 </table>
             </div>
             <div id="ctEmptyMessage" class="ct-empty-message" style="display: none;">
-                Aucun candidat trouvé.
+            Aucun candidat accepté ni contrat envoyé au candidat pour le moment.
             </div>
         </section>
     </div>
@@ -61,13 +55,13 @@
             <button class="ct-close-btn" data-js-action="ctCloseModal:ctEditModal">&times;</button>
         </div>
         <div class="ct-modal-body">
-            <p class="ct-small-muted" style="margin-bottom: 20px;">
-                Complétez les informations puis prévisualisez le contrat avant de l'envoyer.
+            <p class="ct-small-muted ct-editor-help">
+                Les champs connus sont préremplis. Complétez les éléments manquants, puis prévisualisez le contrat.
             </p>
             <div class="ct-form-grid">
                 <div class="ct-form-group">
                     <label for="ctCompanyName">Entreprise</label>
-                    <input id="ctCompanyName" value="Entreprise Exemple" />
+                    <input id="ctCompanyName" required />
                 </div>
                 <div class="ct-form-group">
                     <label for="ctCompanyAddress">Adresse</label>
@@ -75,18 +69,18 @@
                 </div>
                 <div class="ct-form-group">
                     <label for="ctCandidateName">Candidat</label>
-                    <input id="ctCandidateName" />
+                    <input id="ctCandidateName" required />
                 </div>
                 <div class="ct-form-group">
                     <label for="ctJobTitle">Poste</label>
-                    <input id="ctJobTitle" />
+                    <input id="ctJobTitle" required />
                 </div>
                 <div class="ct-form-group">
                     <label for="ctContractType">Type de contrat</label>
                     <select id="ctContractType">
-                        <option>CDI</option>
-                        <option>CDD</option>
-                        <option>Stage</option>
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="CE">Contrat d’essai / stage</option>
                     </select>
                 </div>
                 <div class="ct-form-group">
@@ -104,6 +98,7 @@
                 <div class="ct-form-group">
                     <label for="ctSalary">Rémunération mensuelle</label>
                     <input id="ctSalary" placeholder="Ex. : 1 500 000 Ar" />
+                    <span id="ctFinanceSalaryHelp" class="ct-field-help">Aucune validation financière approuvée pour cette proposition.</span>
                 </div>
                 <div class="ct-form-group">
                     <label for="ctWorkHours">Horaires</label>
@@ -151,7 +146,7 @@
         </div>
         <div class="ct-modal-footer">
             <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctEditModal">Annuler</button>
-            <button class="ct-btn ct-btn-orange" data-js-action="ctPreviewContract">👁 Prévisualiser</button>
+            <button class="ct-btn ct-btn-orange" type="button" data-js-action="ctPreviewContract">Prévisualiser le contrat <span aria-hidden="true">→</span></button>
         </div>
     </div>
 </div>
@@ -167,9 +162,9 @@
             <div id="ctContractDocument" class="ct-contract-document"></div>
         </div>
         <div class="ct-modal-footer">
-            <button class="ct-btn ct-btn-outline" data-js-action="printPage">🖨 Imprimer / PDF</button>
-            <button class="ct-btn ct-btn-outline" data-js-action="ctCloseModal:ctPreviewModal">Retour</button>
-            <button class="ct-btn ct-btn-green" data-js-action="ctSendContract">📩 Envoyer au candidat</button>
+            <button class="ct-btn ct-btn-outline" type="button" data-js-action="printPage">Imprimer / enregistrer en PDF</button>
+            <button class="ct-btn ct-btn-orange" type="button" data-js-action="ctReturnToEdit">← Modifier le contrat</button>
+            <button id="ctSendButton" class="ct-btn ct-btn-primary" type="button" data-js-action="ctSendContract">Envoyer au candidat <span aria-hidden="true">→</span></button>
         </div>
     </div>
 </div>
