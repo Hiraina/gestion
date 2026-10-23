@@ -214,15 +214,6 @@
 
                 <select class="form-control" id="education" name="education" required>
                   <option value="">Sélectionnez un niveau</option>
-                  <option value="BEPC">BEPC</option>
-                  <option value="Baccalauréat">Baccalauréat</option>
-                  <option value="Bac+1">Bac+1</option>
-                  <option value="Bac+2">Bac+2</option>
-                  <option value="Bac+3">Bac+3 / Licence</option>
-                  <option value="Bac+4">Bac+4</option>
-                  <option value="Bac+5">Bac+5 / Master</option>
-                  <option value="Doctorat">Doctorat</option>
-                  <option value="Autre">Autre</option>
                 </select>
 
                 <span class="field-error">
@@ -314,8 +305,7 @@
               <div class="eyebrow">Étape 03 · Votre candidature</div>
               <h2>Pourquoi ce poste ?</h2>
               <p>
-                Aidez-nous à comprendre vos motivations
-                et vos disponibilités.
+                Aidez-nous à comprendre vos motivations.
               </p>
             </div>
 
@@ -331,44 +321,6 @@
 
                 <span class="field-error">
                   Veuillez préciser le poste souhaité.
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label for="availability">
-                  Disponibilité <span class="required">*</span>
-                </label>
-
-                <select class="form-control" id="availability" name="availability" required>
-                  <option value="">Sélectionnez une réponse</option>
-                  <option value="Immédiate">Immédiate</option>
-                  <option value="Sous 2 semaines">Sous 2 semaines</option>
-                  <option value="Sous 1 mois">Sous 1 mois</option>
-                  <option value="Sous 2 mois">Sous 2 mois</option>
-                  <option value="À convenir">À convenir</option>
-                </select>
-
-                <span class="field-error">
-                  Veuillez préciser votre disponibilité.
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label for="workMode">
-                  Mode de travail souhaité
-                  <span class="required">*</span>
-                </label>
-
-                <select class="form-control" id="workMode" name="workMode" required>
-                  <option value="">Sélectionnez une réponse</option>
-                  <option value="Présentiel">Présentiel</option>
-                  <option value="Hybride">Hybride</option>
-                  <option value="À distance">À distance</option>
-                  <option value="Indifférent">Indifférent</option>
-                </select>
-
-                <span class="field-error">
-                  Veuillez sélectionner un mode de travail.
                 </span>
               </div>
 
@@ -574,7 +526,7 @@
             <!-- MOTIVATION -->
             <div class="review-section">
               <div class="review-section-header">
-                <h3>Motivation et disponibilité</h3>
+                <h3>Motivation</h3>
 
                 <button type="button" class="edit-section" data-go-step="2">
                   Modifier ↗
@@ -674,7 +626,7 @@
     Merci de l'intérêt que vous portez à nos opportunités professionnelles.
   </footer>
 
-  <script th:src="@{/js/candidat.js}"></script>
+  <script th:src="@{/js/candidat.js(v=20261023-3)}"></script>
 </body>
 
 </html>

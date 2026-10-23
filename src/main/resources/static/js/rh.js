@@ -1847,6 +1847,23 @@ var RHDrafts = (function () {
       if (element) element.textContent = value;
     }
 
+    function renderApplicationDetails(containerId, applicationData, fields) {
+      var container = page.querySelector("#" + containerId);
+      if (!container) return;
+      container.replaceChildren();
+      fields.forEach(function (field) {
+        var item = document.createElement("div");
+        var label = document.createElement("p");
+        label.className = "detail-label";
+        label.textContent = field.label;
+        var value = document.createElement("p");
+        value.className = "detail-value" + (field.multiline ? " application-long-value" : "");
+        value.textContent = applicationData[field.key] || "Non renseigné";
+        item.append(label, value);
+        container.appendChild(item);
+      });
+    }
+
     function updateButton(button, selected, selectedText, defaultText) {
       if (!button) return;
       button.textContent = selected ? selectedText : defaultText;
@@ -1897,6 +1914,14 @@ var RHDrafts = (function () {
       }
     }
 
+    function formatCandidateDocument(name, size) {
+      if (!name) return "Document non transmis";
+      var formatted = name;
+      var bytes = Number(size || 0);
+      if (bytes > 0) formatted += " · " + Math.max(1, Math.round(bytes / 1024)) + " Ko";
+      return formatted;
+    }
+
     function viewCandidate(id) {
       var candidate = candidates[id];
       if (!candidate || !modal) return;
@@ -1910,11 +1935,25 @@ var RHDrafts = (function () {
       setText("detailPhone", candidate.phone);
       setText("detailEmail", candidate.email);
       setText("detailEmailCopy", candidate.email);
+      setText("detailCity", candidate.applicationData.city || "Non renseignée");
+      setText("detailBirthDate", candidate.applicationData.birthDate || "Non renseignée");
       setText("detailDate", candidate.date);
       setText("detailJob", candidate.job);
       setText("detailContract", candidate.contract);
-      setText("cvFormat", candidate.cvName);
-      setText("letterFormat", candidate.letterName);
+      renderApplicationDetails("applicationProfileDetails", candidate.applicationData, [
+        { label: "Niveau d'études", key: "education" },
+        { label: "Domaine d'études", key: "fieldOfStudy" },
+        { label: "Expérience professionnelle", key: "hasExperience" },
+        { label: "Détails de l'expérience", key: "experienceDetails", multiline: true },
+        { label: "Compétences", key: "skills", multiline: true }
+      ]);
+      renderApplicationDetails("applicationMotivationDetails", candidate.applicationData, [
+        { label: "Poste souhaité", key: "position" },
+        { label: "Motivation", key: "motivation", multiline: true },
+        { label: "Informations complémentaires", key: "additionalInfo", multiline: true }
+      ]);
+      setText("cvFormat", formatCandidateDocument(candidate.cvName, candidate.cvSize));
+      setText("letterFormat", formatCandidateDocument(candidate.letterName, candidate.letterSize));
       configureDocumentLink("cvLink", candidate.cvUrl);
       configureDocumentLink("letterLink", candidate.letterUrl);
       updateModalButton(id);
@@ -2005,9 +2044,12 @@ var RHDrafts = (function () {
               job: item.poste || "Poste non renseigné",
               contract: item.contract || "Non renseigné",
               cvName: item.cvName || "CV non transmis",
+              cvSize: item.cvSize || 0,
               cvUrl: item.cvUrl || "",
               letterName: item.lettreName || "Lettre non transmise",
-              letterUrl: item.lettreUrl || ""
+              letterSize: item.lettreSize || 0,
+              letterUrl: item.lettreUrl || "",
+              applicationData: item.donneesCandidature || {}
             };
             candidates[id] = candidate;
             var row = document.createElement("tr");

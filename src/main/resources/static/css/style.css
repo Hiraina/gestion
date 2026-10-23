@@ -5807,6 +5807,11 @@ tbody tr:last-child td {
             line-height: 1.5;
         }
 
+        .applications-page .application-long-value{
+            white-space: pre-wrap;
+            font-weight: 500;
+        }
+
         .applications-page .document-list{
             display: flex;
             flex-direction: column;
