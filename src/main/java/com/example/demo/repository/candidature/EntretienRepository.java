@@ -19,10 +19,7 @@ public class EntretienRepository {
 				SELECT c.id_candidature AS id, ca.nom, ca.prenom, ca.email, ca.telephone,
 				       c.donnees_candidature::text AS "donneesCandidatureJson",
 				       c.date_candidature AS "dateCandidature", o.titre AS poste,
-			       CASE WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
-			              AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb')
-			         THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}'
-			       END AS contract,
+			       o.description AS "offerDescription",
 				       s.nom AS statut, cv.url_document AS "cvUrl",
 				       COALESCE(cv.nom_original, 'CV') AS "cvName", cv.taille_octets AS "cvSize",
 				       lm.url_document AS "lettreUrl",
