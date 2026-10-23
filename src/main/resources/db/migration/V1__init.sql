@@ -509,6 +509,16 @@ SELECT p.id_poste, 2026, 1, 800000000,
 FROM postes p WHERE p.titre = 'Responsable Finance'
 AND NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
 
+-- Budget très grand pour valider les postes examinés par la finance pour 2026
+UPDATE budgets_recrutement SET budget_annuel_par_personne = 999999999999, nombre_postes = 1000 WHERE annee = 2026;
+
+INSERT INTO budgets_recrutement (id_poste, annee, nombre_postes, budget_annuel_par_personne, statut, id_validateur)
+SELECT p.id_poste, 2026, 1, 999999999999,
+       (SELECT id_statut_recrutement FROM statut_recrutement WHERE nom = 'valide'),
+       (SELECT id_utilisateur FROM utilisateurs WHERE email = 'finance@gmail.com')
+FROM postes p
+WHERE NOT EXISTS (SELECT 1 FROM budgets_recrutement WHERE id_poste = p.id_poste AND annee = 2026);
+
 INSERT INTO historique_statut_besoin (id_besoin, ancien_statut, nouveau_statut)
 SELECT b.id_besoin, NULL, b.statut
 FROM besoins b
