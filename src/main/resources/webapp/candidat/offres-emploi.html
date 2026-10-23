@@ -129,6 +129,17 @@
     </div>
   </section>
 
+  <div class="offer-detail-modal" id="offer-detail-modal" hidden>
+    <section class="offer-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="offer-detail-title">
+      <button type="button" class="offer-detail-close" data-close-offer-details aria-label="Fermer les détails">×</button>
+      <div id="offer-detail-content"></div>
+      <div class="offer-detail-actions">
+        <button type="button" class="details-button" data-close-offer-details>Fermer</button>
+        <a class="apply-button" id="offer-detail-apply" href="#">Postuler</a>
+      </div>
+    </section>
+  </div>
+
   <section class="company-section" id="entreprise">
     <div class="container company-grid">
       <div>
@@ -203,7 +214,7 @@
     </div>
   </footer>
 
-  <script th:src="@{/js/candidat.js}"></script>
+  <script th:src="@{/js/candidat.js(v=20261023-1)}"></script>
 </body>
 
 </html>

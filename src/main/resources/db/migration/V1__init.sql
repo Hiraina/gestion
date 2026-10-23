@@ -425,6 +425,21 @@ CREATE TABLE type_contrat(
     libelle VARCHAR(50) NOT NULL UNIQUE
 );
 
+INSERT INTO type_contrat (libelle) VALUES
+    ('CDD'),
+    ('CDI'),
+    ('CE');
+
+CREATE TABLE niveau_etude(
+    id_niveau_etude SERIAL PRIMARY KEY,
+    libelle VARCHAR(80) NOT NULL UNIQUE
+);
+
+INSERT INTO niveau_etude (libelle) VALUES
+    ('Bac+2'),
+    ('Licence'),
+    ('Master');
+
 CREATE TABLE contrat_travail(
     id_contrat SERIAL PRIMARY KEY,
     id_type_contrat INTEGER NOT NULL REFERENCES type_contrat(id_type_contrat),

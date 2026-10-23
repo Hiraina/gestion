@@ -33,7 +33,7 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 
 	@Query(value = "SELECT b.id_besoin AS id, p.titre AS poste, d.nom AS departement, "
 			+ "b.nom_manager_demandeur AS manager, b.effectif AS effectif, "
-			+ "b.date_souhaitee AS \"dateSouhaitee\", b.motif AS motif, "
+			+ "b.date_souhaitee AS \"dateSouhaitee\", p.salaire_min AS \"salaireMensuelEstime\", b.motif AS motif, "
 			+ "b.competance AS competence "
 			+ "FROM besoins b JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut "
 			+ "JOIN postes p ON p.id_poste = b.id_poste "

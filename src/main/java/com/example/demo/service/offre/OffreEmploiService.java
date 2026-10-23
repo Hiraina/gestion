@@ -6,6 +6,7 @@ import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,12 +41,11 @@ public class OffreEmploiService {
 		Map<String, Object> data = nestedMap(payload.get("data"));
 		Map<String, Object> request = nestedMap(payload.get("request"));
 		String titre = required(data, "jobTitle", "L'intitulé du poste est obligatoire.");
-		for (String field : List.of("company", "department", "location", "workMode", "positions",
-				"contract", "experience", "education", "companyDescription", "missions", "skills",
+		for (String field : List.of("company", "department", "positions",
+				"contract", "education", "companyDescription", "missions", "skills",
 				"salaryDisplay", "applicationInstructions")) {
 			required(data, field, "Veuillez compléter tous les champs obligatoires de l'offre.");
 		}
-		String publication = required(data, "publicationDate", "La date de publication est obligatoire.");
 		String descriptionPoste = required(data, "jobDescription", "La description du poste est obligatoire.");
 		int positions;
 		try {
@@ -59,7 +59,10 @@ public class OffreEmploiService {
 				throw new IllegalArgumentException("Veuillez confirmer les quatre points de vérification avant de publier.");
 			}
 		}
-		LocalDate publicationDate = parseDate(publication, "La date de publication est invalide.");
+		String publication = optional(data, "publicationDate");
+		LocalDate publicationDate = publication == null
+				? LocalDate.now()
+				: parseDate(publication, "La date de publication est invalide.");
 		String dateCloture = optional(data, "deadline");
 		if (dateCloture != null) {
 			LocalDate deadline = parseDate(dateCloture, "La date limite est invalide.");
@@ -67,17 +70,22 @@ public class OffreEmploiService {
 				throw new IllegalArgumentException("La date limite ne peut pas précéder la date de publication.");
 			}
 		}
-		if ("Fourchette salariale".equals(optional(data, "salaryDisplay"))) {
-			try {
-				long minimum = Long.parseLong(required(data, "salaryMin", "La fourchette salariale est incomplète."));
-				long maximum = Long.parseLong(required(data, "salaryMax", "La fourchette salariale est incomplète."));
-				if (minimum < 0 || maximum < minimum) throw new NumberFormatException();
-			} catch (NumberFormatException exception) {
-				throw new IllegalArgumentException("La fourchette salariale est invalide.");
+		Integer requestId = integer(request.get("requestId"));
+		String salaryDisplay = required(data, "salaryDisplay", "Choisissez l'affichage du salaire.");
+		if (!List.of("Salaire approximatif", "À négocier").contains(salaryDisplay)) {
+			throw new IllegalArgumentException("Le mode d'affichage du salaire est invalide.");
+		}
+		if ("Salaire approximatif".equals(salaryDisplay)) {
+			if (requestId == null) {
+				throw new IllegalArgumentException("Aucune estimation Finance n'est associée à cette offre.");
 			}
+			BigDecimal salaireFinance = repository.trouverSalaireMensuelEstimePourBesoinValide(requestId)
+					.orElseThrow(() -> new IllegalArgumentException("L'estimation mensuelle Finance de cette demande est indisponible."));
+			data.put("salaryMonthlyEstimate", salaireFinance);
+		} else {
+			data.remove("salaryMonthlyEstimate");
 		}
 
-		Integer requestId = integer(request.get("requestId"));
 		int idPoste;
 		if (requestId != null) {
 			idPoste = repository.trouverPostePourBesoinValide(requestId);

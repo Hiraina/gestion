@@ -18,6 +18,10 @@
   var emptyState = document.getElementById("empty-state");
   var resetButton = document.getElementById("reset-button");
   var offerCards = Array.prototype.slice.call(document.querySelectorAll(".offer-card"));
+  var offersById = {};
+  var detailModal = document.getElementById("offer-detail-modal");
+  var detailContent = document.getElementById("offer-detail-content");
+  var detailApply = document.getElementById("offer-detail-apply");
 
   /* Normalise une valeur pour la comparaison textuelle. */
   function normalize(value) {
@@ -72,6 +76,101 @@
     filterOffers();
   }
 
+  function addDetailSection(container, title, value, asList) {
+    if (value == null || value === "") return;
+    var section = document.createElement("section");
+    section.className = "offer-detail-section";
+    var heading = document.createElement("h3");
+    heading.textContent = title;
+    section.appendChild(heading);
+    if (asList) {
+      var list = document.createElement("ul");
+      var values = Array.isArray(value) ? value : String(value).split(/\r?\n/);
+      values.map(function (item) { return String(item).trim(); }).filter(Boolean).forEach(function (item) {
+        var li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+      });
+      if (!list.childElementCount) return;
+      section.appendChild(list);
+    } else {
+      var text = document.createElement("p");
+      text.textContent = String(value);
+      section.appendChild(text);
+    }
+    container.appendChild(section);
+  }
+
+  function formatSalary(data) {
+    if (data.salaryDisplay === "À négocier") return "Rémunération à négocier selon le profil.";
+    if (data.salaryDisplay === "Salaire approximatif" && Number(data.salaryMonthlyEstimate) > 0) {
+      return new Intl.NumberFormat("fr-FR").format(Number(data.salaryMonthlyEstimate)) +
+        " Ar par mois et par personne (estimation Finance).";
+    }
+    /* Compatibilité avec les offres publiées avant le nouveau référentiel de salaire. */
+    if (data.salaryDisplay === "Fourchette salariale") {
+      var range = [data.salaryMin, data.salaryMax].filter(function (amount) { return amount != null && amount !== ""; })
+        .map(function (amount) { return new Intl.NumberFormat("fr-FR").format(Number(amount)); }).join(" – ");
+      return range ? range + " " + (data.salaryCurrency || "MGA") + " " + (data.salaryPeriod || "par mois") : "";
+    }
+    return "";
+  }
+
+  function showOfferDetails(offer) {
+    if (!offer || !detailModal || !detailContent) return;
+    var data = offer.data || {};
+    var title = data.jobTitle || offer.titre || "Poste à pourvoir";
+    var company = data.company || "Carrière+";
+    detailContent.replaceChildren();
+
+    var heading = document.createElement("h2");
+    heading.className = "offer-detail-title";
+    heading.id = "offer-detail-title";
+    heading.textContent = title;
+    detailContent.appendChild(heading);
+    var companyLine = document.createElement("p");
+    companyLine.className = "offer-detail-company";
+    companyLine.textContent = [company, data.department || offer.departement || ""].filter(Boolean).join(" · ");
+    detailContent.appendChild(companyLine);
+
+    var facts = document.createElement("div");
+    facts.className = "offer-detail-facts";
+    [data.contract, data.positions ? data.positions + (Number(data.positions) > 1 ? " postes" : " poste") : "", data.education]
+      .filter(Boolean).forEach(function (fact) {
+        var badge = document.createElement("span");
+        badge.textContent = fact;
+        facts.appendChild(badge);
+      });
+    detailContent.appendChild(facts);
+
+    addDetailSection(detailContent, "Présentation de l'entreprise", data.companyDescription, false);
+    addDetailSection(detailContent, "Description du poste", data.jobDescription || offer.description, false);
+    addDetailSection(detailContent, "Missions principales", data.missions, true);
+    addDetailSection(detailContent, "Formation", data.education, false);
+    addDetailSection(detailContent, "Compétences recherchées", data.skills, true);
+    addDetailSection(detailContent, "Qualités personnelles", data.qualities, true);
+    addDetailSection(detailContent, "Atouts supplémentaires", data.advantages, true);
+    addDetailSection(detailContent, "Rémunération", formatSalary(data), false);
+    addDetailSection(detailContent, "Avantages", data.benefits, true);
+    addDetailSection(detailContent, "Consignes de candidature", data.applicationInstructions, false);
+
+    if (detailApply) {
+      detailApply.href = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "") +
+        "/candidat/formulaire-candidature.html?offreId=" + encodeURIComponent(offer.id) +
+        "&poste=" + encodeURIComponent(title);
+    }
+    detailModal.hidden = false;
+    document.body.classList.add("offer-detail-open");
+    var closeButton = detailModal.querySelector("[data-close-offer-details]");
+    if (closeButton) closeButton.focus();
+  }
+
+  function closeOfferDetails() {
+    if (!detailModal) return;
+    detailModal.hidden = true;
+    document.body.classList.remove("offer-detail-open");
+  }
+
   function loadPublishedOffers() {
     if (!document.getElementById("offers-list")) return;
     var context = document.querySelector('meta[name="context-path"]')?.content || "/";
@@ -88,8 +187,10 @@
         var list = document.getElementById("offers-list");
         var departments = new Set();
         var contracts = new Set();
+        offersById = {};
         list.replaceChildren();
         offers.forEach(function (offer) {
+          offersById[String(offer.id)] = offer;
           var data = offer.data || {};
           var title = data.jobTitle || offer.titre || "Poste à pourvoir";
           var department = data.department || offer.departement || "";
@@ -124,37 +225,6 @@
           var desc = document.createElement("p");
           desc.className = "offer-description";
           desc.textContent = description;
-          var extraDetails = document.createElement("details");
-          extraDetails.className = "offer-details";
-          var summary = document.createElement("summary");
-          summary.textContent = "Voir tous les détails de l’offre";
-          extraDetails.appendChild(summary);
-          var detailValues = [
-            ["Présentation de l’entreprise", data.companyDescription],
-            ["Missions", data.missions],
-            ["Compétences recherchées", data.skills],
-            ["Expérience requise", data.experience],
-            ["Formation", data.education],
-            ["Mode de travail", data.workMode],
-            ["Durée du contrat", data.duration],
-            ["Atouts supplémentaires", data.advantages],
-            ["Consignes de candidature", data.applicationInstructions]
-          ];
-          if (data.salaryDisplay === "Fourchette salariale") {
-            var salaryFormat = new Intl.NumberFormat("fr-FR");
-            var salary = [data.salaryMin ? salaryFormat.format(data.salaryMin) : "", data.salaryMax ? salaryFormat.format(data.salaryMax) : ""].filter(Boolean).join(" – ");
-            if (salary) detailValues.push(["Rémunération", salary + " " + (data.salaryCurrency || "MGA") + " " + (data.salaryPeriod || "par mois")]);
-          } else if (data.salaryDisplay === "À négocier") {
-            detailValues.push(["Rémunération", "À négocier"]);
-          }
-          detailValues.forEach(function (entry) {
-            if (!entry[1]) return;
-            var paragraph = document.createElement("p");
-            var label = document.createElement("strong");
-            label.textContent = entry[0] + " : ";
-            paragraph.append(label, document.createTextNode(entry[1]));
-            extraDetails.appendChild(paragraph);
-          });
           var meta = document.createElement("div");
           meta.className = "offer-meta";
           [["🏢", department], ["📄", contract], ["📅", offer.datePublication ? new Date(offer.datePublication).toLocaleDateString("fr-FR") : ""]].forEach(function (item) {
@@ -173,8 +243,13 @@
           apply.className = "apply-button";
           apply.textContent = "Postuler";
           apply.href = context + "/candidat/formulaire-candidature.html?offreId=" + encodeURIComponent(offer.id) + "&poste=" + encodeURIComponent(title);
-          footer.append(extra, apply);
-          card.append(top, desc, extraDetails, meta, footer);
+          var detailsButton = document.createElement("button");
+          detailsButton.type = "button";
+          detailsButton.className = "details-button";
+          detailsButton.dataset.offerId = String(offer.id);
+          detailsButton.textContent = "Voir les détails";
+          footer.append(extra, detailsButton, apply);
+          card.append(top, desc, meta, footer);
           list.appendChild(card);
           if (department) departments.add(department);
           if (contract) contracts.add(contract);
@@ -207,6 +282,16 @@
   }
 
   function init() {
+    document.addEventListener("click", function (event) {
+      var detailsButton = event.target.closest("[data-offer-id]");
+      if (detailsButton) showOfferDetails(offersById[detailsButton.dataset.offerId]);
+      if (event.target.closest("[data-close-offer-details]")) closeOfferDetails();
+      if (event.target === detailModal) closeOfferDetails();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeOfferDetails();
+    });
+
     if (searchButton) {
       searchButton.addEventListener("click", function (event) {
         event.preventDefault();
