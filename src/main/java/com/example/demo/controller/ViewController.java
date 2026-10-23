@@ -148,6 +148,12 @@ public class ViewController {
 		return besoinService.listerValides();
 	}
 
+	@GetMapping("/api/rh/historique-demandes")
+	@ResponseBody
+	public List<Map<String, Object>> historiqueDemandesRH() {
+		return besoinService.listerHistoriqueRH();
+	}
+
 	@GetMapping("/api/manager/suivi-besoins")
 	@ResponseBody
 	public List<Map<String, Object>> suiviBesoinsManager() {

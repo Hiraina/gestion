@@ -1,5 +1,5 @@
 function initDirectionDemandeDetail(event) {
-  if (event && event.detail && !["detail-demande", "detail-demande-validee", "detail-demande-terminee", "detail-demande-manager-terminee"].includes(event.detail.page)) return;
+  if (event && event.detail && !["detail-demande", "detail-demande-validee", "detail-demande-terminee", "detail-demande-manager-terminee", "detail-demande-historique"].includes(event.detail.page)) return;
   const content = document.getElementById("direction-detail-content");
   if (!content) return;
 

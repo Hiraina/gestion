@@ -92,6 +92,52 @@ public class BesoinService {
 		return demandesFinalisees;
 	}
 
+	/** Historique des demandes ayant reçu une décision de la Finance ou de la Direction. */
+	@SuppressWarnings("unchecked")
+	public List<Map<String, Object>> listerHistoriqueRH() {
+		List<Map<String, Object>> historique = new ArrayList<>();
+		for (Map<String, Object> demande : listerSuiviManager()) {
+			List<Map<String, Object>> evenements = (List<Map<String, Object>>) demande.get("historique");
+			if (evenements == null) {
+				continue;
+			}
+			for (Map<String, Object> evenement : evenements) {
+				String statut = String.valueOf(evenement.get("nouveauStatut"));
+				String decisionKey;
+				if ("validee_finance".equals(statut)) {
+					decisionKey = "approuvee_finance";
+				} else if ("valide".equals(statut)) {
+					decisionKey = "approuvee_direction";
+				} else if ("refuse".equals(statut)) {
+					decisionKey = "transmis_finance".equals(evenement.get("ancienStatut"))
+							? "refusee_finance" : "refusee_direction";
+				} else {
+					continue;
+				}
+
+				String decisionLabel = switch (decisionKey) {
+					case "approuvee_finance" -> "Approuvée par la Finance";
+					case "approuvee_direction" -> "Approuvée par la Direction";
+					case "refusee_finance" -> "Refusée par la Finance";
+					default -> "Refusée par la Direction";
+				};
+				Map<String, Object> ligne = new HashMap<>();
+				ligne.put("id", demande.get("id"));
+				ligne.put("reference", "DEM-" + demande.get("id"));
+				ligne.put("poste", demande.get("poste"));
+				ligne.put("manager", demande.get("manager"));
+				ligne.put("departement", demande.get("departement"));
+				ligne.put("effectif", demande.get("effectif"));
+				ligne.put("dateDemande", evenements.isEmpty() ? null : evenements.get(0).get("dateChangement"));
+				ligne.put("decision", decisionLabel);
+				ligne.put("decisionKey", decisionKey);
+				ligne.put("dateDecision", evenement.get("dateChangement"));
+				historique.add(ligne);
+			}
+		}
+		return historique;
+	}
+
 	public Optional<DemandeBesoinDetailProjection> trouverDetailsPourRH(Integer id) {
 		return repository.trouverDetailsPourRH(id);
 	}
