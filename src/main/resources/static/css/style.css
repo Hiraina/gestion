@@ -3163,6 +3163,123 @@ tbody tr:last-child td {
   color: var(--black);
 }
 
+.cand-body .details-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--navy);
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cand-body .details-button:hover {
+  border-color: var(--orange);
+  background: rgba(252, 163, 17, .12);
+}
+
+.cand-body .offer-detail-modal[hidden] {
+  display: none;
+}
+
+.cand-body .offer-detail-modal {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(12, 20, 36, .68);
+}
+
+.cand-body .offer-detail-dialog {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: min(88vh, 900px);
+  overflow: auto;
+  padding: 2rem;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+}
+
+.cand-body .offer-detail-close {
+  position: sticky;
+  float: right;
+  top: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--navy);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.cand-body .offer-detail-title {
+  padding-right: 2.5rem;
+  color: var(--navy);
+}
+
+.cand-body .offer-detail-company {
+  margin-top: .35rem;
+  color: var(--muted);
+}
+
+.cand-body .offer-detail-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1rem 0 1.4rem;
+}
+
+.cand-body .offer-detail-facts span {
+  padding: .35rem .7rem;
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--navy);
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.cand-body .offer-detail-section {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.cand-body .offer-detail-section h3 {
+  margin-bottom: .45rem;
+  color: var(--navy);
+}
+
+.cand-body .offer-detail-section p,
+.cand-body .offer-detail-section li {
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.cand-body .offer-detail-section ul {
+  padding-left: 1.25rem;
+}
+
+.cand-body .offer-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.cand-body.offer-detail-open {
+  overflow: hidden;
+}
+
 /* --- État vide --- */
 .cand-body .empty-state {
   padding: 3rem 1.5rem;

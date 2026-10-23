@@ -10,29 +10,6 @@
         <span class="reference" id="requestReference">Nouvelle offre</span>
       </div>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">✓</div>
-        <div>
-          <div class="step-title">Demande validée</div>
-          <div class="step-description">Validation de la Direction</div>
-        </div>
-      </div>
-      <div class="step active">
-        <div class="step-number">2</div>
-        <div>
-          <div class="step-title">Préparer l'offre</div>
-          <div class="step-description">Vérifier et compléter</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div>
-          <div class="step-title">Publication</div>
-          <div class="step-description">Rendre l'offre disponible</div>
-        </div>
-      </div>
-    </div>
     <div id="notification" class="notification"></div>
     <div class="layout">
       <div class="main-column">
@@ -64,10 +41,6 @@
                 <p id="infoReference">Non associée</p>
               </div>
               <div class="info-item">
-                <label>Date de validation</label>
-                <p id="infoApprovalDate">Non enregistrée</p>
-              </div>
-              <div class="info-item">
                 <label>Manager demandeur</label>
                 <p id="infoManager">Non renseigné</p>
               </div>
@@ -80,24 +53,8 @@
                 <p id="infoPositions">À définir</p>
               </div>
               <div class="info-item">
-                <label>Type de besoin</label>
-                <p id="infoNeedType">À préciser</p>
-              </div>
-              <div class="info-item">
-                <label>Type de contrat demandé</label>
-                <p id="infoContract">À préciser</p>
-              </div>
-              <div class="info-item">
                 <label>Date souhaitée de prise de poste</label>
                 <p id="infoStartDate">À définir</p>
-              </div>
-              <div class="info-item">
-                <label>Expérience demandée</label>
-                <p id="infoExperience">À préciser</p>
-              </div>
-              <div class="info-item">
-                <label>Formation demandée</label>
-                <p id="infoEducation">À préciser</p>
               </div>
               <div class="info-item" style="grid-column: 1/-1">
                 <label>Motif de la demande</label>
@@ -106,7 +63,10 @@
             </div>
           </div>
         </section>
-        <form id="offerForm">
+        <form
+          id="offerForm"
+          th:attr="data-departments-url=@{/Responsable-RH/api/offres/referentiels/departements},data-contracts-url=@{/Responsable-RH/api/offres/referentiels/contrats},data-education-levels-url=@{/Responsable-RH/api/offres/referentiels/niveaux-etude}"
+        >
           <section class="card">
             <div class="card-header">
               <div class="card-icon">💼</div>
@@ -127,40 +87,13 @@
                 <div class="form-group">
                   <label for="company"
                     >Nom de l'entreprise <span class="required">*</span></label
-                  ><input type="text" id="company" name="company" required />
+                  ><input type="text" id="company" name="company" value="Carrière+" required />
                 </div>
                 <div class="form-group">
                   <label for="department"
                     >Département <span class="required">*</span></label
                   ><select id="department" name="department" required>
                     <option value="" selected>À choisir</option>
-                    <option value="Informatique">Informatique</option>
-                    <option value="Ressources humaines">
-                      Ressources humaines
-                    </option>
-                    <option value="Finance">Finance</option>
-                    <option value="Comptabilité">Comptabilité</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Commercial">Commercial</option>
-                    <option value="Production">Production</option>
-                    <option value="Logistique">Logistique</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Autre">Autre</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="location"
-                    >Lieu de travail <span class="required">*</span></label
-                  ><input type="text" id="location" name="location" required />
-                </div>
-                <div class="form-group">
-                  <label for="workMode"
-                    >Mode de travail <span class="required">*</span></label
-                  ><select id="workMode" name="workMode" required>
-                    <option value="" selected>À choisir</option>
-                    <option value="Présentiel">Présentiel</option>
-                    <option value="Hybride">Hybride</option>
-                    <option value="Télétravail">Télétravail</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -182,33 +115,6 @@
                     >Type de contrat <span class="required">*</span></label
                   ><select id="contract" name="contract" required>
                     <option value="" selected>À choisir</option>
-                    <option value="CDI">CDI</option>
-                    <option value="CDD">CDD</option>
-                    <option value="Stage">Stage</option>
-                    <option value="Alternance">Alternance</option>
-                    <option value="Freelance">Freelance</option>
-                    <option value="Intérim">Intérim</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="duration">Durée du contrat</label
-                  ><input type="text" id="duration" name="duration" /><small
-                    class="field-help"
-                    >À préciser uniquement si le contrat est temporaire.</small
-                  >
-                </div>
-                <div class="form-group">
-                  <label for="experience"
-                    >Expérience requise <span class="required">*</span></label
-                  ><select id="experience" name="experience" required>
-                    <option value="" selected>À choisir</option>
-                    <option value="Débutant accepté">Débutant accepté</option>
-                    <option value="Moins d'un an">Moins d'un an</option>
-                    <option value="1 an minimum">1 an minimum</option>
-                    <option value="2 ans minimum">2 ans minimum</option>
-                    <option value="3 ans minimum">3 ans minimum</option>
-                    <option value="5 ans minimum">5 ans minimum</option>
-                    <option value="Plus de 5 ans">Plus de 5 ans</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -216,20 +122,6 @@
                     >Niveau d'études <span class="required">*</span></label
                   ><select id="education" name="education" required>
                     <option value="" selected>À choisir</option>
-                    <option value="Sans diplôme précisé">
-                      Sans diplôme précisé
-                    </option>
-                    <option value="BEPC">BEPC</option>
-                    <option value="Baccalauréat">Baccalauréat</option>
-                    <option value="Bac+2">Bac+2</option>
-                    <option value="Bac+3 en informatique">
-                      Bac+3 en informatique
-                    </option>
-                    <option value="Bac+4">Bac+4</option>
-                    <option value="Bac+5">Bac+5</option>
-                    <option value="Autre formation pertinente">
-                      Autre formation pertinente
-                    </option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -328,50 +220,14 @@
                     >Affichage du salaire <span class="required">*</span></label
                   ><select id="salaryDisplay" name="salaryDisplay" required>
                     <option value="À négocier" selected>À négocier</option>
-                    <option value="Fourchette salariale">
-                      Afficher une fourchette
-                    </option>
-                    <option value="Non affiché">
-                      Ne pas afficher le salaire
-                    </option>
+                    <option value="Salaire approximatif">Afficher le salaire approximatif</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="salaryCurrency">Devise</label
-                  ><select id="salaryCurrency" name="salaryCurrency">
-                    <option value="MGA" selected>Ariary (MGA)</option>
-                    <option value="EUR">Euro (EUR)</option>
-                    <option value="USD">Dollar américain (USD)</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="salaryMin">Salaire minimum</label
-                  ><input
-                    type="number"
-                    id="salaryMin"
-                    name="salaryMin"
-                    min="0"
-                    placeholder="Ex. : 800000"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="salaryMax">Salaire maximum</label
-                  ><input
-                    type="number"
-                    id="salaryMax"
-                    name="salaryMax"
-                    min="0"
-                    placeholder="Ex. : 1500000"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="salaryPeriod">Période de rémunération</label
-                  ><select id="salaryPeriod" name="salaryPeriod">
-                    <option value="par mois" selected>Par mois</option>
-                    <option value="par an">Par an</option>
-                    <option value="par jour">Par jour</option>
-                    <option value="par heure">Par heure</option>
-                  </select>
+                <div class="form-group full">
+                  <label>Salaire mensuel estimé par personne (Finance)</label>
+                  <input type="hidden" id="salaryMonthlyEstimate" name="salaryMonthlyEstimate" />
+                  <output id="salaryEstimateDisplay" class="field-help">Aucune estimation financière associée</output>
+                  <small class="field-help">Montant de référence en Ariary par mois et par personne, calculé par la Finance.</small>
                 </div>
                 <div class="form-group full">
                   <label for="benefits">Avantages proposés</label
@@ -386,36 +242,9 @@
           </section>
           <section class="card">
             <div class="card-header">
-              <div class="card-icon">📅</div>
-              <div>
-                <h2>5. Paramètres de publication</h2>
-                <p>Définissez la période de diffusion de l'annonce</p>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="publicationDate"
-                    >Date de publication <span class="required">*</span></label
-                  ><input
-                    type="date"
-                    id="publicationDate"
-                    name="publicationDate"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="deadline">Date limite de candidature</label
-                  ><input type="date" id="deadline" name="deadline" />
-                </div>
-              </div>
-            </div>
-          </section>
-          <section class="card">
-            <div class="card-header">
               <div class="card-icon">📨</div>
               <div>
-                <h2>6. Modalités de candidature</h2>
+                <h2>5. Modalités de candidature</h2>
                 <p>
                   Le candidat postule directement via le formulaire de
                   l'entreprise
@@ -433,46 +262,13 @@
                   required
                 ></textarea>
               </div>
-              <div class="section-divider"></div>
-              <h3 class="subheading">Aperçu du formulaire de candidature</h3>
-              <div class="candidate-preview">
-                <h3>📝 Formulaire de candidature en ligne</h3>
-                <p>
-                  Les personnes intéressées devront remplir le formulaire de
-                  candidature de l'entreprise. À la fin du formulaire, elles
-                  pourront joindre leur CV et leur lettre de motivation.
-                </p>
-                <div class="upload-preview">
-                  <div class="upload-box">
-                    <div class="upload-icon">📄</div>
-                    <strong>CV du candidat</strong
-                    ><span>Fichier à joindre au formulaire</span><br /><span
-                      class="coming-soon"
-                      >Upload à développer</span
-                    >
-                  </div>
-                  <div class="upload-box">
-                    <div class="upload-icon">✉️</div>
-                    <strong>Lettre de motivation</strong
-                    ><span>Fichier à joindre au formulaire</span><br /><span
-                      class="coming-soon"
-                      >Upload à développer</span
-                    >
-                  </div>
-                </div>
-                <small class="field-help" style="margin-top: 15px"
-                  >Cette zone est un aperçu visuel. Le formulaire candidat et le
-                  dépôt réel des fichiers seront développés
-                  ultérieurement.</small
-                >
-              </div>
             </div>
           </section>
           <section class="card">
             <div class="card-header">
               <div class="card-icon">✓</div>
               <div>
-                <h2>7. Vérification avant publication</h2>
+                <h2>6. Vérification avant publication</h2>
                 <p>Confirmez que l'offre est prête à être diffusée</p>
               </div>
             </div>
@@ -547,16 +343,6 @@
               <div class="summary-value" id="summaryDepartment">
                 Informatique
               </div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-label">Localisation</div>
-              <div class="summary-value" id="summaryLocation">
-                Antananarivo, Madagascar
-              </div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-label">Contrat</div>
-              <div class="summary-value" id="summaryContract">CDI</div>
             </div>
             <div class="summary-item">
               <div class="summary-label">Nombre de postes</div>

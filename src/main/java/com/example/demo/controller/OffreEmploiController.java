@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.offre.OffreEmploiService;
+import com.example.demo.service.offre.TypeContratService;
+import com.example.demo.service.offre.NiveauEtudeService;
 import com.example.demo.service.departement.DepartementService;
 import com.example.demo.dto.departement.DepartementDTO;
 import org.springframework.http.HttpStatus;
@@ -22,15 +24,30 @@ public class OffreEmploiController {
 
 	private final OffreEmploiService service;
 	private final DepartementService departementService;
+	private final TypeContratService typeContratService;
+	private final NiveauEtudeService niveauEtudeService;
 
-	public OffreEmploiController(OffreEmploiService service, DepartementService departementService) {
+	public OffreEmploiController(OffreEmploiService service, DepartementService departementService,
+			TypeContratService typeContratService, NiveauEtudeService niveauEtudeService) {
 		this.service = service;
 		this.departementService = departementService;
+		this.typeContratService = typeContratService;
+		this.niveauEtudeService = niveauEtudeService;
 	}
 
 	@GetMapping("/referentiels/departements")
 	public List<DepartementDTO> listerDepartements() {
 		return departementService.listerTous();
+	}
+
+	@GetMapping("/referentiels/contrats")
+	public List<String> listerTypesContrat() {
+		return typeContratService.listerTous();
+	}
+
+	@GetMapping("/referentiels/niveaux-etude")
+	public List<String> listerNiveauxEtude() {
+		return niveauEtudeService.listerTous();
 	}
 
 	@GetMapping

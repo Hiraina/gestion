@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var url = appBaseUrl() + appDossier() + "/pages/" + page + ".html";
 
-    fetch(url)
+    fetch(url, { cache: "no-store" })
       .then(function (res) {
         if (!res.ok) throw new Error("Failed: " + res.status);
         return res.text();

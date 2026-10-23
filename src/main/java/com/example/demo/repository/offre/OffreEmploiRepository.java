@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.math.BigDecimal;
 
 @Repository
 public class OffreEmploiRepository {
@@ -61,6 +62,17 @@ public class OffreEmploiRepository {
 				""", (rs, rowNum) -> rs.getInt(1), idBesoin);
 		return ids.stream().findFirst().orElseThrow(() -> new IllegalArgumentException(
 				"La demande associée n'existe pas ou n'est plus validée."));
+	}
+
+	public Optional<BigDecimal> trouverSalaireMensuelEstimePourBesoinValide(int idBesoin) {
+		List<BigDecimal> salaires = jdbc.query("""
+				SELECT p.salaire_min
+				FROM besoins b
+				JOIN postes p ON p.id_poste = b.id_poste
+				JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut
+				WHERE b.id_besoin = ? AND LOWER(s.nom) = 'valide'
+				""", (rs, rowNum) -> rs.getBigDecimal(1), idBesoin);
+		return salaires.stream().findFirst();
 	}
 
 	public Optional<Integer> trouverPosteActif(String titre, String departement) {

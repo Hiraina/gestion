@@ -8,6 +8,31 @@
    Les données des brouillons sont enregistrées dans le navigateur.
    ========================================= */
 
+/* Remonte dans la console F12 les erreurs globales et les promesses rejetées.
+   Le navigateur fournit le fichier, la ligne et la pile d'appel. */
+(function installRhDiagnostics() {
+  if (window.__rhDiagnosticsInstalled) return;
+  window.__rhDiagnosticsInstalled = true;
+
+  window.addEventListener("error", function (event) {
+    console.error("[RH] Erreur JavaScript", {
+      message: event.message,
+      fichier: event.filename,
+      ligne: event.lineno,
+      colonne: event.colno,
+      pile: event.error && event.error.stack
+    });
+  });
+
+  window.addEventListener("unhandledrejection", function (event) {
+    var reason = event.reason;
+    console.error("[RH] Promesse rejetée sans gestionnaire", {
+      raison: reason,
+      pile: reason && reason.stack
+    });
+  });
+})();
+
 /* Liste des brouillons partagée entre les deux pages.
    Elle est stockée dans le navigateur (localStorage). */
 var RHDrafts = (function () {
@@ -25,7 +50,7 @@ var RHDrafts = (function () {
         var demoIds = ["DEM-001", "DEM-004", "DEM-006", "DEM-009", "DEM-010"];
         var cleanDrafts = drafts.filter(function (draft) { return draft && demoIds.indexOf(draft.id) === -1; });
         return cleanDrafts.map(function (draft) {
-          return Object.assign({ title: "Titre à définir", department: "À définir", contract: "À préciser", author: "Responsable RH", status: "Brouillon", data: {}, request: null, requestId: null }, draft);
+          return Object.assign({ title: "Titre à définir", department: "À définir", contract: "À préciser", author: "Responsable RH", status: "Brouillon", data: {}, request: null, requestId: null }, draft || {});
         });
       }
     } catch (error) {
@@ -191,16 +216,6 @@ var RHDrafts = (function () {
       .join("");
   }
 
-  function formatDate(dateValue) {
-    if (!dateValue) return "À préciser";
-
-    var parts = dateValue.split("-");
-
-    if (parts.length !== 3) return dateValue;
-
-    return parts[2] + "/" + parts[1] + "/" + parts[0];
-  }
-
   /* ------------------------------------------------------------
      Préremplissage à partir de la demande validée
      ------------------------------------------------------------ */
@@ -212,7 +227,8 @@ var RHDrafts = (function () {
 
     if (!select) return;
 
-    var exists = Array.prototype.some.call(select.options, function (option) {
+    var options = select.options || [];
+    var exists = Array.prototype.some.call(options, function (option) {
       return option.value === value;
     });
 
@@ -230,21 +246,29 @@ var RHDrafts = (function () {
     var standalone = Boolean(request.standalone);
     setText("requestReference", standalone ? "Brouillon libre" : "Demande " + request.reference);
     setText("infoReference", standalone ? "Non associée" : request.reference);
-    setText("infoApprovalDate", request.approvalDate || "Non enregistrée");
     setText("infoManager", request.manager || "Non renseigné");
     setText("infoDepartment", request.department || "À définir");
     setText(
       "infoPositions",
       request.positions ? request.positions + (request.positions > 1 ? " postes" : " poste") : "À définir"
     );
-    setText("infoNeedType", request.needType || "À préciser");
-    setText("infoContract", request.contract || "À préciser");
     setText("infoStartDate", request.startDate || "À définir");
-    setText("infoExperience", request.experience || "À préciser");
-    setText("infoEducation", request.education || "À préciser");
     setText("infoReason", request.reason || "Aucun motif renseigné.");
 
     setValue("jobTitle", request.jobTitle || "");
+    setValue("skills", request.skills || request.competence || "");
+    var salaryEstimate = Number(request.salaryMonthlyEstimate || 0);
+    setValue("salaryMonthlyEstimate", salaryEstimate > 0 ? String(salaryEstimate) : "");
+    var salaryEstimateDisplay = byId("salaryEstimateDisplay");
+    if (salaryEstimateDisplay) {
+      salaryEstimateDisplay.textContent = salaryEstimate > 0
+        ? new Intl.NumberFormat("fr-FR").format(salaryEstimate) + " Ar / mois / personne"
+        : "Aucune estimation financière associée";
+    }
+    var approximateOption = document.querySelector('#salaryDisplay option[value="Salaire approximatif"]');
+    if (approximateOption) approximateOption.disabled = salaryEstimate <= 0;
+    /* La valeur par défaut vient du champ HTML. Ne pas appeler valueOf ici :
+       cette aide n'existe que dans generatePreview(). */
     setValue("positions", request.positions || (standalone ? "" : 1));
     setValue("startDate", request.startDate || "");
 
@@ -262,9 +286,6 @@ var RHDrafts = (function () {
     /* Si une valeur issue de la demande n'existe pas dans la liste,
        on l'ajoute pour éviter de perdre l'information. */
     ensureSelectOption("department", request.department);
-    ensureSelectOption("contract", request.contract);
-    ensureSelectOption("experience", request.experience);
-    ensureSelectOption("education", request.education);
   }
 
   function clearOfferForm(form) {
@@ -300,7 +321,6 @@ var RHDrafts = (function () {
       needType: "",
       contract: "",
       startDate: "",
-      experience: "",
       education: "",
       reason: "",
       jobTitle: ""
@@ -314,8 +334,6 @@ var RHDrafts = (function () {
   function updateSummary() {
     var title = byId("jobTitle");
     var department = byId("department");
-    var location = byId("location");
-    var contract = byId("contract");
     var positions = byId("positions");
 
     if (title) {
@@ -324,14 +342,6 @@ var RHDrafts = (function () {
 
     if (department) {
       setText("summaryDepartment", department.value || "Non renseigné");
-    }
-
-    if (location) {
-      setText("summaryLocation", location.value || "Non renseigné");
-    }
-
-    if (contract) {
-      setText("summaryContract", contract.value || "Non renseigné");
     }
 
     if (positions) {
@@ -347,50 +357,18 @@ var RHDrafts = (function () {
      Rémunération
      ------------------------------------------------------------ */
 
-  /* La durée du contrat n'a de sens que pour un contrat temporaire. */
-  function updateDurationField() {
-    var contract = byId("contract");
-    var duration = byId("duration");
-
-    if (!contract || !duration) return;
-
-    if (contract.value === "CDI") {
-      duration.value = "Non applicable pour un CDI";
-      duration.readOnly = true;
-    } else {
-      if (duration.value === "Non applicable pour un CDI") duration.value = "";
-      duration.readOnly = false;
-    }
-  }
-
   function updateSalaryFields() {
     var salaryDisplay = byId("salaryDisplay");
 
     if (!salaryDisplay) return;
-
-    var mode = salaryDisplay.value;
-
-    var min = byId("salaryMin");
-    var max = byId("salaryMax");
-    var currency = byId("salaryCurrency");
-    var period = byId("salaryPeriod");
-
-    var showRange = mode === "Fourchette salariale";
-    var hidden = mode === "Non affiché";
-
-    if (min) min.disabled = !showRange;
-    if (max) max.disabled = !showRange;
-    if (currency) currency.disabled = hidden;
-    if (period) period.disabled = hidden;
-
-    if (!showRange) {
-      if (min) min.value = "";
-      if (max) max.value = "";
+    if (!["Salaire approximatif", "À négocier"].includes(salaryDisplay.value)) {
+      salaryDisplay.value = "À négocier";
     }
 
-    if (hidden) {
-      if (currency) currency.value = "MGA";
-      if (period) period.value = "par mois";
+    var estimate = Number((byId("salaryMonthlyEstimate") || {}).value || 0);
+    if (salaryDisplay.value === "Salaire approximatif" && estimate <= 0) {
+      salaryDisplay.value = "À négocier";
+      showNotification("Aucune estimation Finance n'est associée à cette demande. Le salaire reste à négocier.", "error");
     }
   }
 
@@ -401,38 +379,13 @@ var RHDrafts = (function () {
 
     var mode = salaryDisplay.value;
 
-    if (mode === "Non affiché") {
-      return "";
-    }
-
     if (mode === "À négocier") {
       return "Rémunération à négocier selon le profil.";
     }
 
-    var min = byId("salaryMin");
-    var max = byId("salaryMax");
-    var currency = byId("salaryCurrency");
-    var period = byId("salaryPeriod");
-
-    var minValue = min ? min.value : "";
-    var maxValue = max ? max.value : "";
-
-    if (!minValue || !maxValue) {
-      return "Fourchette salariale à compléter.";
-    }
-
-    var formatter = new Intl.NumberFormat("fr-FR");
-
-    return (
-      formatter.format(Number(minValue)) +
-      " – " +
-      formatter.format(Number(maxValue)) +
-      " " +
-      (currency ? currency.value : "") +
-      " " +
-      (period ? period.value : "") +
-      "."
-    );
+    var estimate = Number((byId("salaryMonthlyEstimate") || {}).value || 0);
+    if (mode !== "Salaire approximatif" || estimate <= 0) return "Estimation salariale indisponible.";
+    return new Intl.NumberFormat("fr-FR").format(estimate) + " Ar par mois et par personne (estimation Finance).";
   }
 
   /* ------------------------------------------------------------
@@ -453,12 +406,8 @@ var RHDrafts = (function () {
     var jobTitle = valueOf("jobTitle");
     var company = valueOf("company");
     var department = valueOf("department");
-    var location = valueOf("location");
-    var workMode = valueOf("workMode");
     var positions = valueOf("positions");
     var contract = valueOf("contract");
-    var duration = valueOf("duration");
-    var experience = valueOf("experience");
     var education = valueOf("education");
     var companyDescription = valueOf("companyDescription");
     var jobDescription = valueOf("jobDescription");
@@ -467,24 +416,12 @@ var RHDrafts = (function () {
     var qualities = valueOf("qualities");
     var advantages = valueOf("advantages");
     var benefits = valueOf("benefits");
-    var deadline = valueOf("deadline");
     var instructions = valueOf("applicationInstructions");
 
     var salaryText = getSalaryText();
 
     var salaryHTML = salaryText
       ? '<h2>Rémunération</h2><p>' + escapeHTML(salaryText) + "</p>"
-      : "";
-
-    var durationHTML =
-      duration && contract !== "CDI"
-        ? "<span>Durée : " + escapeHTML(duration) + "</span>"
-        : "";
-
-    var deadlineHTML = deadline
-      ? '<p style="margin-top:12px;"><strong>Date limite de candidature :</strong> ' +
-        escapeHTML(formatDate(deadline)) +
-        "</p>"
       : "";
 
     content.innerHTML =
@@ -495,19 +432,12 @@ var RHDrafts = (function () {
       escapeHTML(company) +
       "</strong></p>" +
       '<div class="job-meta">' +
-      "<span>📍 " +
-      escapeHTML(location) +
-      "</span>" +
       "<span>💼 " +
       escapeHTML(contract) +
       "</span>" +
       "<span>👥 " +
       escapeHTML(positions) +
       " poste(s)</span>" +
-      "<span>🏢 " +
-      escapeHTML(workMode) +
-      "</span>" +
-      durationHTML +
       "</div>" +
       "<h2>Présentation de l'entreprise</h2>" +
       "<p>" +
@@ -522,9 +452,6 @@ var RHDrafts = (function () {
       linesToHTML(missions) +
       "</ul>" +
       "<h2>Profil recherché</h2>" +
-      "<p><strong>Expérience :</strong> " +
-      escapeHTML(experience) +
-      "</p>" +
       '<p style="margin-top:6px;"><strong>Formation :</strong> ' +
       escapeHTML(education) +
       "</p>" +
@@ -546,7 +473,6 @@ var RHDrafts = (function () {
       (benefits.trim()
         ? "<h2>Avantages</h2><ul>" + linesToHTML(benefits) + "</ul>"
         : "") +
-      deadlineHTML +
       '<div class="apply-banner">' +
       "<strong>Comment postuler ?</strong>" +
       "<p>" +
@@ -673,17 +599,17 @@ var RHDrafts = (function () {
       else if (entry) data = { jobTitle: entry.title, department: entry.department, contract: entry.contract };
     }
 
-    if (!data) return;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return;
 
     try {
-      Object.keys(data).forEach(function (key) {
+      Object.keys(data || {}).forEach(function (key) {
         var element = form.elements.namedItem(key);
 
         if (!element) return;
 
         if (element.type === "checkbox") {
           element.checked = Boolean(data[key]);
-        } else if (key !== "reference") {
+        } else if (key !== "reference" && key !== "salaryMonthlyEstimate") {
           element.value = data[key];
         }
       });
@@ -703,30 +629,16 @@ var RHDrafts = (function () {
 
     var salaryDisplay = byId("salaryDisplay");
 
-    if (salaryDisplay && salaryDisplay.value === "Fourchette salariale") {
-      var min = Number((byId("salaryMin") || {}).value || 0);
-      var max = Number((byId("salaryMax") || {}).value || 0);
-
-      if (!min || !max || min > max) {
+    if (salaryDisplay && salaryDisplay.value === "Salaire approximatif") {
+      var estimate = Number((byId("salaryMonthlyEstimate") || {}).value || 0);
+      if (!estimate || estimate < 0) {
         showNotification(
-          "Veuillez renseigner une fourchette salariale valide : le minimum doit être inférieur ou égal au maximum.",
+          "Aucune estimation mensuelle Finance n'est associée à cette demande.",
           "error"
         );
 
         return false;
       }
-    }
-
-    var publicationDate = (byId("publicationDate") || {}).value || "";
-    var deadline = (byId("deadline") || {}).value || "";
-
-    if (publicationDate && deadline && deadline < publicationDate) {
-      showNotification(
-        "La date limite de candidature ne peut pas précéder la date de publication.",
-        "error"
-      );
-
-      return false;
     }
 
     var checks = ["checkInformation", "checkContent", "checkSalary", "checkApplication"];
@@ -812,14 +724,15 @@ var RHDrafts = (function () {
 
     /* Évite une double initialisation sur la même page. */
     if (form.dataset.publicationOffreReady === "true") return;
+    var contextPath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
 
     if (form.dataset.departmentOptionsLoaded !== "true") {
       if (form.dataset.departmentOptionsLoading === "true") return;
       form.dataset.departmentOptionsLoading = "true";
-      var contextPath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
-      fetch(contextPath + "/Responsable-RH/api/offres/referentiels/departements")
+      var departmentsUrl = form.dataset.departmentsUrl || contextPath + "/Responsable-RH/api/offres/referentiels/departements";
+      fetch(departmentsUrl, { headers: { Accept: "application/json" } })
         .then(function (response) {
-          if (!response.ok) throw new Error("Impossible de charger les départements.");
+          if (!response.ok) throw new Error("Réponse HTTP " + response.status + " pour le chargement des départements.");
           return response.json();
         })
         .then(function (departements) {
@@ -839,9 +752,10 @@ var RHDrafts = (function () {
           });
           form.dataset.departmentOptionsLoaded = "true";
           form.dataset.departmentOptionsLoading = "false";
-          initPublicationOffre(event);
+          return true;
         })
-        .catch(function () {
+        .catch(function (error) {
+          console.error("Erreur pendant le chargement des départements de l'offre :", error);
           form.dataset.departmentOptionsLoading = "false";
           var select = byId("department");
           if (select) {
@@ -851,10 +765,101 @@ var RHDrafts = (function () {
             option.textContent = "Départements indisponibles";
             select.appendChild(option);
           }
-          showNotification("Les départements n'ont pas pu être chargés depuis les données.", "error");
+          showNotification("Les départements n'ont pas pu être chargés : " + error.message, "error");
           form.querySelectorAll("button[type='submit'], #saveDraftButton, #previewButton").forEach(function (button) {
             button.disabled = true;
           });
+          return false;
+        })
+        .then(function (departmentsLoaded) {
+          if (!departmentsLoaded) return;
+          try {
+            initPublicationOffre(event);
+          } catch (error) {
+            console.error("Erreur pendant l'initialisation du formulaire d'offre :", error);
+            form.dataset.publicationOffreReady = "false";
+            showNotification("Impossible de préparer le formulaire : " + error.message, "error");
+          }
+        });
+      return;
+    }
+
+    if (form.dataset.contractOptionsLoaded !== "true") {
+      if (form.dataset.contractOptionsLoading === "true") return;
+      form.dataset.contractOptionsLoading = "true";
+      var contractsUrl = form.dataset.contractsUrl || contextPath + "/Responsable-RH/api/offres/referentiels/contrats";
+      fetch(contractsUrl, { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("Réponse HTTP " + response.status + " pour le chargement des types de contrat.");
+          return response.json();
+        })
+        .then(function (contracts) {
+          var select = byId("contract");
+          if (!select || !Array.isArray(contracts)) throw new Error("La liste des types de contrat est invalide.");
+          select.innerHTML = "";
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = contracts.length ? "À choisir" : "Aucun type disponible";
+          select.appendChild(placeholder);
+          contracts.forEach(function (contract) {
+            if (typeof contract !== "string" || !contract.trim()) return;
+            var option = document.createElement("option");
+            option.value = contract;
+            option.textContent = contract;
+            select.appendChild(option);
+          });
+          form.dataset.contractOptionsLoaded = "true";
+        })
+        .catch(function (error) {
+          console.error("Erreur pendant le chargement des types de contrat :", error);
+          showNotification("Les types de contrat n'ont pas pu être chargés : " + error.message, "error");
+          form.querySelectorAll("button[type='submit'], #saveDraftButton, #previewButton").forEach(function (button) {
+            button.disabled = true;
+          });
+        })
+        .finally(function () {
+          form.dataset.contractOptionsLoading = "false";
+          if (form.dataset.contractOptionsLoaded === "true") initPublicationOffre(event);
+        });
+      return;
+    }
+
+    if (form.dataset.educationOptionsLoaded !== "true") {
+      if (form.dataset.educationOptionsLoading === "true") return;
+      form.dataset.educationOptionsLoading = "true";
+      var educationUrl = form.dataset.educationLevelsUrl || contextPath + "/Responsable-RH/api/offres/referentiels/niveaux-etude";
+      fetch(educationUrl, { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("Réponse HTTP " + response.status + " pour le chargement des niveaux d'étude.");
+          return response.json();
+        })
+        .then(function (levels) {
+          var select = byId("education");
+          if (!select || !Array.isArray(levels)) throw new Error("La liste des niveaux d'étude est invalide.");
+          select.innerHTML = "";
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = levels.length ? "À choisir" : "Aucun niveau disponible";
+          select.appendChild(placeholder);
+          levels.forEach(function (level) {
+            if (typeof level !== "string" || !level.trim()) return;
+            var option = document.createElement("option");
+            option.value = level;
+            option.textContent = level;
+            select.appendChild(option);
+          });
+          form.dataset.educationOptionsLoaded = "true";
+        })
+        .catch(function (error) {
+          console.error("Erreur pendant le chargement des niveaux d'étude :", error);
+          showNotification("Les niveaux d'étude n'ont pas pu être chargés : " + error.message, "error");
+          form.querySelectorAll("button[type='submit'], #saveDraftButton, #previewButton").forEach(function (button) {
+            button.disabled = true;
+          });
+        })
+        .finally(function () {
+          form.dataset.educationOptionsLoading = "false";
+          if (form.dataset.educationOptionsLoaded === "true") initPublicationOffre(event);
         });
       return;
     }
@@ -887,13 +892,14 @@ var RHDrafts = (function () {
             manager: row.manager,
             department: row.departement || '',
             positions: row.effectif,
+            salaryMonthlyEstimate: row.salaireMensuelEstime || null,
             needType: 'Type non renseigné dans la demande',
             contract: 'À préciser',
             startDate: row.dateSouhaitee || '',
-            experience: 'À préciser',
             education: 'À préciser',
             reason: row.motif || 'Aucun motif renseigné.',
-            jobTitle: row.poste
+            jobTitle: row.poste,
+            skills: row.competence || ''
           };
           form.dataset.publicationOffreReady = 'false';
           initPublicationOffre(event);
@@ -914,25 +920,10 @@ var RHDrafts = (function () {
     fillRequestInformation(request);
     loadDraft(form, request);
     updateSalaryFields();
-    updateDurationField();
     updateSummary();
 
-    /* Date de publication : aujourd'hui par défaut. */
-    var publicationDateInput = byId("publicationDate");
-
-    if (publicationDateInput && !publicationDateInput.value) {
-      var today = new Date();
-      var localToday = new Date(
-        today.getTime() - today.getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .split("T")[0];
-
-      publicationDateInput.value = localToday;
-    }
-
     /* Écouteurs d'événements. */
-    ["jobTitle", "department", "location", "contract", "positions"].forEach(
+    ["jobTitle", "department", "contract", "positions"].forEach(
       function (id) {
         var element = byId(id);
 
@@ -947,12 +938,6 @@ var RHDrafts = (function () {
 
     if (salaryDisplay) {
       salaryDisplay.addEventListener("change", updateSalaryFields);
-    }
-
-    var contractSelect = byId("contract");
-
-    if (contractSelect) {
-      contractSelect.addEventListener("change", updateDurationField);
     }
 
     var previewButton = byId("previewButton");
@@ -1241,7 +1226,7 @@ var RHDrafts = (function () {
           if (draft.requestId) references[draft.requestId] = true;
         });
 
-        linked.textContent = Object.keys(references).length;
+        linked.textContent = Object.keys(references || {}).length;
       }
 
       var count = filteredDrafts.length;
@@ -1871,7 +1856,7 @@ var RHDrafts = (function () {
     }
 
     function updateCounts() {
-      setText("totalCandidates", Object.keys(candidates).length);
+      setText("totalCandidates", Object.keys(candidates || {}).length);
       setText("selectedCandidates", selectedCandidates.size);
     }
 
@@ -2256,7 +2241,7 @@ var RHDrafts = (function () {
   }
 
   function updateInterviewStatistics() {
-    var values = Object.values(interviewCandidates);
+    var values = Object.values(interviewCandidates || {});
 
     var pending = values.filter(function(candidate) {
       return !candidate.resultat || candidate.resultat === "A_REVOIR";
@@ -2573,7 +2558,7 @@ var RHDrafts = (function () {
       ctWorkHours: "hours",
       ctBenefits: "benefits",
     };
-    for (const [el, key] of Object.entries(map)) {
+    for (const [el, key] of Object.entries(map || {})) {
       const node = document.getElementById(el);
       if (!node) continue;
       node.value = c.contract ? c.contract[key] : (key === "candidateName" ? c.name : key === "job" ? c.job : key === "type" ? c.type : key === "companyName" ? "Entreprise Exemple" : key === "companyAddress" ? "Antananarivo, Madagascar" : key === "duration" ? (c.type === "CDI" ? "Indéterminée" : "12 mois") : key === "location" ? "Antananarivo" : key === "hours" ? "40 heures par semaine" : "");
@@ -2748,7 +2733,7 @@ var RHDrafts = (function () {
         c.negotiation.history.push({ by: "Candidat", decision: r.choice === "refused" ? "A refusé la proposition de la RH" : "A proposé une nouvelle modification", comment: r.comment, date: new Date().toLocaleString("fr-FR") });
       }
     } else {
-      const values = Object.values(responses);
+      const values = Object.values(responses || {});
       const hasRefusal = values.some((r) => r.choice === "refused" || r.choice === "modify");
       c.responses = {
         articles: responses,
@@ -2769,7 +2754,7 @@ var RHDrafts = (function () {
     const articles = c.responses.articles || {};
     const content = document.getElementById("ctReviewContent");
     let html = `<div class="ct-response-summary"><h4>${ctEsc(c.name)} — ${ctEsc(c.job)}</h4><p class="ct-small-muted">Envoyé le : ${ctEsc(c.responses.submittedAt || "-")}</p>${c.responses.generalComment ? `<p style="margin-top:10px;font-size:13px"><strong>Commentaire général :</strong><br>${ctEsc(c.responses.generalComment)}</p>` : ""}</div>`;
-    Object.entries(articles).forEach(([articleId, r]) => {
+    Object.entries(articles || {}).forEach(([articleId, r]) => {
       const label = ctArticleFields.find((a) => a.id === articleId)?.title || articleId;
       const choiceMap = { accepted: "Accepté", refused: "Refusé", modify: "À modifier / proposition" };
       html += `<div style="margin-bottom:18px"><strong style="color:#14213d">${ctEsc(label)}</strong><p style="margin:8px 0;font-size:13px"><span class="ct-badge ${r.choice === "accepted" ? "ct-status-accepted" : r.choice === "refused" ? "ct-status-refused" : "ct-status-response"}">${choiceMap[r.choice]}</span></p>${r.comment ? `<div class="ct-proposal-box">${ctEsc(r.comment)}</div>` : ""}<button class="ct-btn ct-btn-orange" onclick="ctOpenDecisionModal(${c.id}, '${articleId}')">Répondre à ce point</button></div>`;
@@ -3054,9 +3039,10 @@ var RHDrafts = (function () {
     localStorage.setItem(ctCandResponseKey(), JSON.stringify(payload));
     localStorage.removeItem(ctCandStorageKey());
 
-    const accepted = Object.values(payload.articles).filter(r => r.choice === "accept").length;
-    const refused = Object.values(payload.articles).filter(r => r.choice === "refuse").length;
-    const modified = Object.values(payload.articles).filter(r => r.choice === "modify").length;
+    const articles = payload.articles || {};
+    const accepted = Object.values(articles).filter(r => r.choice === "accept").length;
+    const refused = Object.values(articles).filter(r => r.choice === "refuse").length;
+    const modified = Object.values(articles).filter(r => r.choice === "modify").length;
 
     const submittedText = document.getElementById("ctCandSubmittedText");
     if (submittedText) submittedText.textContent = `Votre réponse a été préparée le ${payload.submittedAtDisplay}. Voici le récapitulatif de vos choix.`;
@@ -3248,7 +3234,7 @@ function previewResponses(){const payload=collectResponses(true);if(!payload)ret
 function closePreview(){const pm=document.getElementById('previewModal');if(pm)pm.classList.remove('show');}
 function submitResponses(){const cr=document.getElementById('confirmRead');if(cr && !cr.checked){showToast('Veuillez confirmer que vous avez lu les articles.');return;}const payload=collectResponses(true);if(!payload)return;payload.generalComment=(document.getElementById('generalComment')?.value||'').trim();payload.submittedAt=new Date().toISOString();payload.submittedAtDisplay=new Date().toLocaleString('fr-FR');payload.status='Réponses envoyées';payload.source='espace-candidat-contrat.html';submittedPayload=payload;
  localStorage.setItem('candidate_contract_response_'+candidate.id,JSON.stringify(payload));localStorage.removeItem(storageDraftKey());
- const accepted=Object.values(payload.articles).filter(r=>r.choice==='accept').length;const refused=Object.values(payload.articles).filter(r=>r.choice==='refuse').length;const modified=Object.values(payload.articles).filter(r=>r.choice==='modify').length;
+ const articles=payload.articles||{};const accepted=Object.values(articles).filter(r=>r.choice==='accept').length;const refused=Object.values(articles).filter(r=>r.choice==='refuse').length;const modified=Object.values(articles).filter(r=>r.choice==='modify').length;
  const st=document.getElementById('submittedText');if(st)st.textContent=`Votre réponse a été préparée le ${payload.submittedAtDisplay}. Voici le récapitulatif de vos choix.`;
  const ss=document.getElementById('submittedSummary');if(ss)ss.innerHTML=`<div class="candidate-meta"><div class="meta"><span>Articles acceptés</span><strong>${accepted}</strong></div><div class="meta"><span>Articles refusés</span><strong>${refused}</strong></div><div class="meta"><span>Modifications demandées</span><strong>${modified}</strong></div></div>`+candidate.articles.map(a=>{const r=payload.articles[a.id];return `<div style="padding:12px 0;border-bottom:1px solid #eee;font-size:13px"><strong>${esc(a.title)}</strong><br>${esc(r.label)}${r.comment?`<p style="margin-top:5px;color:#626875">${esc(r.comment)}</p>`:''}</div>`}).join('')+(payload.generalComment?`<p style="margin-top:15px"><strong>Commentaire général :</strong><br>${esc(payload.generalComment)}</p>`:'');
  const fv=document.getElementById('formView');if(fv)fv.style.display='none';
