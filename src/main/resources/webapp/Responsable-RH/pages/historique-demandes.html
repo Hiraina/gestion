@@ -26,8 +26,8 @@
                 <div class="stat-icon icon-total">📋</div>
 
                 <div>
-                    <div class="stat-label">Total des demandes</div>
-                    <div class="stat-value">24</div>
+                    <div class="stat-label">Demandes avec décision</div>
+                    <div class="stat-value" id="historique-total">—</div>
                 </div>
             </article>
 
@@ -36,7 +36,7 @@
 
                 <div>
                     <div class="stat-label">Approuvées par la Direction</div>
-                    <div class="stat-value">15</div>
+                    <div class="stat-value" id="historique-direction">—</div>
                 </div>
             </article>
 
@@ -45,7 +45,7 @@
 
                 <div>
                     <div class="stat-label">Approuvées par la Finance</div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-value" id="historique-finance">—</div>
                 </div>
             </article>
 
@@ -54,7 +54,7 @@
 
                 <div>
                     <div class="stat-label">Demandes refusées</div>
-                    <div class="stat-value">6</div>
+                    <div class="stat-value" id="historique-refusees">—</div>
                 </div>
             </article>
 
@@ -75,7 +75,7 @@
 
             <div class="card-body">
 
-                <form action="#" method="get">
+                <form id="historique-filtres">
 
                     <div class="filter-grid">
 
@@ -91,111 +91,6 @@
                             >
                         </div>
 
-                        <div class="form-group">
-                            <label for="date-debut">Date de début</label>
-
-                            <input
-                                type="date"
-                                id="date-debut"
-                                name="date_debut"
-                                class="form-control"
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="date-fin">Date de fin</label>
-
-                            <input
-                                type="date"
-                                id="date-fin"
-                                name="date_fin"
-                                class="form-control"
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="decision">Décision</label>
-
-                            <select
-                                id="decision"
-                                name="decision"
-                                class="form-control"
-                            >
-                                <option value="">Toutes les décisions</option>
-                                <option value="approuvee_direction">
-                                    Approuvée par la Direction
-                                </option>
-                                <option value="approuvee_finance">
-                                    Approuvée par la Finance
-                                </option>
-                                <option value="refusee_finance">
-                                    Refusée par la Finance
-                                </option>
-                                <option value="refusee_direction">
-                                    Refusée par la Direction
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="departement">Département</label>
-
-                            <select
-                                id="departement"
-                                name="departement"
-                                class="form-control"
-                            >
-                                <option value="">Tous les départements</option>
-                                <option value="informatique">Informatique</option>
-                                <option value="comptabilite">Comptabilité</option>
-                                <option value="rh">Ressources Humaines</option>
-                                <option value="commercial">Commercial</option>
-                                <option value="production">Production</option>
-                                <option value="administration">Administration</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type-besoin">Type de besoin</label>
-
-                            <select
-                                id="type-besoin"
-                                name="type_besoin"
-                                class="form-control"
-                            >
-                                <option value="">Tous les types</option>
-                                <option value="creation">Création de poste</option>
-                                <option value="remplacement_permanent">
-                                    Remplacement permanent
-                                </option>
-                                <option value="remplacement_temporaire">
-                                    Remplacement temporaire
-                                </option>
-                                <option value="renforcement">
-                                    Renfort temporaire
-                                </option>
-                                <option value="promotion">Promotion</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div class="filter-actions">
-
-                        <button
-                            type="reset"
-                            class="button button-secondary"
-                        >
-                            ↺ Réinitialiser
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="button button-primary"
-                        >
-                            🔍 Rechercher
-                        </button>
-
                     </div>
 
                 </form>
@@ -208,10 +103,10 @@
 
             <div class="card-header">
                 <div>
-                    <h2 class="card-title">Toutes les demandes</h2>
+                    <h2 class="card-title">Historique des décisions</h2>
 
                     <p class="card-subtitle">
-                        Retrouvez les demandes et leurs décisions enregistrées.
+                        Chaque ligne correspond à une décision réellement enregistrée.
                     </p>
                 </div>
             </div>
@@ -233,160 +128,8 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-
-                        <tr>
-                            <td><span class="request-id">DEM-001</span></td>
-                            <td>
-                                <div class="job-title">Développeur web</div>
-                                <div class="cell-secondary">2 personnes</div>
-                            </td>
-                            <td>Rakoto Jean</td>
-                            <td>Informatique</td>
-                            <td>02/09/2026</td>
-                            <td>
-                                <span class="status status-approved-direction">
-                                    <span class="status-dot"></span>
-                                    Approuvée par la Direction
-                                </span>
-                            </td>
-                            <td>08/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-002</span></td>
-                            <td>
-                                <div class="job-title">Comptable</div>
-                                <div class="cell-secondary">1 personne</div>
-                            </td>
-                            <td>Rasoa Marie</td>
-                            <td>Comptabilité</td>
-                            <td>05/09/2026</td>
-                            <td>
-                                <span class="status status-refused-finance">
-                                    <span class="status-dot"></span>
-                                    Refusée par la Finance
-                                </span>
-                            </td>
-                            <td>09/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-003</span></td>
-                            <td>
-                                <div class="job-title">Assistant RH</div>
-                                <div class="cell-secondary">1 personne</div>
-                            </td>
-                            <td>Rabe Paul</td>
-                            <td>Ressources Humaines</td>
-                            <td>08/09/2026</td>
-                            <td>
-                                <span class="status status-refused-direction">
-                                    <span class="status-dot"></span>
-                                    Refusée par la Direction
-                                </span>
-                            </td>
-                            <td>14/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-004</span></td>
-                            <td>
-                                <div class="job-title">Technicien informatique</div>
-                                <div class="cell-secondary">2 personnes</div>
-                            </td>
-                            <td>Andry Hery</td>
-                            <td>Informatique</td>
-                            <td>12/09/2026</td>
-                            <td>
-                                <span class="status status-approved-direction">
-                                    <span class="status-dot"></span>
-                                    Approuvée par la Direction
-                                </span>
-                            </td>
-                            <td>18/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-005</span></td>
-                            <td>
-                                <div class="job-title">Commercial</div>
-                                <div class="cell-secondary">3 personnes</div>
-                            </td>
-                            <td>Rasolo Marc</td>
-                            <td>Commercial</td>
-                            <td>15/09/2026</td>
-                            <td>
-                                <span class="status status-refused-finance">
-                                    <span class="status-dot"></span>
-                                    Refusée par la Finance
-                                </span>
-                            </td>
-                            <td>19/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-006</span></td>
-                            <td>
-                                <div class="job-title">Agent administratif</div>
-                                <div class="cell-secondary">1 personne</div>
-                            </td>
-                            <td>Razanakoto Lala</td>
-                            <td>Administration</td>
-                            <td>17/09/2026</td>
-                            <td>
-                                <span class="status status-approved-direction">
-                                    <span class="status-dot"></span>
-                                    Approuvée par la Direction
-                                </span>
-                            </td>
-                            <td>22/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-007</span></td>
-                            <td>
-                                <div class="job-title">Analyste informatique</div>
-                                <div class="cell-secondary">1 personne</div>
-                            </td>
-                            <td>Rakoto Jean</td>
-                            <td>Informatique</td>
-                            <td>20/09/2026</td>
-                            <td>
-                                <span class="status status-approved-finance">
-                                    <span class="status-dot"></span>
-                                    Approuvée par la Finance
-                                </span>
-                            </td>
-                            <td>23/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
-                        <tr>
-                            <td><span class="request-id">DEM-008</span></td>
-                            <td>
-                                <div class="job-title">Agent de production</div>
-                                <div class="cell-secondary">2 personnes</div>
-                            </td>
-                            <td>Rabe Solo</td>
-                            <td>Production</td>
-                            <td>22/09/2026</td>
-                            <td>
-                                <span class="status status-refused-direction">
-                                    <span class="status-dot"></span>
-                                    Refusée par la Direction
-                                </span>
-                            </td>
-                            <td>27/09/2026</td>
-                            <td><a href="#" class="view-link">Voir →</a></td>
-                        </tr>
-
+                    <tbody id="historique-demandes-body">
+                        <tr><td colspan="8">Chargement des demandes…</td></tr>
                     </tbody>
 
                 </table>
@@ -396,23 +139,7 @@
             <!-- PAGINATION -->
             <div class="table-footer">
 
-                <p class="results-info">
-                    Affichage de 1 à 8 demandes sur 24 résultats
-                </p>
-
-                <div class="pagination">
-
-                    <a href="#" class="page-number disabled">‹</a>
-
-                    <a href="#" class="page-number active">1</a>
-
-                    <a href="#" class="page-number">2</a>
-
-                    <a href="#" class="page-number">3</a>
-
-                    <a href="#" class="page-number">›</a>
-
-                </div>
+                <p class="results-info" id="historique-resultats">Chargement…</p>
 
             </div>
 

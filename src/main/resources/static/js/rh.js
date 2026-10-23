@@ -3315,6 +3315,74 @@ function initRhSuiviValidations() {
 }
 document.addEventListener("pageLoaded", function (event) { if (event.detail && event.detail.page === "suivi-validations") initRhSuiviValidations(); });
 
+function initRhHistoriqueDemandes() {
+  var body = document.getElementById('historique-demandes-body');
+  var form = document.getElementById('historique-filtres');
+  var search = document.getElementById('recherche');
+  var all = [];
+  if (!body || !form || !search) return;
+
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function dateValue(value) {
+    return value ? String(value).slice(0, 10) : '';
+  }
+  function dateLabel(value) {
+    var raw = dateValue(value);
+    if (!raw) return '—';
+    var parts = raw.split('-');
+    return parts.length === 3 ? parts[2] + '/' + parts[1] + '/' + parts[0] : raw;
+  }
+  function statusClass(key) {
+    return key === 'approuvee_direction' ? 'status-approved-direction' :
+      key === 'approuvee_finance' ? 'status-approved-finance' :
+      key === 'refusee_finance' ? 'status-refused-finance' : 'status-refused-direction';
+  }
+  function render() {
+    var q = search.value.trim().toLocaleLowerCase();
+    var rows = all.filter(function (r) {
+      var searchable = [r.reference, r.poste, r.manager, r.departement].join(' ').toLocaleLowerCase();
+      return !q || searchable.includes(q);
+    });
+    body.innerHTML = rows.length ? rows.map(function (r) {
+      var id = encodeURIComponent(r.id);
+      return '<tr><td><span class="request-id">'+esc(r.reference)+'</span></td>' +
+        '<td><div class="job-title">'+esc(r.poste)+'</div><div class="cell-secondary">'+esc(r.effectif)+' personne(s)</div></td>' +
+        '<td>'+esc(r.manager || '—')+'</td><td>'+esc(r.departement || '—')+'</td>' +
+        '<td>'+esc(dateLabel(r.dateDemande))+'</td>' +
+        '<td><span class="status '+statusClass(r.decisionKey)+'"><span class="status-dot"></span>'+esc(r.decision)+'</span></td>' +
+        '<td>'+esc(dateLabel(r.dateDecision))+'</td>' +
+        '<td><a href="#page=detail-demande-historique&id='+id+'" data-page="detail-demande-historique" data-id="'+esc(r.id)+'" class="view-link">Voir →</a></td></tr>';
+    }).join('') : '<tr><td colspan="8">Aucune demande ne correspond aux filtres.</td></tr>';
+      document.getElementById('historique-resultats').textContent = rows.length + ' décision(s) affichée(s) sur ' + all.length;
+  }
+  form.addEventListener('submit', function (event) { event.preventDefault(); render(); });
+  search.addEventListener('input', render);
+
+  fetch((document.querySelector('meta[name="context-path"]')?.content || '').replace(/\/$/, '') + '/api/rh/historique-demandes', {headers:{Accept:'application/json'}})
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+    .then(function (data) {
+      if (!Array.isArray(data)) throw new Error('Réponse API invalide');
+      all = data;
+      document.getElementById('historique-total').textContent = new Set(all.map(function (r) { return r.id; })).size;
+      document.getElementById('historique-direction').textContent = all.filter(function (r) { return r.decisionKey === 'approuvee_direction'; }).length;
+      document.getElementById('historique-finance').textContent = all.filter(function (r) { return r.decisionKey === 'approuvee_finance'; }).length;
+      document.getElementById('historique-refusees').textContent = all.filter(function (r) { return r.decisionKey.indexOf('refusee_') === 0; }).length;
+      render();
+    })
+    .catch(function (error) {
+      console.error('Erreur de chargement de l’historique des demandes RH :', error);
+      body.innerHTML = '<tr><td colspan="8">Impossible de charger l’historique des demandes.</td></tr>';
+      document.getElementById('historique-resultats').textContent = 'Erreur de chargement';
+    });
+}
+document.addEventListener('pageLoaded', function (event) {
+  if (event.detail && event.detail.page === 'historique-demandes') initRhHistoriqueDemandes();
+});
+
 // HTML pages expose declarative actions; keep behavior in this role bundle.
 function dispatchRoleAction(event) {
   const target = event.target.closest("[data-js-action]");
