@@ -26,8 +26,8 @@ public class EntretienService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<Map<String, Object>> listerCandidatures() {
-		return repository.listerCandidatures().stream().map(row -> {
+	public List<Map<String, Object>> listerCandidatures(int offreId) {
+		return repository.listerCandidatures(offreId).stream().map(row -> {
 			Map<String, Object> result = new LinkedHashMap<>(row);
 			Object rawData = result.remove("donneesCandidatureJson");
 			try {

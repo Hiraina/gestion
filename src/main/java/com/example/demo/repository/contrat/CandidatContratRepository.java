@@ -53,9 +53,16 @@ public class CandidatContratRepository {
 				  LIMIT 1
 				) fin ON TRUE
 				LEFT JOIN LATERAL (
-				  SELECT substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}' AS contract_type,
-				         substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,company}' AS company_name
-				  WHERE o.description LIKE 'RH-OFFRE-JSON-V1:%'
+				  SELECT CASE
+				           WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
+				            AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb')
+				           THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}'
+				         END AS contract_type,
+				         CASE
+				           WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
+				            AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb')
+				           THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,company}'
+				         END AS company_name
 				) details ON TRUE
 				WHERE s.nom = 'proposition'
 				  AND EXISTS (

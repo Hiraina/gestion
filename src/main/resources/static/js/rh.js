@@ -1687,7 +1687,11 @@ var RHDrafts = (function () {
         viewCandidatesButton.className = "action-button";
         viewCandidatesButton.textContent = "Voir les candidats";
         viewCandidatesButton.addEventListener("click", function () {
-          window.location.hash = "page=candidatures-recues";
+          try {
+            sessionStorage.setItem("candidatures-offre-id", String(offer.id));
+            sessionStorage.setItem("candidatures-offre-titre", offer.titre || "Offre sans titre");
+          } catch (error) {}
+          window.location.hash = "page=candidatures-recues&id=" + encodeURIComponent(offer.id);
         });
         actionsWrapper.appendChild(viewCandidatesButton);
         actionCell.appendChild(actionsWrapper);
@@ -1841,6 +1845,22 @@ var RHDrafts = (function () {
     var modal = page.querySelector("#candidateModal");
     var search = page.querySelector("#searchInput");
     var modalSelect = page.querySelector("#modalSelectButton");
+    var offerId = String(window.currentPageId || "").trim();
+    if (page.dataset.candidatureOfferId !== offerId) {
+      candidates = {};
+      selectedCandidates = new Set();
+      page.dataset.candidatureOfferId = offerId;
+    }
+    var offerLabel = page.querySelector("#applicationsOfferFilter");
+    if (offerLabel) {
+      var storedOfferId = "";
+      var storedOfferTitle = "";
+      try {
+        storedOfferId = sessionStorage.getItem("candidatures-offre-id") || "";
+        storedOfferTitle = sessionStorage.getItem("candidatures-offre-titre") || "";
+      } catch (error) {}
+      offerLabel.textContent = storedOfferId === offerId && storedOfferTitle ? storedOfferTitle : (offerId ? "Offre #" + offerId : "Aucune offre sélectionnée");
+    }
 
     function setText(id, value) {
       var element = page.querySelector("#" + id);
@@ -2017,11 +2037,19 @@ var RHDrafts = (function () {
       if (emptyState) emptyState.style.display = visible ? "none" : "block";
     }
 
+    if (!offerId) {
+      page.dataset.candidaturesLoading = "false";
+      var noOfferBody = page.querySelector("#candidatesTable");
+      if (noOfferBody) noOfferBody.innerHTML = '<tr><td colspan="3">Sélectionnez une offre pour consulter ses candidatures.</td></tr>';
+      setText("resultsCount", "Aucune offre sélectionnée");
+      return;
+    }
+
     if (page.dataset.candidaturesLoaded !== "true") {
       if (page.dataset.candidaturesLoading === "true") return;
       page.dataset.candidaturesLoading = "true";
       var basePath = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
-      fetch(basePath + "/Responsable-RH/api/candidatures", { headers: { Accept: "application/json" } })
+      fetch(basePath + "/Responsable-RH/api/candidatures?offreId=" + encodeURIComponent(offerId), { headers: { Accept: "application/json" } })
         .then(function (response) {
           if (!response.ok) throw new Error("Impossible de charger les candidatures.");
           return response.json();
