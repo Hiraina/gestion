@@ -2547,7 +2547,7 @@ var RHDrafts = (function () {
         const sentDate = c.sentAt ? new Date(c.sentAt).toLocaleDateString("fr-FR") : "";
         buttons = '<span class="ct-sent-note">Transmis' + (sentDate ? ' le ' + ctEsc(sentDate) : '') + '</span><button class="ct-btn ct-btn-outline" onclick="ctViewContract(' + c.id + ')">👁 Voir le contrat</button>';
       } else if (c.status === "review") {
-        buttons = '<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(' + c.id + ')">📋 Réponse du candidat</button><button class="ct-btn ct-btn-outline" onclick="ctViewContract(' + c.id + ')">👁 Voir le contrat</button>';
+        buttons = '<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(' + c.id + ')">📋 Réponse du candidat</button><button class="ct-btn ct-btn-primary" onclick="ctAcceptContractAsRh(' + c.id + ')">✓ Accepter le contrat</button><button class="ct-btn ct-btn-outline" onclick="ctViewContract(' + c.id + ')">👁 Voir le contrat</button>';
       } else if (c.status === "accepted") {
         buttons = "";
       } else if (c.status === "negotiation") {
@@ -2864,6 +2864,30 @@ var RHDrafts = (function () {
       ctCandidates = ctCandidates.filter((candidate) => candidate.id !== Number(id));
       ctRenderTable();
       alert(body.message || "Le candidat a été embauché.");
+    }).catch((error) => alert(error.message));
+  };
+
+  window.ctAcceptContractAsRh = function(id) {
+    const c = ctGetCandidate(id);
+    if (!c || c.status !== "review") return;
+    if (!confirm("Confirmer l’acceptation du contrat par la RH malgré le refus ou la demande de modification du candidat ?")) return;
+    const context = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    fetch(context + "/Responsable-RH/api/contrats/candidatures/" + encodeURIComponent(id) + "/accepter-par-rh", {
+      method: "POST",
+      headers: { Accept: "application/json" },
+    }).then(async (response) => {
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.message || "L’acceptation du contrat a échoué.");
+      return body;
+    }).then((body) => {
+      const articles = {};
+      ctArticleFields.forEach((article) => {
+        articles[article.id] = { title: article.title, choice: "accepted", comment: "" };
+      });
+      c.responses = { ...(c.responses || {}), articles, status: "accepted", acceptedByRh: true };
+      c.status = "accepted";
+      ctRenderTable();
+      alert(body.message || "Le contrat a été accepté par la RH.");
     }).catch((error) => alert(error.message));
   };
 
