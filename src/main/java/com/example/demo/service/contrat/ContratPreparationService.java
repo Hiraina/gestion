@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,52 @@ public class ContratPreparationService {
 			throw exception;
 		} catch (Exception exception) {
 			throw new IllegalStateException("La réponse n'a pas pu être enregistrée.", exception);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void accepterReponseParRh(int candidatureId) {
+		if (candidatureId <= 0) throw new IllegalArgumentException("Identifiant de candidature invalide.");
+		String rawResponse = repository.trouverReponseRecue(candidatureId)
+				.orElseThrow(() -> new IllegalArgumentException("Aucune réponse reçue n'est disponible pour ce contrat."));
+		final Map<String, Object> response;
+		try {
+			response = objectMapper.readValue(rawResponse, new TypeReference<>() {});
+		} catch (Exception exception) {
+			throw new IllegalArgumentException("La réponse du candidat est illisible.");
+		}
+		Object rawArticles = response.get("articles");
+		if (!(rawArticles instanceof Map<?, ?> answers)) {
+			throw new IllegalArgumentException("Les réponses aux articles sont introuvables.");
+		}
+		Map<String, Object> initialAnswers = new LinkedHashMap<>();
+		Map<String, Object> acceptedAnswers = new LinkedHashMap<>();
+		boolean allAlreadyAccepted = true;
+		for (String article : REQUIRED_ARTICLES) {
+			Object rawAnswer = answers.get(article);
+			if (!(rawAnswer instanceof Map<?, ?> answer)) {
+				throw new IllegalArgumentException("La réponse d'un article est manquante.");
+			}
+			initialAnswers.put(article, rawAnswer);
+			String title = texte(answer.get("title"));
+			if (title.isBlank()) title = article;
+			acceptedAnswers.put(article, Map.of("title", title, "choice", "accepted", "comment", ""));
+			allAlreadyAccepted &= "accepted".equals(texte(answer.get("choice")));
+		}
+		if (allAlreadyAccepted) throw new IllegalArgumentException("Tous les articles sont déjà acceptés.");
+
+		response.put("reponsesAvantDecisionRH", initialAnswers);
+		response.put("articles", acceptedAnswers);
+		response.put("status", "accepted");
+		response.put("decisionRH", Map.of("decision", "ACCEPTEE", "date", OffsetDateTime.now().toString()));
+		try {
+			if (!repository.enregistrerAcceptationRh(candidatureId, objectMapper.writeValueAsString(response))) {
+				throw new IllegalArgumentException("La réponse du candidat a déjà été modifiée.");
+			}
+		} catch (IllegalArgumentException exception) {
+			throw exception;
+		} catch (Exception exception) {
+			throw new IllegalStateException("L'acceptation RH n'a pas pu être enregistrée.", exception);
 		}
 	}
 

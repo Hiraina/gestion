@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class CandidatContratRepository {
@@ -87,6 +88,23 @@ public class CandidatContratRepository {
 				WHERE token_acces = CAST(? AS UUID)
 				  AND statut = 'ENVOYE_CANDIDAT'
 				""", reponseJson, token) == 1;
+	}
+
+	public Optional<String> trouverReponseRecue(int candidatureId) {
+		List<String> responses = jdbc.query("""
+				SELECT reponse_candidat::text
+				FROM preparations_contrat
+				WHERE id_candidature = ? AND statut = 'REPONSE_RECUE'
+				""", (rs, rowNum) -> rs.getString(1), candidatureId);
+		return responses.stream().findFirst();
+	}
+
+	public boolean enregistrerAcceptationRh(int candidatureId, String reponseJson) {
+		return jdbc.update("""
+				UPDATE preparations_contrat
+				SET reponse_candidat = CAST(? AS JSONB)
+				WHERE id_candidature = ? AND statut = 'REPONSE_RECUE'
+				""", reponseJson, candidatureId) == 1;
 	}
 
 	public String trouverTokenAcces(int candidatureId) {

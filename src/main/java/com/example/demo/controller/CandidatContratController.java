@@ -30,6 +30,16 @@ public class CandidatContratController {
 		return service.listerCandidatsAcceptes();
 	}
 
+	@PostMapping("/candidatures/{id}/accepter-par-rh")
+	public ResponseEntity<Map<String, Object>> accepterParRh(@PathVariable int id) {
+		try {
+			preparationService.accepterReponseParRh(id);
+			return ResponseEntity.ok(Map.of("success", true, "message", "Le contrat a été accepté par la RH."));
+		} catch (IllegalArgumentException exception) {
+			return ResponseEntity.badRequest().body(Map.of("success", false, "message", exception.getMessage()));
+		}
+	}
+
 	@PostMapping("/candidatures/{id}/envoyer")
 	public ResponseEntity<Map<String, Object>> envoyerAuCandidat(@PathVariable int id,
 			@RequestBody(required = false) Map<String, Object> contrat) {
