@@ -106,11 +106,8 @@
             if (!response.ok) throw new Error(data.message || 'Impossible d’enregistrer la décision.');
             say(decision.value === 'valider' ? 'Demande validée par la Finance.' : 'Demande refusée.', true);
             window.setTimeout(function () {
-              if (decision.value === 'valider') {
-                window.location.href = appBaseUrl() + 'Responsable-RH/template.html#page=liste-demandes';
-              } else {
-                window.location.hash = '#page=demandes-a-examiner';
-              }
+              // La décision reste dans l'espace Finance : ne pas ouvrir la session RH.
+              window.location.hash = '#page=demandes-a-examiner';
             }, 700);
           });
         }).catch(function (err) { say('Erreur : ' + err.message, false); submitButton.disabled = false; });
