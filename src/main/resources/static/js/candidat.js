@@ -522,8 +522,9 @@
         return;
       }
 
-      if (field.type === "email" && field.value && !field.validity.valid) {
-        showFieldError(field, "Veuillez saisir une adresse e-mail valide.");
+      if (field.id === "email" && field.value &&
+          (!field.validity.valid || !field.value.trim().toLowerCase().endsWith("@gmail.com"))) {
+        showFieldError(field, "Veuillez saisir une adresse e-mail Gmail valide (exemple@gmail.com).");
 
         valid = false;
 
@@ -532,6 +533,20 @@
         }
 
         return;
+      }
+
+      if (field.id === "phone" && field.value) {
+        var phoneDigits = field.value.replace(/\s/g, "");
+        if (!/^\d{10}$/.test(phoneDigits)) {
+          showFieldError(field, "Veuillez saisir un numéro composé de 10 chiffres (les espaces sont autorisés).");
+          valid = false;
+
+          if (!firstInvalidField) {
+            firstInvalidField = field;
+          }
+
+          return;
+        }
       }
 
       if (field.id === "motivation" && field.value.trim().length < 20) {

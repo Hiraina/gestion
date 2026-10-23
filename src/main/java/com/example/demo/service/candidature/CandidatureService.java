@@ -37,7 +37,11 @@ public class CandidatureService {
 		String prenom = required(fields, "firstName");
 		String nom = required(fields, "lastName");
 		String email = required(fields, "email");
-		if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) throw new IllegalArgumentException("L’adresse e-mail est invalide.");
+		if (!email.matches("(?i)^[^\\s@]+@gmail\\.com$")) throw new IllegalArgumentException("Veuillez saisir une adresse e-mail Gmail valide (exemple@gmail.com).");
+		String phone = required(fields, "phone");
+		if (!phone.replaceAll("\\s", "").matches("[0-9]{10}")) {
+			throw new IllegalArgumentException("Veuillez saisir un numéro composé de 10 chiffres (les espaces sont autorisés).");
+		}
 		for (String key : new String[] { "phone", "birthDate", "city", "education", "fieldOfStudy", "hasExperience",
 				"skills" }) required(fields, key);
 		required(fields, "position");
@@ -51,7 +55,7 @@ public class CandidatureService {
 		if (!repository.offreOuverte(offreId)) throw new IllegalArgumentException("Cette offre n’est plus ouverte aux candidatures.");
 
 		Integer existingId = repository.trouverCandidat(email);
-		int candidatId = repository.enregistrerCandidat(existingId, nom, prenom, email, fields.get("phone"));
+		int candidatId = repository.enregistrerCandidat(existingId, nom, prenom, email, phone);
 		if (repository.dejaPostule(candidatId, offreId)) {
 			throw new IllegalArgumentException("Une candidature existe déjà pour cette offre avec cette adresse e-mail.");
 		}

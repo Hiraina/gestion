@@ -147,11 +147,11 @@
                   Adresse e-mail <span class="required">*</span>
                 </label>
 
-                <input class="form-control" type="email" id="email" name="email" placeholder="exemple@email.com"
-                  autocomplete="email" required>
+                <input class="form-control" type="email" id="email" name="email" placeholder="exemple@gmail.com"
+                  autocomplete="email" pattern=".+@gmail\.com" required>
 
                 <span class="field-error">
-                  Veuillez saisir une adresse e-mail valide.
+                  Veuillez saisir une adresse e-mail Gmail valide (exemple@gmail.com).
                 </span>
               </div>
 
@@ -161,10 +161,10 @@
                 </label>
 
                 <input class="form-control" type="tel" id="phone" name="phone" placeholder="Ex. : 034 00 000 00"
-                  autocomplete="tel" required>
+                  autocomplete="tel" inputmode="numeric" maxlength="12" required>
 
                 <span class="field-error">
-                  Veuillez renseigner votre numéro de téléphone.
+                  Veuillez saisir un numéro composé de 10 chiffres (les espaces sont autorisés).
                 </span>
               </div>
 
