@@ -1696,7 +1696,16 @@ var RHDrafts = (function () {
         row.appendChild(cell(offer.nombreCandidatures || 0));
         row.appendChild(cell(formatDate(offer.datePublication), "date-cell"));
         var actionCell = document.createElement("td");
-        actionCell.appendChild(actionButtons(offer, key));
+        var actionsWrapper = actionButtons(offer, key);
+        var viewCandidatesButton = document.createElement("button");
+        viewCandidatesButton.type = "button";
+        viewCandidatesButton.className = "action-button";
+        viewCandidatesButton.textContent = "Voir les candidats";
+        viewCandidatesButton.addEventListener("click", function () {
+          window.location.hash = "page=candidatures-recues";
+        });
+        actionsWrapper.appendChild(viewCandidatesButton);
+        actionCell.appendChild(actionsWrapper);
         row.appendChild(actionCell);
         tableBody.appendChild(row);
       });
