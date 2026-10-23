@@ -30,6 +30,8 @@ public class EntretienService {
 		return repository.listerCandidatures(offreId).stream().map(row -> {
 			Map<String, Object> result = new LinkedHashMap<>(row);
 			Object rawData = result.remove("donneesCandidatureJson");
+			Object rawOffer = result.remove("offerDescription");
+			result.put("contract", extraireChampOffre(rawOffer, "contract"));
 			try {
 				Map<String, Object> data = rawData instanceof String json
 						? objectMapper.readValue(json, new TypeReference<>() {})
@@ -40,6 +42,18 @@ public class EntretienService {
 			}
 			return result;
 		}).toList();
+	}
+
+	private Object extraireChampOffre(Object rawOffer, String champ) {
+		if (!(rawOffer instanceof String description) || !description.startsWith("RH-OFFRE-JSON-V1:")) return null;
+		try {
+			Map<String, Object> envelope = objectMapper.readValue(
+					description.substring("RH-OFFRE-JSON-V1:".length()), new TypeReference<>() {});
+			Object data = envelope.get("data");
+			return data instanceof Map<?, ?> values ? values.get(champ) : null;
+		} catch (Exception exception) {
+			return null;
+		}
 	}
 
 	public boolean preselectionner(int id) {

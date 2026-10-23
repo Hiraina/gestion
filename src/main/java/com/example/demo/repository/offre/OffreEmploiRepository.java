@@ -57,11 +57,11 @@ public class OffreEmploiRepository {
 				JOIN statut_recrutement s ON s.id_statut_recrutement = b.statut
 				WHERE b.id_besoin = ? AND LOWER(s.nom) = 'valide'
 				  AND NOT EXISTS (SELECT 1 FROM offres_emploi o
-				    WHERE CASE
-				      WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
-				       AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb')
-				      THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{request,requestId}'
-				      END = CAST(b.id_besoin AS TEXT))
+				    WHERE o.description LIKE 'RH-OFFRE-JSON-V1:%'
+				      AND (substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)
+				           LIKE '%"requestId":' || CAST(b.id_besoin AS TEXT) || ',%'
+				        OR substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)
+				           LIKE '%"requestId":' || CAST(b.id_besoin AS TEXT) || '}%'))
 				""", (rs, rowNum) -> rs.getInt(1), idBesoin);
 		return ids.stream().findFirst().orElseThrow(() -> new IllegalArgumentException(
 				"La demande associée n'existe pas ou n'est plus validée."));

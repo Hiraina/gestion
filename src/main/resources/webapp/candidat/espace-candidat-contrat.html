@@ -20,6 +20,20 @@
       </div>
     </header>
     <main class="container">
+      <section id="accessView" class="welcome">
+        <div class="eyebrow">Accès protégé</div>
+        <h1>Consulter votre contrat</h1>
+        <p>Saisissez le nom et l’adresse e-mail utilisés lors de votre candidature.</p>
+        <form id="accessForm">
+          <label for="identityName">Nom complet</label>
+          <input id="identityName" name="name" autocomplete="name" required />
+          <label for="identityEmail">Adresse e-mail</label>
+          <input id="identityEmail" name="email" type="email" autocomplete="email" required />
+          <button id="accessButton" class="btn btn-primary" type="submit">Accéder au contrat</button>
+          <p id="accessError" role="alert" hidden></p>
+        </form>
+      </section>
+      <div id="contractView" hidden>
       <section class="welcome">
         <div class="eyebrow">Votre espace personnel</div>
         <h1>Bonjour <span id="candidateNameHeading">Randria Hery</span> 👋</h1>
@@ -45,6 +59,7 @@
           </div>
         </div>
       </section>
+      <div id="contractDetails" class="notice"></div>
 
       <div id="formView">
         <div class="notice">
@@ -54,11 +69,6 @@
           refusez ou demandez une modification, vous devez expliquer votre
           choix. Vos réponses seront transmises à la RH pour examen.
         </div>
-        <div
-          id="hrMessageBox"
-          class="previous-proposal"
-          style="display: none"
-        ></div>
         <div class="section-head">
           <h2>Votre contrat, article par article</h2>
           <span class="progress" id="progressLabel">0 / 7 réponses</span>
@@ -111,18 +121,10 @@
           style="text-align: left; margin: 20px 0"
         ></div>
         <div class="notice" style="text-align: left">
-          Cette page est une démonstration autonome. Le récapitulatif est
-          enregistré dans le stockage local de ce navigateur et téléchargé en
-          fichier JSON.
-        </div>
-        <div class="submit-row" style="justify-content: center">
-          <button class="btn btn-outline" data-js-action="downloadResponse">
-            ⬇ Télécharger ma réponse</button
-          ><button class="btn btn-primary" data-js-action="printPage">
-            🖨 Imprimer le récapitulatif
-          </button>
+          Votre réponse sera transmise à l'équipe des ressources humaines.
         </div>
       </section>
+      </div>
     </main>
 
     <footer class="footer">
@@ -143,6 +145,6 @@
         </div>
       </div>
     </div>
-    <script th:src="@{/js/rh.js}"></script>
+    <script th:src="@{/js/candidat-contrat.js}"></script>
   </body>
 </html>

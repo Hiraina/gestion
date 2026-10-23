@@ -2545,9 +2545,11 @@ var RHDrafts = (function () {
         buttons = `<button class="ct-btn ct-btn-primary" type="button" onclick="ctEditContract(${c.id})">Préparer le contrat <span aria-hidden="true">→</span></button>`;
       } else if (c.status === "sent") {
         const sentDate = c.sentAt ? new Date(c.sentAt).toLocaleDateString("fr-FR") : "";
-        buttons = `<span class="ct-sent-note">Transmis${sentDate ? " le " + ctEsc(sentDate) : ""}</span>`;
+        buttons = '<span class="ct-sent-note">Transmis' + (sentDate ? ' le ' + ctEsc(sentDate) : '') + '</span><button class="ct-btn ct-btn-outline" onclick="ctViewContract(' + c.id + ')">👁 Voir le contrat</button>';
       } else if (c.status === "review") {
-        buttons = `<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(${c.id})">📋 Réponse du candidat</button>`;
+        buttons = '<button class="ct-btn ct-btn-orange" onclick="ctReviewResponses(' + c.id + ')">📋 Réponse du candidat</button><button class="ct-btn ct-btn-outline" onclick="ctViewContract(' + c.id + ')">👁 Voir le contrat</button>';
+      } else if (c.status === "accepted") {
+        buttons = "";
       } else if (c.status === "negotiation") {
         buttons = `<button class="ct-btn ct-btn-blue" onclick="ctSimulateCandidateResponse(${c.id})">↩️ Réponse du candidat (démo)</button><button class="ct-btn ct-btn-outline" onclick="ctViewNegotiation(${c.id})">👁 Voir l'échange</button>`;
       } else {
@@ -2714,7 +2716,7 @@ var RHDrafts = (function () {
       ctCloseModal("ctPreviewModal");
       ctCloseModal("ctEditModal");
       ctRenderTable();
-      alert(body.message || "Le contrat a été transmis au candidat.");
+      window.prompt("Contrat transmis. Copiez ce lien sécurisé et envoyez-le au candidat :", body.accessUrl || "");
     }).catch((error) => {
       if (sendButton) {
         sendButton.dataset.sending = "false";
@@ -2727,7 +2729,10 @@ var RHDrafts = (function () {
 
   window.ctViewContract = function(id) {
     const c = ctGetCandidate(id);
-    if (!c?.contract) return;
+    if (!c?.contract) {
+      alert("Le contenu du contrat n'est pas disponible pour ce candidat.");
+      return;
+    }
     ctRenderContractDocument(c.contract);
     document.getElementById("ctInfoTitle").textContent = "Contrat — " + c.name;
     document.getElementById("ctInfoContent").innerHTML = `<div class="ct-contract-document">${document.getElementById("ctContractDocument").innerHTML}</div>`;
@@ -2845,6 +2850,23 @@ var RHDrafts = (function () {
     ctOpenModal("ctReviewModal");
   };
 
+  window.ctHireCandidate = function(id) {
+    const context = (document.querySelector('meta[name="context-path"]')?.content || "").replace(/\/$/, "");
+    if (!confirm("Confirmer l’embauche de ce candidat ?")) return;
+    fetch(context + "/Responsable-RH/api/contrats/candidatures/" + encodeURIComponent(id) + "/embaucher", {
+      method: "POST",
+      headers: { Accept: "application/json" },
+    }).then(async (response) => {
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.message || "L’embauche n’a pas pu être enregistrée.");
+      return body;
+    }).then((body) => {
+      ctCandidates = ctCandidates.filter((candidate) => candidate.id !== Number(id));
+      ctRenderTable();
+      alert(body.message || "Le candidat a été embauché.");
+    }).catch((error) => alert(error.message));
+  };
+
   window.ctOpenDecisionModal = function(id, articleId) {
     const c = ctGetCandidate(id);
     if (!c) return;
@@ -2920,6 +2942,14 @@ var RHDrafts = (function () {
       .then((items) => {
         if (!Array.isArray(items)) throw new Error("La liste des candidats acceptés est invalide.");
         ctCandidates = items.map((item) => {
+          let contractData = null;
+          if (item.contractData) {
+            try {
+              contractData = typeof item.contractData === "string" ? JSON.parse(item.contractData) : item.contractData;
+            } catch (error) {
+              console.warn("Contrat illisible pour la candidature", item.id, error);
+            }
+          }
           let candidateResponses = null;
           if (item.candidateResponseData) {
             try {
@@ -2932,6 +2962,8 @@ var RHDrafts = (function () {
           }
           const responseReceived = Boolean(candidateResponses) || item.contractStatus === "REPONSE_RECUE";
           if (!candidateResponses && responseReceived) candidateResponses = { articles: {} };
+          const allArticlesAccepted = ["ctArticle1", "ctArticle2", "ctArticle3", "ctArticle4", "ctArticle5", "ctArticle6", "ctArticle7"]
+            .every((article) => candidateResponses?.articles?.[article]?.choice === "accepted");
           return {
             id: Number(item.id),
             name: [item.prenom, item.nom].filter(Boolean).join(" ") || "Candidat",
@@ -2945,13 +2977,13 @@ var RHDrafts = (function () {
             financeComment: item.financeComment || "",
             financeDecisionDate: item.financeDecisionDate || null,
             financeBudgetYear: item.financeBudgetYear || null,
-            status: responseReceived ? "review" : item.contractStatus === "ENVOYE_CANDIDAT" ? "sent" : "preparation",
+            status: allArticlesAccepted ? "accepted" : responseReceived ? "review" : item.contractStatus === "ENVOYE_CANDIDAT" ? "sent" : "preparation",
             sentAt: item.contractSentAt || null,
             responses: candidateResponses ? {
               ...candidateResponses,
               submittedAt: candidateResponses.submittedAt || item.candidateResponseAt || null,
             } : null,
-            contract: null,
+            contract: contractData,
             negotiation: null,
           };
         });
