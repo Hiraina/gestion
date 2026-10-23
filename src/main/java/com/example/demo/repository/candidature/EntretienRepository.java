@@ -14,14 +14,15 @@ public class EntretienRepository {
 		this.jdbc = jdbc;
 	}
 
-	public List<Map<String, Object>> listerCandidatures() {
+	public List<Map<String, Object>> listerCandidatures(int offreId) {
 		return jdbc.queryForList("""
 				SELECT c.id_candidature AS id, ca.nom, ca.prenom, ca.email, ca.telephone,
 				       c.donnees_candidature::text AS "donneesCandidatureJson",
 				       c.date_candidature AS "dateCandidature", o.titre AS poste,
-				       CASE WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
-				         THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}'
-				       END AS contract,
+			       CASE WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%'
+			              AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb')
+			         THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{data,contract}'
+			       END AS contract,
 				       s.nom AS statut, cv.url_document AS "cvUrl",
 				       COALESCE(cv.nom_original, 'CV') AS "cvName", cv.taille_octets AS "cvSize",
 				       lm.url_document AS "lettreUrl",
@@ -41,10 +42,11 @@ public class EntretienRepository {
 				  WHERE dc.id_candidature = c.id_candidature
 				    AND (LOWER(td.libelle) LIKE '%motivation%' OR LOWER(td.libelle) LIKE '%lettre%') LIMIT 1
 				) lm ON TRUE
-				WHERE s.nom IN ('recue', 'en_etude')
+				WHERE c.id_offre = ?
+				  AND s.nom IN ('recue', 'en_etude')
 				  AND EXISTS (SELECT 1 FROM statut_offre so WHERE so.id_statut_offre = o.statut AND so.nom = 'publiee')
 				ORDER BY c.date_candidature DESC, c.id_candidature DESC
-				""");
+				""", offreId);
 	}
 
 	public boolean preselectionner(int id) {

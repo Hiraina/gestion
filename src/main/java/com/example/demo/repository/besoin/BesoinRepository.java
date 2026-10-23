@@ -40,8 +40,9 @@ public interface BesoinRepository extends JpaRepository<Besoin, Integer> {
 			+ "LEFT JOIN departements d ON d.id_departement = p.id_departement "
 			+ "WHERE LOWER(s.nom) = 'valide' "
 			+ "AND NOT EXISTS (SELECT 1 FROM offres_emploi o "
-			+ "WHERE o.description LIKE 'RH-OFFRE-JSON-V1:%' "
-			+ "AND substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{request,requestId}' = CAST(b.id_besoin AS TEXT)) "
+			+ "WHERE CASE WHEN o.description LIKE 'RH-OFFRE-JSON-V1:%' "
+			+ "AND pg_input_is_valid(substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1), 'jsonb') "
+			+ "THEN substring(o.description FROM length('RH-OFFRE-JSON-V1:') + 1)::jsonb #>> '{request,requestId}' END = CAST(b.id_besoin AS TEXT)) "
 			+ "ORDER BY b.id_besoin DESC", nativeQuery = true)
 	List<DemandeBesoinValideProjection> listerValides();
 
